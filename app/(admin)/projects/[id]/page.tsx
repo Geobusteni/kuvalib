@@ -7,6 +7,7 @@ import { getSession } from '@/lib/auth'
 import prisma from '@/lib/prisma'
 import { getProject, getProjectAssignments, listPhotos } from '@/lib/projects'
 import { listUsers } from '@/lib/users'
+import { summarizeProjectFeedback, type PhotoFeedbackSummary } from '@/lib/photo-feedback'
 import ProjectForm from '@/components/ui/ProjectForm'
 import DeleteProjectButton from '@/components/ui/DeleteProjectButton'
 import AdminPhotoGrid from './_components/AdminPhotoGrid'
@@ -14,6 +15,7 @@ import UploadZone from './_components/UploadZone'
 import AssignmentManager from './_components/AssignmentManager'
 import ArchiveManager from './_components/ArchiveManager'
 import PasswordReveal from './_components/PasswordReveal'
+import FeedbackPanel from './_components/FeedbackPanel'
 import { decryptSecret } from '@/lib/crypto'
 
 type Props = { params: Promise<{ id: string }> }
@@ -58,6 +60,10 @@ export default async function EditProjectPage({ params }: Props) {
   const photos = await listPhotos(id)
   const assignments = isAdmin ? await getProjectAssignments(id) : []
   const allUsers = isAdmin ? await listUsers() : []
+  const feedbackSummary: Map<string, PhotoFeedbackSummary> =
+    isAdmin && project.feedbackEnabled
+      ? await summarizeProjectFeedback(id)
+      : new Map()
 
   // Only an admin ever sees the gallery password in the clear.
   const galleryPassword = isAdmin ? decryptSecret(project.password) : null
@@ -149,6 +155,28 @@ export default async function EditProjectPage({ params }: Props) {
       )}
 
       {isAdmin && (
+        <section>
+          <h2 className="mb-4 text-base font-semibold text-zinc-900 dark:text-zinc-100">Feedback</h2>
+          <FeedbackPanel
+            projectId={id}
+            enabled={project.feedbackEnabled}
+            summaries={photos.map((p) => ({
+              photoId: p.id,
+              originalName: p.originalName,
+              thumbSm: `/api/uploads/${id}/thumbs/${p.filename.replace(/\.[^.]+$/, '')}-sm.jpg`,
+              likes: feedbackSummary.get(p.id)?.likes ?? 0,
+              dislikes: feedbackSummary.get(p.id)?.dislikes ?? 0,
+              comments: (feedbackSummary.get(p.id)?.comments ?? []).map((c) => ({
+                id: c.id,
+                comment: c.comment,
+                createdAt: c.createdAt.toISOString(),
+              })),
+            }))}
+          />
+        </section>
+      )}
+
+      {isAdmin && (
         <>
           <section>
             <h2 className="mb-4 text-base font-semibold text-zinc-900 dark:text-zinc-100">Settings</h2>
@@ -163,6 +191,7 @@ export default async function EditProjectPage({ params }: Props) {
                   accessType: project.accessType,
                   zipEnabled: project.zipEnabled,
                   dlEnabled: project.dlEnabled,
+                  feedbackEnabled: project.feedbackEnabled,
                 }}
               />
             </div>

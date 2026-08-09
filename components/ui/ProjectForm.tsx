@@ -18,6 +18,7 @@ interface ProjectFormProps {
     accessType?: AccessType
     zipEnabled?: boolean
     dlEnabled?: boolean
+    feedbackEnabled?: boolean
   }
 }
 
@@ -63,6 +64,7 @@ export default function ProjectForm({ mode, projectId, defaults }: ProjectFormPr
       accessType,
       zipEnabled: checked('zipEnabled'),
       dlEnabled: checked('dlEnabled'),
+      feedbackEnabled: checked('feedbackEnabled'),
     }
     if (password) body.password = password
 
@@ -179,6 +181,11 @@ export default function ProjectForm({ mode, projectId, defaults }: ProjectFormPr
           id="dlEnabled"
           label="Allow individual image downloads"
           defaultChecked={defaults?.dlEnabled ?? true}
+        />
+        <Toggle
+          id="feedbackEnabled"
+          label="Allow clients to like, dislike, and comment on photos"
+          defaultChecked={defaults?.feedbackEnabled ?? false}
         />
       </div>
 

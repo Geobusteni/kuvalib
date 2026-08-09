@@ -6,8 +6,11 @@
 import { useCallback, useEffect, useReducer, useRef, useState } from 'react'
 import Toolbar from './Toolbar'
 import ImageTile, { type PhotoData } from './ImageTile'
+import PhotoFeedbackRow from './PhotoFeedbackRow'
+import FeedbackCommentDialog from './FeedbackCommentDialog'
 import DownloadOptionsDialog from './DownloadOptionsDialog'
 import PhotoViewer from '@/components/lightbox/PhotoViewer'
+import { usePhotoFeedback } from '@/hooks/usePhotoFeedback'
 
 type GalleryState =
   | { mode: 'gallery' }
@@ -62,13 +65,27 @@ interface GalleryProps {
   projectId: string
   /** True only when the photographer uploaded an archive for this gallery. */
   hasArchive: boolean
+  /** Whether clients may like/dislike/comment on photos in this gallery. */
+  feedbackEnabled: boolean
+  /** ISO timestamp; bumped by the admin's "reset feedback" action. */
+  feedbackResetAt: string
 }
 
-export default function Gallery({ photos, title, projectId, hasArchive }: GalleryProps) {
+export default function Gallery({
+  photos,
+  title,
+  projectId,
+  hasArchive,
+  feedbackEnabled,
+  feedbackResetAt,
+}: GalleryProps) {
   const [state, dispatch] = useReducer(reducer, { mode: 'gallery' })
   const openedFrom = useRef<HTMLElement | null>(null)
   const [downloadDialogOpen, setDownloadDialogOpen] = useState(false)
   const downloadTriggerRef = useRef<HTMLElement | null>(null)
+  const feedback = usePhotoFeedback(projectId, feedbackEnabled, feedbackResetAt)
+  const [commentTarget, setCommentTarget] = useState<string | null>(null)
+  const commentTriggerRef = useRef<HTMLElement | null>(null)
 
   const lastIndex = photos.length - 1
   const selected = state.mode === 'selection' ? state.selected : null
@@ -105,10 +122,20 @@ export default function Gallery({ photos, title, projectId, hasArchive }: Galler
     requestAnimationFrame(() => downloadTriggerRef.current?.focus())
   }, [])
 
-  // Gallery-level shortcuts. The viewer and the download dialog each
+  const openCommentDialog = useCallback((photoId: string) => {
+    commentTriggerRef.current = document.activeElement as HTMLElement
+    setCommentTarget(photoId)
+  }, [])
+
+  const closeCommentDialog = useCallback(() => {
+    setCommentTarget(null)
+    requestAnimationFrame(() => commentTriggerRef.current?.focus())
+  }, [])
+
+  // Gallery-level shortcuts. The viewer and the download/comment dialogs each
   // register their own while open.
   useEffect(() => {
-    if (state.mode === 'viewer' || downloadDialogOpen) return
+    if (state.mode === 'viewer' || downloadDialogOpen || commentTarget) return
 
     function handleKey(e: KeyboardEvent) {
       if (e.target instanceof HTMLInputElement || e.target instanceof HTMLTextAreaElement) return
@@ -134,7 +161,7 @@ export default function Gallery({ photos, title, projectId, hasArchive }: Galler
 
     window.addEventListener('keydown', handleKey)
     return () => window.removeEventListener('keydown', handleKey)
-  }, [state.mode, downloadDialogOpen, openDownloadDialog, archiveUrl])
+  }, [state.mode, downloadDialogOpen, commentTarget, openDownloadDialog, archiveUrl])
 
   return (
     <>
@@ -161,9 +188,18 @@ export default function Gallery({ photos, title, projectId, hasArchive }: Galler
                 total={photos.length}
                 mode={state.mode === 'selection' ? 'selection' : 'gallery'}
                 selected={selected?.has(photo.id) ?? false}
+                reaction={feedbackEnabled ? feedback.reactionFor(photo.id) : null}
                 onOpen={openViewer}
                 onToggleSelect={(id) => dispatch({ type: 'TOGGLE_SELECT', id })}
               />
+              {feedbackEnabled && state.mode !== 'selection' && (
+                <PhotoFeedbackRow
+                  reaction={feedback.reactionFor(photo.id)}
+                  onLike={() => feedback.submit(photo.id, 'LIKE')}
+                  onDislike={() => feedback.submit(photo.id, 'DISLIKE')}
+                  onComment={() => openCommentDialog(photo.id)}
+                />
+              )}
             </div>
           ))}
         </div>
@@ -180,6 +216,9 @@ export default function Gallery({ photos, title, projectId, hasArchive }: Galler
           onNext={() => goTo(state.currentIndex + 1)}
           onFirst={() => goTo(0)}
           onLast={() => goTo(lastIndex)}
+          feedbackEnabled={feedbackEnabled}
+          getFeedback={feedback.reactionFor}
+          submitFeedback={feedback.submit}
         />
       )}
 
@@ -189,6 +228,16 @@ export default function Gallery({ photos, title, projectId, hasArchive }: Galler
           projectId={projectId}
           title={title}
           onClose={closeDownloadDialog}
+        />
+      )}
+
+      {commentTarget && (
+        <FeedbackCommentDialog
+          onSubmit={async (comment) => {
+            await feedback.submit(commentTarget, 'COMMENT', comment)
+            closeCommentDialog()
+          }}
+          onClose={closeCommentDialog}
         />
       )}
 

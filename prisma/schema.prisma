@@ -18,6 +18,12 @@ enum AccessType {
   EMAIL
 }
 
+enum FeedbackType {
+  LIKE
+  DISLIKE
+  COMMENT
+}
+
 model User {
   id        String   @id @default(cuid())
   email     String   @unique
@@ -49,6 +55,19 @@ model Project {
   expiresAt  DateTime?
   zipEnabled Boolean   @default(true)
   dlEnabled  Boolean   @default(true)
+
+  /// Client culling: like/dislike/comment on individual photos. Off by default —
+  /// the photographer opts a project in explicitly, same as zipEnabled/dlEnabled.
+  feedbackEnabled Boolean @default(false)
+
+  /// Bumped whenever the admin resets a project's feedback. Sent to the client
+  /// alongside feedbackEnabled; the browser compares it against the reset epoch
+  /// recorded in its own localStorage cache and discards that cache on mismatch.
+  /// This is what actually re-unlocks the buttons for a visitor whose browser
+  /// still thinks it already reacted — nothing server-side can reach into
+  /// another origin's localStorage to clear it directly.
+  feedbackResetAt DateTime @default(now())
+
   dlCount    Int       @default(0)
   visitCount Int       @default(0)
   lastAccess DateTime?
@@ -89,4 +108,31 @@ model Photo {
   createdAt DateTime @default(now())
 
   @@unique([projectId, originalName])
+
+  feedback PhotoFeedback[]
+}
+
+/// One row per (photo, visitor) action. There are no gallery-visitor accounts —
+/// visitorId is a random id the browser generates once and keeps in
+/// localStorage, reused across every project it visits. A photo accumulates
+/// many independent rows, not one verdict; admin sees these as aggregated
+/// counts plus the raw comment text. Never treat visitorId as PII.
+model PhotoFeedback {
+  id      String @id @default(cuid())
+  photoId String
+  photo   Photo  @relation(fields: [photoId], references: [id], onDelete: Cascade)
+
+  visitorId String
+  type      FeedbackType
+
+  /// Only present when type == COMMENT. @db.Text because Prisma's default
+  /// String maps to VARCHAR(191) on MySQL, too short for free text.
+  comment String? @db.Text
+
+  createdAt DateTime @default(now())
+
+  /// The server-side half of "first choice is final": a second POST for the
+  /// same (photo, visitor) is rejected with 409, regardless of what the
+  /// client's own localStorage claims.
+  @@unique([photoId, visitorId])
 }

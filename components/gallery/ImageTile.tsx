@@ -13,12 +13,15 @@ export interface PhotoData {
   original: string | null
 }
 
+export type PhotoReaction = 'LIKE' | 'DISLIKE' | 'COMMENT' | null
+
 interface ImageTileProps {
   photo: PhotoData
   index: number
   total: number
   mode: 'gallery' | 'selection'
   selected: boolean
+  reaction: PhotoReaction
   onOpen: (index: number) => void
   onToggleSelect: (id: string) => void
 }
@@ -29,6 +32,7 @@ export default function ImageTile({
   total,
   mode,
   selected,
+  reaction,
   onOpen,
   onToggleSelect,
 }: ImageTileProps) {
@@ -47,18 +51,38 @@ export default function ImageTile({
     }
   }
 
+  // A sighted-user reinforcement only — the primary, non-color-alone signal is
+  // this suffix on the tile's own label plus the feedback row's own
+  // aria-pressed/disabled state below it.
+  const reactionRing =
+    reaction === 'LIKE'
+      ? 'ring-2 ring-green-500 ring-offset-2 ring-offset-black'
+      : reaction === 'DISLIKE'
+        ? 'ring-2 ring-red-500 ring-offset-2 ring-offset-black'
+        : reaction === 'COMMENT'
+          ? 'ring-2 ring-yellow-400 ring-offset-2 ring-offset-black'
+          : ''
+  const reactionSuffix =
+    reaction === 'LIKE'
+      ? ', liked'
+      : reaction === 'DISLIKE'
+        ? ', disliked'
+        : reaction === 'COMMENT'
+          ? ', commented'
+          : ''
+
   return (
     <button
       data-photo-index={index}
       onClick={handleClick}
       onKeyDown={handleKeyDown}
       aria-label={
-        selecting
+        (selecting
           ? `${selected ? 'Deselect' : 'Select'} photo ${position}`
-          : `Open photo ${position}`
+          : `Open photo ${position}`) + reactionSuffix
       }
       aria-pressed={selecting ? selected : undefined}
-      className="group relative block w-full overflow-hidden rounded-sm bg-zinc-900 focus:outline-none focus-visible:ring-2 focus-visible:ring-white focus-visible:ring-offset-2 focus-visible:ring-offset-black"
+      className={`group relative block w-full overflow-hidden rounded-sm bg-zinc-900 focus:outline-none focus-visible:ring-2 focus-visible:ring-white focus-visible:ring-offset-2 focus-visible:ring-offset-black ${reactionRing}`}
       style={{ aspectRatio: `${photo.width} / ${photo.height}` }}
     >
       {/* eslint-disable-next-line @next/next/no-img-element */}

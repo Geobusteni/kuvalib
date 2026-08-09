@@ -829,6 +829,7 @@ Mark each phase done as it is verified:
 - [x] Phase 9 — Hardening & Deployment Prep
 - [x] Phase 10 — PostgreSQL, Prisma, Roles and Access Types
 - [x] Phase 11 — Password Visibility, Uploaded Archives, Original Filenames
+- [x] Phase 12 — Client Photo Feedback (Like/Dislike/Comment)
 
 ---
 
@@ -947,3 +948,62 @@ passed 23/23 against a running server.
 
 - [ ] Manual browser walkthrough of the conflict dialog and archive panel
 - [ ] Re-run the accessibility checklist over those two new surfaces
+
+---
+
+## Phase 12 — Client Photo Feedback (Like/Dislike/Comment) `[DONE]`
+
+Lets clients mark individual photos to help the photographer decide the final delivered set,
+without any client accounts.
+
+### What changed
+
+**Database**
+- New `FeedbackType` enum (`LIKE`, `DISLIKE`, `COMMENT`) and `PhotoFeedback` model: one row per
+  `(photoId, visitorId)`, enforced with a unique constraint, cascading on `Photo` delete.
+- `Project.feedbackEnabled` (default `false`) and `Project.feedbackResetAt` (bumped on reset).
+- `lib/photo-feedback.ts`: `createFeedback`, `summarizeProjectFeedback`, `resetProjectFeedback`.
+
+**Client (gallery + lightbox)**
+- `PhotoFeedbackRow` (grid) and `PhotoFeedbackBar` (lightbox): Like/Dislike/Comment icon buttons,
+  44×44 touch targets, `aria-pressed`/`aria-label` per state — never color alone.
+- `FeedbackCommentDialog`, modeled on `DownloadOptionsDialog`'s focus-trap/keyboard pattern.
+- A visitor's own reaction locks all three buttons for that photo (first choice is final) and
+  draws a green/red/yellow ring on the tile and the lightbox image — sourced only from that
+  visitor's own local state, never a server-side aggregate.
+- `lib/feedback-storage.ts` + `hooks/usePhotoFeedback.ts`: a random per-browser visitor id and a
+  per-project local cache, both in `localStorage` — the app's first use of client-side storage,
+  since feedback is explicitly anonymous. The cache is keyed against the project's
+  `feedbackResetAt`, so an admin reset re-opens the buttons even for a visitor who already used
+  theirs, without the server ever touching another origin's storage.
+- `POST /api/projects/[id]/photos/[photoId]/feedback`: gated by `verifyGalleryAccess` +
+  `feedbackEnabled`, rate-limited, and rejects a second attempt for the same `(photo, visitor)`
+  with 409 — server-side enforcement independent of the client's own bookkeeping.
+
+**Admin**
+- New `feedbackEnabled` toggle in `ProjectForm`, off by default so existing live galleries are
+  unaffected until an admin opts in.
+- New `FeedbackPanel`: aggregated like/dislike counts and comment text per photo, and a two-step
+  "Reset feedback" action (`DeleteProjectButton`'s confirm pattern) that wipes all of it and bumps
+  `feedbackResetAt`.
+
+### Verification
+
+`npx tsc --noEmit`, `npx eslint .`, and the project's license-header script all clean.
+
+### Not done
+
+No MySQL/MariaDB server was reachable from the development environment (`.env`'s
+`DATABASE_URL` was a leftover `postgresql://` string from before the project's Postgres→MySQL
+switch, not something to silently overwrite) — `prisma migrate dev` could not be run to generate
+or apply the migration automatically. `prisma/migrations/20260809150000_add_photo_feedback/migration.sql`
+was hand-written in the same style as the project's other MySQL migrations instead.
+
+- [ ] Fix `.env`'s `DATABASE_URL` to point at a real MySQL/MariaDB database
+- [ ] Apply the migration (`npx prisma migrate deploy`, or the equivalent dev command) and confirm
+      `lib/generated/prisma` matches
+- [ ] `npm run build` end to end (blocked on the same missing DB connection)
+- [ ] Manual walkthrough: enable feedback, react as two different browser profiles, confirm the
+      per-visitor lock, admin panel counts, reset, and re-availability after reset
+- [ ] Keyboard-only and screen-reader passes over the new buttons and comment dialog
+- [ ] Re-run the accessibility checklist over the new surfaces

@@ -14,6 +14,7 @@ export interface CreateProjectData {
   expiresAt?: Date | null
   zipEnabled?: boolean
   dlEnabled?: boolean
+  feedbackEnabled?: boolean
 }
 
 export interface UpdateProjectData {
@@ -24,6 +25,7 @@ export interface UpdateProjectData {
   expiresAt?: Date | null
   zipEnabled?: boolean
   dlEnabled?: boolean
+  feedbackEnabled?: boolean
 }
 
 export async function listProjects() {
@@ -44,6 +46,7 @@ export async function createProject(data: CreateProjectData) {
       expiresAt: data.expiresAt ?? null,
       zipEnabled: data.zipEnabled ?? true,
       dlEnabled: data.dlEnabled ?? true,
+      feedbackEnabled: data.feedbackEnabled ?? false,
     },
   })
 }

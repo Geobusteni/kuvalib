@@ -72,9 +72,9 @@ All database access uses Prisma. Never write raw SQL in application code, and ne
 a second data layer. The ORM exists so the schema can grow without rewrites — respect that by
 adding models and relations rather than denormalising into JSON blobs.
 
-Data access is centralised in `lib/`: `lib/projects.ts`, `lib/users.ts`, `lib/prisma.ts`.
-Route handlers and pages call those functions; they do not call `prisma` directly unless the
-query is a one-off ownership check.
+Data access is centralised in `lib/`: `lib/projects.ts`, `lib/users.ts`, `lib/prisma.ts`,
+`lib/photo-feedback.ts`. Route handlers and pages call those functions; they do not call `prisma`
+directly unless the query is a one-off ownership check.
 
 ---
 
@@ -176,8 +176,10 @@ Do not add anything outside this scope unless explicitly requested.
 - Upload, replace, or remove the client-facing ZIP archive
 - Set: project title, optional event date, access type, password, expiration
 - View and copy the gallery password
-- Toggle: ZIP download, image downloads
+- Toggle: ZIP download, image downloads, client feedback (like/dislike/comment)
 - View: download count, gallery visit count, last access
+- View aggregated likes/dislikes and comment text per photo
+- Reset all feedback for a project (wipes it, lets clients react again)
 
 ### Client Features
 
@@ -188,6 +190,8 @@ Do not add anything outside this scope unless explicitly requested.
 - Multiple image selection
 - Download selected images as ZIP
 - Download the archive the photographer uploaded, when there is one
+- Like, dislike, or comment on individual photos, once per photo per browser, when the
+  photographer has enabled feedback for the gallery
 
 ---
 

@@ -15,8 +15,11 @@ import {
   requestFullscreen,
 } from '@/lib/fullscreen'
 import ViewerControls from './ViewerControls'
+import PhotoFeedbackBar from './PhotoFeedbackBar'
 import DownloadOptionsDialog from '@/components/gallery/DownloadOptionsDialog'
-import type { PhotoData } from '@/components/gallery/ImageTile'
+import FeedbackCommentDialog from '@/components/gallery/FeedbackCommentDialog'
+import type { PhotoData, PhotoReaction } from '@/components/gallery/ImageTile'
+import type { FeedbackType } from '@/lib/feedback-storage'
 
 interface PhotoViewerProps {
   photos: PhotoData[]
@@ -28,6 +31,9 @@ interface PhotoViewerProps {
   onNext: () => void
   onFirst: () => void
   onLast: () => void
+  feedbackEnabled: boolean
+  getFeedback: (photoId: string) => PhotoReaction
+  submitFeedback: (photoId: string, type: FeedbackType, comment?: string) => Promise<void>
 }
 
 export default function PhotoViewer({
@@ -40,6 +46,9 @@ export default function PhotoViewer({
   onNext,
   onFirst,
   onLast,
+  feedbackEnabled,
+  getFeedback,
+  submitFeedback,
 }: PhotoViewerProps) {
   const dialogRef = useRef<HTMLDivElement>(null)
   const containerRef = useRef<HTMLDivElement>(null)
@@ -51,6 +60,7 @@ export default function PhotoViewer({
   const hideTimer = useRef<ReturnType<typeof setTimeout> | null>(null)
   const [actionPanel, setActionPanel] = useState(false)
   const [downloadDialogOpen, setDownloadDialogOpen] = useState(false)
+  const [commentDialogOpen, setCommentDialogOpen] = useState(false)
   const zoom = useImageZoom(containerRef)
 
   const photo = photos[currentIndex]
@@ -182,7 +192,7 @@ export default function PhotoViewer({
     ]
   )
 
-  useKeyboard(keyMap, !downloadDialogOpen)
+  useKeyboard(keyMap, !downloadDialogOpen && !commentDialogOpen)
 
   useGestures(
     containerRef,
@@ -209,6 +219,16 @@ export default function PhotoViewer({
 
   if (!photo) return null
 
+  const reaction = feedbackEnabled ? getFeedback(photo.id) : null
+  const reactionRing =
+    reaction === 'LIKE'
+      ? 'ring-2 ring-green-500'
+      : reaction === 'DISLIKE'
+        ? 'ring-2 ring-red-500'
+        : reaction === 'COMMENT'
+          ? 'ring-2 ring-yellow-400'
+          : ''
+
   return (
     <div
       ref={dialogRef}
@@ -230,7 +250,7 @@ export default function PhotoViewer({
           key={photo.id}
           src={photo.thumbLg}
           alt={`Photo ${currentIndex + 1} of ${photos.length}`}
-          className="max-h-full max-w-full object-contain"
+          className={`max-h-full max-w-full object-contain ${reactionRing}`}
           style={{
             userSelect: 'none',
             pointerEvents: 'none',
@@ -254,6 +274,16 @@ export default function PhotoViewer({
         onToggleFullscreen={toggleFullscreen}
         onOpenDownload={openDownload}
       />
+
+      {feedbackEnabled && (
+        <PhotoFeedbackBar
+          reaction={reaction}
+          controlsVisible={controlsVisible}
+          onLike={() => submitFeedback(photo.id, 'LIKE')}
+          onDislike={() => submitFeedback(photo.id, 'DISLIKE')}
+          onComment={() => setCommentDialogOpen(true)}
+        />
+      )}
 
       {actionPanel && photo.original && (
         <div className="absolute inset-x-0 bottom-0 flex flex-col gap-2 rounded-t-2xl bg-zinc-900 p-6 sm:hidden">
@@ -281,6 +311,16 @@ export default function PhotoViewer({
           projectId={projectId}
           title={title}
           onClose={() => setDownloadDialogOpen(false)}
+        />
+      )}
+
+      {commentDialogOpen && (
+        <FeedbackCommentDialog
+          onSubmit={async (comment) => {
+            await submitFeedback(photo.id, 'COMMENT', comment)
+            setCommentDialogOpen(false)
+          }}
+          onClose={() => setCommentDialogOpen(false)}
         />
       )}
     </div>

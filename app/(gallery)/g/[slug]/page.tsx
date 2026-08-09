@@ -48,6 +48,8 @@ export default async function GalleryPage({ params }: Props) {
         title={project.title}
         projectId={slug}
         hasArchive={project.zipEnabled && !!project.archiveName}
+        feedbackEnabled={project.feedbackEnabled}
+        feedbackResetAt={project.feedbackResetAt.toISOString()}
       />
     </div>
   )

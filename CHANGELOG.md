@@ -8,6 +8,26 @@ adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html). While the
 
 ---
 
+## [Unreleased]
+
+## [1.3.0] - 2026-08-09
+
+### Added
+
+- Like, Dislike, and Comment buttons below each photo in the gallery grid and in the lightbox,
+  for clients to mark which photos they want kept, dropped, or want to leave a note on. Off by
+  default per project — enable it in a project's Settings. Each anonymous browser can react once
+  per photo (recognised via a random id kept in that browser's local storage, not a login); the
+  chosen action locks the other two until the photographer resets feedback for the project. Liked
+  photos get a green border, disliked a red border, commented a yellow border
+- Admin: a "Feedback" section on each project showing aggregated likes/dislikes and comment text
+  per photo, and a "Reset feedback" action that clears all of it and lets clients react again
+- Admin: a toggle in project Settings to allow or block client feedback for that gallery
+
+**Action required:** run `npx prisma migrate deploy` after upgrading to add the new
+`feedbackEnabled`/`feedbackResetAt` project columns and the `PhotoFeedback` table. See
+`DEPLOYMENT.md` for the production migration procedure.
+
 ## [1.2.2] - 2026-08-09
 
 ### Fixed

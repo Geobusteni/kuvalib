@@ -85,26 +85,31 @@ photolib/
 │   │   │       ├── assignments/route.ts
 │   │   │       ├── upload/route.ts
 │   │   │       ├── download/route.ts
+│   │   │       ├── feedback/route.ts        # Admin reset (DELETE)
 │   │   │       └── photos/
 │   │   │           ├── route.ts
-│   │   │           └── [photoId]/route.ts
+│   │   │           └── [photoId]/
+│   │   │               ├── route.ts
+│   │   │               └── feedback/route.ts   # Client like/dislike/comment
 │   │   └── uploads/[...path]/route.ts   # File serving
 │   ├── layout.tsx
 │   ├── error.tsx
 │   ├── not-found.tsx
 │   └── globals.css
 ├── components/
-│   ├── gallery/{Gallery,ImageTile,Toolbar,AccessGate,DownloadOptionsDialog}.tsx
-│   ├── lightbox/{PhotoViewer,ViewerControls}.tsx
+│   ├── gallery/{Gallery,ImageTile,Toolbar,AccessGate,DownloadOptionsDialog,PhotoFeedbackRow,FeedbackCommentDialog}.tsx
+│   ├── lightbox/{PhotoViewer,ViewerControls,PhotoFeedbackBar}.tsx
 │   └── ui/{ProjectForm,DeleteProjectButton,LogoutButton,ProgressBar}.tsx
-├── hooks/{useKeyboard,useGestures,useImageZoom,useFocusTrap,useReducedMotion}.ts
+├── hooks/{useKeyboard,useGestures,useImageZoom,useFocusTrap,useReducedMotion,usePhotoFeedback}.ts
 ├── lib/
 │   ├── prisma.ts              # Client singleton with the pg adapter
 │   ├── auth.ts                # Session, role guards, password hashing
-│   ├── users.ts               # User CRUD, setup detection
+│   ├── users.ts                # User CRUD, setup detection
 │   ├── projects.ts            # Project/photo/assignment data access
 │   ├── gallery-auth.ts        # Gallery access: password, email, role
 │   ├── photo-data.ts          # DB record → client-facing PhotoData
+│   ├── photo-feedback.ts      # Like/dislike/comment CRUD, summaries, reset
+│   ├── feedback-storage.ts    # Client-only: visitor id + localStorage cache
 │   ├── images.ts              # Sharp thumbnails
 │   ├── storage.ts             # Upload paths, traversal guard
 │   ├── rate-limit.ts          # In-memory limiter
@@ -127,6 +132,7 @@ erDiagram
     User ||--o{ ProjectAssignment : has
     Project ||--o{ ProjectAssignment : has
     Project ||--o{ Photo : contains
+    Photo ||--o{ PhotoFeedback : has
 
     User {
         string id PK
@@ -147,6 +153,8 @@ erDiagram
         datetime expiresAt
         boolean zipEnabled
         boolean dlEnabled
+        boolean feedbackEnabled "client like/dislike/comment, off by default"
+        datetime feedbackResetAt "bumped on admin reset"
         int dlCount
         int visitCount
         datetime lastAccess
@@ -166,6 +174,13 @@ erDiagram
         int size
         int sortOrder
     }
+    PhotoFeedback {
+        string id PK
+        string photoId FK
+        string visitorId "client-generated, localStorage — not an account"
+        FeedbackType type "LIKE | DISLIKE | COMMENT"
+        string comment "only set when type is COMMENT"
+    }
 ```
 
 `Photo` has a composite unique constraint on `(projectId, originalName)`. That constraint is what
@@ -173,6 +188,13 @@ makes duplicate detection at upload time possible.
 
 `ProjectAssignment` has a composite unique constraint on `(projectId, userId)`, which lets the
 code use `upsert` for idempotent assignment.
+
+`PhotoFeedback` has a composite unique constraint on `(photoId, visitorId)` — one row per
+(photo, anonymous visitor) action, enforced at the database level so a second attempt from the
+same browser (a second tab, a cleared local cache, a replayed request) is rejected with 409
+regardless of what the client believes. It cascades on `Photo` delete, so removing a photo
+removes its feedback with it. `visitorId` is a random id the browser keeps in `localStorage`,
+never a real identity.
 
 Only metadata lives in the database. Files live on disk.
 
@@ -251,6 +273,8 @@ POST   /api/projects/[id]/upload        JPEG or ZIP of photos (admin)
 POST   /api/projects/[id]/archive       Upload the client-facing ZIP (admin)
 DELETE /api/projects/[id]/archive       Remove it (admin)
 DELETE /api/projects/[id]/photos/[pid]  Delete photo + files (admin)
+DELETE /api/projects/[id]/feedback      Wipe all feedback for the project + bump
+                                          feedbackResetAt (admin)
 ```
 
 `POST /upload` accepts a `strategy` field alongside the file: `overwrite`, `rename`, or `skip`.
@@ -268,6 +292,10 @@ GET    /api/projects/[id]/photos/[pid]/download   One original, under its origin
                                                     ?variant=share serves the compressed
                                                     ~2048px variant instead
 GET    /api/uploads/[...path]                     Thumbnails only
+POST   /api/projects/[id]/photos/[pid]/feedback   { visitorId, type, comment? } → record
+                                                    like/dislike/comment. 403 if the project
+                                                    has feedback off, 409 if this visitor
+                                                    already reacted, 429 rate-limited
 ```
 
 ---
@@ -351,14 +379,18 @@ single finger pans instead once zoomed in.
 | `ImageTile`              | One photo cell; tap opens or toggles selection       |
 | `AccessGate`             | Password or email gate, chosen by `accessType`       |
 | `DownloadOptionsDialog`  | ZIP vs. Save-to-Photos choice for selected photos    |
+| `PhotoFeedbackRow`       | Like/Dislike/Comment buttons below a gallery tile    |
+| `FeedbackCommentDialog`  | Comment text entry, shared by gallery and lightbox   |
 | `PhotoViewer`            | Lightbox shell, focus management, fullscreen, zoom   |
 | `ViewerControls`         | Prev/Next/Download/Fullscreen/Close                  |
+| `PhotoFeedbackBar`       | Like/Dislike/Comment buttons in the lightbox         |
 | `ProgressBar`            | Determinate/indeterminate progress indicator         |
 | `UserManager`            | Admin user CRUD                                      |
 | `AssignmentManager`      | Assign users and guests to a project                 |
 | `ArchiveManager`         | Upload/replace/remove the client-facing ZIP          |
 | `PasswordReveal`         | Show and copy a project's gallery password           |
 | `UploadZone`             | Photo upload, including duplicate resolution and progress |
+| `FeedbackPanel`          | Admin view of per-photo likes/dislikes/comments + reset |
 
 ---
 
@@ -402,3 +434,9 @@ single finger pans instead once zoomed in.
 | Web Share API for save-to-Photos  | No browser API writes silently into the OS photo gallery; `navigator.share({files})` is the only standards-based way, at the cost of one native confirmation tap. Falls back to per-file Downloads on unsupported browsers |
 | XMLHttpRequest for upload progress | `fetch` has no upload-progress event; XHR is the dependency-free way to report real byte-level progress on large uploads |
 | Selection ZIP progress is indeterminate | The ZIP is built with one buffered, synchronous `zipSync` call server-side (see "Archive uploaded, never generated" above) — there is no incremental signal to report a real percentage from |
+| Photo feedback is per-visitor, not one verdict per photo | Each anonymous browser can independently like/dislike/comment on the same photo; a photo accumulates many rows and the admin sees aggregated counts plus raw comment text, not a single global state. Confirmed with the photographer rather than assumed |
+| First feedback action locks all three buttons for that visitor/photo | Once a visitor likes, dislikes, or comments on a photo, switching or a second comment is blocked until admin reset — enforced client-side (hide via localStorage) and, as defense in depth, server-side via a `(photoId, visitorId)` unique constraint, so a cleared cache, second tab, or replayed request can't bypass it |
+| `localStorage` for visitor identity, not a cookie | Comments are explicitly anonymous with no accounts; a signed server session would imply more identity/trust than intended. This is the app's first use of client-side storage — everywhere else uses server-side `iron-session` cookies |
+| Feedback border reflects only the current visitor's own reaction | The client never asks the server for a photo's aggregate reaction to color a border; it only reads its own local state. Keeps the payload sent to the gallery page unchanged and avoids an ambiguous color for a photo with mixed reactions from many visitors |
+| Reset re-opens feedback via a bumped `feedbackResetAt` epoch, not by touching client storage | Deleting the database rows alone leaves every visitor's own `localStorage` still claiming "I already reacted." The client compares its cached epoch against the project's current one on each load and discards its cache on mismatch — nothing server-side can reach into another origin's storage directly |
+| `feedbackEnabled` defaults to `false` | Mirrors `zipEnabled`/`dlEnabled`; an already-delivered gallery must not suddenly show new client-facing buttons after an upgrade without the photographer opting in |

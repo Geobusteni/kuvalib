@@ -32,6 +32,7 @@ export async function PUT(request: Request, ctx: Ctx) {
   if (body.expiresAt !== undefined) updates.expiresAt = body.expiresAt ? new Date(body.expiresAt) : null
   if (body.zipEnabled !== undefined) updates.zipEnabled = body.zipEnabled
   if (body.dlEnabled !== undefined) updates.dlEnabled = body.dlEnabled
+  if (body.feedbackEnabled !== undefined) updates.feedbackEnabled = body.feedbackEnabled
   if (body.accessType === 'EMAIL' || body.accessType === 'PASSWORD') {
     updates.accessType = body.accessType
     // Switching to email access retires the shared password.

@@ -67,29 +67,28 @@ export default function DownloadOptionsDialog({
   const zipButtonRef = useRef<HTMLButtonElement>(null)
   const trapFocus = useFocusTrap(dialogRef)
   const [phase, setPhase] = useState<Phase>({ kind: 'choosing' })
-  const singlePhotoPrefetchRef = useRef<Promise<File> | null>(null)
+  const prefetchRef = useRef<Map<string, Promise<File>>>(new Map())
 
   const downloadable = useMemo(() => photos.filter((p) => p.original), [photos])
   const busy = phase.kind === 'zipping' || phase.kind === 'fetching'
-  const singlePhoto = downloadable.length === 1 ? downloadable[0] : null
 
   useEffect(() => {
     zipButtonRef.current?.focus({ preventScroll: true })
   }, [])
 
-  // Fetch the single photo as soon as the dialog opens so that, by the time
-  // the user taps Share, navigator.share() can fire off the fresh click with
-  // no network-bound await in between — that gap is what lets browsers'
-  // user-activation window for Web Share expire on slow connections.
+  // Fetch every selected photo as soon as the dialog opens (in parallel) so
+  // that, by the time the user taps Share, navigator.share() can fire off the
+  // fresh click with no network-bound await in between — that gap is what
+  // lets browsers' user-activation window for Web Share expire, and it only
+  // gets worse the more photos are selected if fetched one at a time on click.
   useEffect(() => {
-    if (!singlePhoto) return
-    const promise = fetchAsFile(singlePhoto)
-    promise.catch(() => {})
-    singlePhotoPrefetchRef.current = promise
-    // singlePhoto is derived fresh each render; keying on its id (not the
-    // object) avoids re-fetching on every re-render of the same photo.
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [singlePhoto?.id])
+    for (const photo of downloadable) {
+      if (prefetchRef.current.has(photo.id)) continue
+      const promise = fetchAsFile(photo)
+      promise.catch(() => {})
+      prefetchRef.current.set(photo.id, promise)
+    }
+  }, [downloadable])
 
   const keyMap = useMemo(
     () => ({
@@ -126,7 +125,7 @@ export default function DownloadOptionsDialog({
     setPhase({ kind: 'fetching', done: 0, total: 1 })
 
     try {
-      const file = await (singlePhotoPrefetchRef.current ?? fetchAsFile(photo))
+      const file = await (prefetchRef.current.get(photo.id) ?? fetchAsFile(photo))
       setPhase({ kind: 'fetching', done: 1, total: 1 })
 
       if (shareCapable && navigator.canShare({ files: [file] })) {
@@ -152,15 +151,24 @@ export default function DownloadOptionsDialog({
     }
   }, [downloadable, onClose])
 
+  // Consumes the eager prefetch (kicked off in parallel when the dialog
+  // opened) so navigator.share() runs as close to the click as possible —
+  // fetching N photos sequentially here, after the click, is what let the
+  // user-activation window for Web Share expire on anything but 1 photo.
   const handleMultiIndividual = useCallback(async () => {
-    setPhase({ kind: 'fetching', done: 0, total: downloadable.length })
+    let done = 0
+    const total = downloadable.length
+    setPhase({ kind: 'fetching', done, total })
 
     try {
-      const files: File[] = []
-      for (const [i, p] of downloadable.entries()) {
-        files.push(await fetchAsFile(p))
-        setPhase({ kind: 'fetching', done: i + 1, total: downloadable.length })
-      }
+      const files = await Promise.all(
+        downloadable.map(async (p) => {
+          const file = await (prefetchRef.current.get(p.id) ?? fetchAsFile(p))
+          done += 1
+          setPhase({ kind: 'fetching', done, total })
+          return file
+        })
+      )
 
       if (shareCapable && navigator.canShare({ files })) {
         try {

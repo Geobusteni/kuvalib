@@ -8,7 +8,13 @@ adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html). While the
 
 ---
 
-## [Unreleased]
+## [1.2.2] - 2026-08-09
+
+### Fixed
+
+- Sharing more than one selected photo failing with "Could not share the photos," because those
+  photos were fetched one after another after tapping Share instead of in parallel while the
+  dialog was open, running out the window browsers allow after a tap before requiring a fresh one
 
 ## [1.2.1] - 2026-07-31
 

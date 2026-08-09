@@ -1,6 +1,6 @@
 # Photolib
 
-**Version 1.2.0** — See [`CHANGELOG.md`](./CHANGELOG.md) for details.
+**Version 1.2.2** — See [`CHANGELOG.md`](./CHANGELOG.md) for details.
 
 A private photography delivery application. Clients receive a gallery — gated by a shared
 password or by their email address — where they can view and download delivered photographs.

@@ -35,6 +35,7 @@ export async function POST(request: Request) {
     expiresAt: body.expiresAt ? new Date(body.expiresAt) : null,
     zipEnabled: body.zipEnabled !== false,
     dlEnabled: body.dlEnabled !== false,
+    feedbackEnabled: body.feedbackEnabled === true,
   })
 
   await ensureProjectDirs(project.id)

@@ -3,13 +3,16 @@
 
 'use client'
 
-import { useState } from 'react'
+import { useEffect, useRef, useState } from 'react'
 import { useRouter } from 'next/navigation'
+import { useFocusTrap } from '@/hooks/useFocusTrap'
+import { useKeyboard } from '@/hooks/useKeyboard'
 
 interface FeedbackPhotoSummary {
   photoId: string
   originalName: string
   thumbSm: string
+  thumbLg: string
   likes: number
   dislikes: number
   comments: { id: string; comment: string; createdAt: string }[]
@@ -28,6 +31,7 @@ export default function FeedbackPanel({
   const [confirmingReset, setConfirmingReset] = useState(false)
   const [resetting, setResetting] = useState(false)
   const [expanded, setExpanded] = useState<string | null>(null)
+  const [preview, setPreview] = useState<{ url: string; name: string } | null>(null)
 
   async function handleReset() {
     setResetting(true)
@@ -99,36 +103,149 @@ export default function FeedbackPanel({
         <p className="text-sm text-zinc-500">No feedback yet.</p>
       ) : (
         <ul className="flex flex-col divide-y divide-zinc-200 dark:divide-zinc-800">
-          {withFeedback.map((s) => (
-            <li key={s.photoId} className="py-3">
-              <button
-                onClick={() => setExpanded((id) => (id === s.photoId ? null : s.photoId))}
-                aria-expanded={expanded === s.photoId}
-                className="flex w-full items-center gap-3 text-left"
-              >
-                {/* eslint-disable-next-line @next/next/no-img-element */}
-                <img src={s.thumbSm} alt="" className="h-10 w-10 rounded object-cover" />
-                <span className="flex-1 truncate text-sm text-zinc-900 dark:text-zinc-100">
-                  {s.originalName}
-                </span>
-                <span className="shrink-0 text-xs text-zinc-500">
-                  {s.likes} likes · {s.dislikes} dislikes · {s.comments.length} comments
-                </span>
-              </button>
-              {expanded === s.photoId && s.comments.length > 0 && (
-                <ul className="mt-2 flex flex-col gap-1 pl-13 text-sm text-zinc-600 dark:text-zinc-400">
-                  {s.comments.map((c) => (
-                    <li key={c.id}>
-                      &ldquo;{c.comment}&rdquo; —{' '}
-                      <time dateTime={c.createdAt}>{new Date(c.createdAt).toLocaleString()}</time>
-                    </li>
-                  ))}
-                </ul>
-              )}
-            </li>
-          ))}
+          {withFeedback.map((s) => {
+            const hasComments = s.comments.length > 0
+            const isExpanded = expanded === s.photoId
+            return (
+              <li key={s.photoId} className="py-3">
+                <div className="flex items-center gap-3">
+                  <button
+                    onClick={() => setPreview({ url: s.thumbLg, name: s.originalName })}
+                    aria-label={`View a larger version of ${s.originalName}`}
+                    className="shrink-0 rounded focus:outline-none focus-visible:ring-2 focus-visible:ring-zinc-500"
+                  >
+                    {/* eslint-disable-next-line @next/next/no-img-element */}
+                    <img src={s.thumbSm} alt="" className="h-10 w-10 rounded object-cover" />
+                  </button>
+
+                  {hasComments ? (
+                    <button
+                      onClick={() => setExpanded((id) => (id === s.photoId ? null : s.photoId))}
+                      aria-expanded={isExpanded}
+                      className="flex flex-1 items-center gap-2 rounded text-left focus:outline-none focus-visible:ring-2 focus-visible:ring-zinc-500"
+                    >
+                      <span className="flex-1 truncate text-sm text-zinc-900 dark:text-zinc-100">
+                        {s.originalName}
+                      </span>
+                      <span className="shrink-0 text-xs text-zinc-500">
+                        {s.likes} likes · {s.dislikes} dislikes · {s.comments.length} comments
+                      </span>
+                      <ChevronIcon expanded={isExpanded} />
+                    </button>
+                  ) : (
+                    <div className="flex flex-1 items-center gap-2">
+                      <span className="flex-1 truncate text-sm text-zinc-900 dark:text-zinc-100">
+                        {s.originalName}
+                      </span>
+                      <span className="shrink-0 text-xs text-zinc-500">
+                        {s.likes} likes · {s.dislikes} dislikes · 0 comments
+                      </span>
+                    </div>
+                  )}
+                </div>
+                {isExpanded && hasComments && (
+                  <ul className="mt-2 flex flex-col gap-1 pl-13 text-sm text-zinc-600 dark:text-zinc-400">
+                    {s.comments.map((c) => (
+                      <li key={c.id}>
+                        &ldquo;{c.comment}&rdquo; —{' '}
+                        <time dateTime={c.createdAt}>{new Date(c.createdAt).toLocaleString()}</time>
+                      </li>
+                    ))}
+                  </ul>
+                )}
+              </li>
+            )
+          })}
         </ul>
       )}
+
+      {preview && (
+        <PhotoPreviewDialog url={preview.url} name={preview.name} onClose={() => setPreview(null)} />
+      )}
     </div>
+  )
+}
+
+function ChevronIcon({ expanded }: { expanded: boolean }) {
+  return (
+    <svg
+      width="16"
+      height="16"
+      viewBox="0 0 16 16"
+      fill="none"
+      stroke="currentColor"
+      strokeWidth="1.5"
+      strokeLinecap="round"
+      strokeLinejoin="round"
+      aria-hidden
+      className={`shrink-0 text-zinc-400 transition-transform duration-150 [.reduce-motion_&]:transition-none ${
+        expanded ? 'rotate-180' : ''
+      }`}
+    >
+      <path d="M4 6l4 4 4-4" />
+    </svg>
+  )
+}
+
+function PhotoPreviewDialog({
+  url,
+  name,
+  onClose,
+}: {
+  url: string
+  name: string
+  onClose: () => void
+}) {
+  const dialogRef = useRef<HTMLDivElement>(null)
+  const closeButtonRef = useRef<HTMLButtonElement>(null)
+  const trapFocus = useFocusTrap(dialogRef)
+
+  useEffect(() => {
+    closeButtonRef.current?.focus({ preventScroll: true })
+  }, [])
+
+  useKeyboard({ Escape: onClose }, true)
+
+  return (
+    <div
+      ref={dialogRef}
+      role="dialog"
+      aria-modal
+      aria-label={name}
+      tabIndex={-1}
+      className="fixed inset-0 z-50 flex items-center justify-center bg-black/80 p-4 focus:outline-none"
+      onKeyDown={trapFocus}
+      onClick={onClose}
+    >
+      <div className="relative max-h-full max-w-full" onClick={(e) => e.stopPropagation()}>
+        {/* eslint-disable-next-line @next/next/no-img-element */}
+        <img src={url} alt={name} className="max-h-[85vh] max-w-full rounded-lg object-contain" />
+        <button
+          ref={closeButtonRef}
+          onClick={onClose}
+          aria-label="Close preview"
+          className="absolute -right-3 -top-3 flex h-9 w-9 items-center justify-center rounded-full bg-white text-zinc-900 shadow-lg focus:outline-none focus-visible:ring-2 focus-visible:ring-white"
+        >
+          <CloseIcon />
+        </button>
+      </div>
+    </div>
+  )
+}
+
+function CloseIcon() {
+  return (
+    <svg
+      width="16"
+      height="16"
+      viewBox="0 0 16 16"
+      fill="none"
+      stroke="currentColor"
+      strokeWidth="1.5"
+      strokeLinecap="round"
+      aria-hidden
+    >
+      <path d="M4 4l8 8M12 4l-8 8" />
+    </svg>
   )
 }

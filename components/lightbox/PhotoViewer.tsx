@@ -34,6 +34,7 @@ interface PhotoViewerProps {
   feedbackEnabled: boolean
   getFeedback: (photoId: string) => PhotoReaction
   submitFeedback: (photoId: string, type: FeedbackType, comment?: string) => Promise<void>
+  resetFeedback: (photoId: string) => Promise<void>
 }
 
 export default function PhotoViewer({
@@ -49,6 +50,7 @@ export default function PhotoViewer({
   feedbackEnabled,
   getFeedback,
   submitFeedback,
+  resetFeedback,
 }: PhotoViewerProps) {
   const dialogRef = useRef<HTMLDivElement>(null)
   const containerRef = useRef<HTMLDivElement>(null)
@@ -199,7 +201,10 @@ export default function PhotoViewer({
     {
       onSwipeLeft: onNext,
       onSwipeRight: onPrev,
-      onSwipeDown: onClose,
+      // Swipe down closes the action sheet if it's open (mirroring the swipe
+      // up that opened it) rather than always closing the whole viewer — the
+      // two gestures would otherwise fight over the same screen region.
+      onSwipeDown: () => (actionPanel ? setActionPanel(false) : onClose()),
       onSwipeUp: () => setActionPanel((v) => !v),
       onTap: () => {
         setControlsVisible((v) => !v)
@@ -275,13 +280,14 @@ export default function PhotoViewer({
         onOpenDownload={openDownload}
       />
 
-      {feedbackEnabled && (
+      {feedbackEnabled && !actionPanel && (
         <PhotoFeedbackBar
           reaction={reaction}
           controlsVisible={controlsVisible}
           onLike={() => submitFeedback(photo.id, 'LIKE')}
           onDislike={() => submitFeedback(photo.id, 'DISLIKE')}
           onComment={() => setCommentDialogOpen(true)}
+          onReset={() => resetFeedback(photo.id)}
         />
       )}
 

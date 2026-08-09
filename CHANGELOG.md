@@ -10,6 +10,48 @@ adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html). While the
 
 ## [Unreleased]
 
+## [1.4.0] - 2026-08-09
+
+### Added
+
+- A tooltip on each Like/Dislike/Comment button (gallery and lightbox) naming what it does,
+  after a brief hover pause
+- A per-photo "undo your reaction" button, shown only once a visitor has liked, disliked, or
+  commented on that photo — clears both their reaction and its record, letting them react again
+- Admin: a chevron indicating which photos with comments can be expanded, and a click-to-enlarge
+  preview of the photo from the Feedback panel
+
+### Changed
+
+- "Download All (Original ZIP)" moved from the gallery's top bar to below the photo grid, giving
+  the title and Select button more room
+- Mobile lightbox: swiping down now closes the swipe-up action sheet first (if it's open) instead
+  of always closing the whole viewer
+
+### Fixed
+
+- A visitor's like/dislike/comment on a photo silently disappearing from the gallery grid after
+  reloading the page, even though it was still recorded — a React hydration mismatch caused by
+  reading `localStorage` during the very first client render, which disagreed with the
+  server-rendered HTML and made React keep the stale "not reacted" markup instead of the correct
+  one. The lightbox was unaffected since it never appears in that first server-rendered HTML.
+- The two oldest Prisma migrations containing PostgreSQL syntax (`CREATE TYPE ... AS ENUM`)
+  despite the project having moved to MySQL/MariaDB — `prisma migrate deploy` could never
+  actually complete against a real, empty MySQL database, meaning any live deployment can only
+  have been created by `prisma db push` (which reads `schema.prisma` directly and was never
+  tracked in `_prisma_migrations`), not by applying these files. Rewritten in valid MySQL syntax
+  producing the same schema. **Action required, and only if your database already has data in
+  it** (a brand-new, empty database needs no special step — just run `npx prisma migrate deploy`
+  as usual): back up first, then baseline the two pre-existing migrations as already applied so
+  Prisma doesn't try to re-run `CREATE TABLE` statements against tables that already exist:
+  `npx prisma migrate resolve --applied 20260730093327_init` and
+  `npx prisma migrate resolve --applied 20260730100000_viewable_passwords_original_names_archive`.
+  Then run `npx prisma migrate deploy` normally to apply the new feedback migration
+- Creating a project with client feedback enabled from the start silently ignored that setting;
+  it always started disabled and had to be turned on afterward from Settings
+- Mobile lightbox: the like/dislike/comment buttons overlapping the swipe-up action sheet's
+  Cancel/Download buttons
+
 ## [1.3.0] - 2026-08-09
 
 ### Added

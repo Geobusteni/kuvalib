@@ -296,6 +296,8 @@ POST   /api/projects/[id]/photos/[pid]/feedback   { visitorId, type, comment? } 
                                                     like/dislike/comment. 403 if the project
                                                     has feedback off, 409 if this visitor
                                                     already reacted, 429 rate-limited
+DELETE /api/projects/[id]/photos/[pid]/feedback   { visitorId } → undo that visitor's own
+                                                    reaction on this one photo
 ```
 
 ---
@@ -440,3 +442,7 @@ single finger pans instead once zoomed in.
 | Feedback border reflects only the current visitor's own reaction | The client never asks the server for a photo's aggregate reaction to color a border; it only reads its own local state. Keeps the payload sent to the gallery page unchanged and avoids an ambiguous color for a photo with mixed reactions from many visitors |
 | Reset re-opens feedback via a bumped `feedbackResetAt` epoch, not by touching client storage | Deleting the database rows alone leaves every visitor's own `localStorage` still claiming "I already reacted." The client compares its cached epoch against the project's current one on each load and discards its cache on mismatch — nothing server-side can reach into another origin's storage directly |
 | `feedbackEnabled` defaults to `false` | Mirrors `zipEnabled`/`dlEnabled`; an already-delivered gallery must not suddenly show new client-facing buttons after an upgrade without the photographer opting in |
+| `usePhotoFeedback`'s local reaction state starts empty and is populated in a `useEffect`, not in the `useState` initializer | Reading `localStorage` synchronously on the client's first render made that render disagree with the server-rendered HTML (which has no `localStorage`), and React's hydration-mismatch recovery kept the server's stale "not reacted" DOM rather than patching it — silently hiding a visitor's own past reactions on every reload. Populating state after mount (client-only, post-hydration) keeps the first render identical on both sides |
+| A visitor can undo their own reaction (`DELETE /api/projects/[id]/photos/[photoId]/feedback`), scoped to that visitor and that photo only | Distinguishes it from the admin's project-wide reset — a client changing their mind about one photo shouldn't require the photographer to wipe every visitor's feedback on the whole gallery |
+| Mobile lightbox: swipe down closes the swipe-up action sheet first, then the viewer | The two gestures previously fought over the same bottom region — swiping up revealed Cancel/Download, and swiping down would then close the whole viewer regardless, so there was no way to dismiss just the action sheet. The feedback bar is also hidden while the action sheet is open, since both anchor to the bottom of the screen |
+| `prisma/migrations/20260730093327_init` and `20260730100000_...` rewritten from PostgreSQL to MySQL syntax | The originals used `CREATE TYPE ... AS ENUM`, which is not valid MySQL — `prisma migrate deploy` could never have completed against a real, empty MySQL database despite `migration_lock.toml` declaring `mysql`. Any live deployment can only have been created via `prisma db push` reading `schema.prisma` directly, never by applying these files |

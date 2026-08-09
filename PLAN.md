@@ -991,19 +991,65 @@ without any client accounts.
 
 `npx tsc --noEmit`, `npx eslint .`, and the project's license-header script all clean.
 
-### Not done
+### Not done (at the time this phase first shipped)
 
 No MySQL/MariaDB server was reachable from the development environment (`.env`'s
 `DATABASE_URL` was a leftover `postgresql://` string from before the project's Postgres→MySQL
 switch, not something to silently overwrite) — `prisma migrate dev` could not be run to generate
 or apply the migration automatically. `prisma/migrations/20260809150000_add_photo_feedback/migration.sql`
-was hand-written in the same style as the project's other MySQL migrations instead.
+was hand-written in the same style as the project's other MySQL migrations instead. See the
+follow-up round below — a local dev database was set up in a later session and this was resolved.
 
-- [ ] Fix `.env`'s `DATABASE_URL` to point at a real MySQL/MariaDB database
-- [ ] Apply the migration (`npx prisma migrate deploy`, or the equivalent dev command) and confirm
-      `lib/generated/prisma` matches
-- [ ] `npm run build` end to end (blocked on the same missing DB connection)
-- [ ] Manual walkthrough: enable feedback, react as two different browser profiles, confirm the
-      per-visitor lock, admin panel counts, reset, and re-availability after reset
-- [ ] Keyboard-only and screen-reader passes over the new buttons and comment dialog
-- [ ] Re-run the accessibility checklist over the new surfaces
+---
+
+## Phase 12 follow-up — feedback UI polish, per-visitor undo, and a real hydration bug
+
+A round of fixes driven by hands-on use of Phase 12: several UI requests, and three symptoms
+(feedback vanishing from the grid on reload, admin showing data the grid didn't, the lightbox
+disagreeing with the grid) that turned out to be one root cause plus one pre-existing, unrelated
+migration bug.
+
+### What changed
+
+**Bug fixes**
+- The grid's like/dislike/comment state disappearing on reload was a React hydration mismatch:
+  `usePhotoFeedback` read `localStorage` inside its `useState` initializer, so the client's first
+  render disagreed with the server's (which has no `localStorage`), and React kept the server's
+  stale DOM rather than patching it. Fixed by starting state empty and populating it in a
+  `useEffect`, which only runs after hydration. This also explains why the lightbox was
+  unaffected — it's never part of the server-rendered HTML.
+- `prisma/migrations/20260730093327_init` and `20260730100000_...` contained PostgreSQL syntax
+  (`CREATE TYPE ... AS ENUM`) despite the project having moved to MySQL — `prisma migrate deploy`
+  could never have completed against a real, empty MySQL database. Rewritten in valid MySQL
+  syntax producing the same schema; see the CHANGELOG for the one-time `migrate resolve` step
+  needed on any database that already has data.
+- `POST /api/projects` (project creation) never forwarded `feedbackEnabled` from the request body,
+  so a project created with feedback checked still started disabled.
+
+**Client-facing**
+- A tooltip on each feedback button (hover, ~1.2s delay) naming what it does.
+- A per-photo "undo your reaction" button (`DELETE /api/projects/[id]/photos/[pid]/feedback`,
+  scoped to that visitor and photo only), visible only once the visitor has reacted; clears both
+  their DB row and the matching `localStorage` entry.
+- "Download All (Original ZIP)" moved from the gallery's top bar to below the grid.
+- Mobile lightbox: the feedback bar and the swipe-up action sheet no longer overlap — the
+  feedback bar hides while the sheet is open, and swiping down now closes the sheet first (if
+  open) instead of always closing the viewer.
+
+**Admin**
+- A chevron on photos that have comments, indicating the row expands; the thumbnail is now its
+  own control that opens a larger preview of the photo.
+
+### Verification
+
+`npx tsc --noEmit`, `npx eslint .`, and `npm run build` all clean. A local MySQL/MariaDB dev
+database was set up (`photolib_dev`) and `.env` pointed at it, so this round — unlike Phase 12's
+first pass — was verified against a real running app: migrations applied cleanly, and every fix
+above was reproduced and confirmed fixed live in a browser (including the hydration bug itself,
+confirmed via the exact React hydration-mismatch console warning before the fix, and its absence
+after).
+
+### Not done
+
+- [ ] Keyboard-only and screen-reader passes over the new tooltip and reset-button additions
+- [ ] Re-run the accessibility checklist over the changed surfaces

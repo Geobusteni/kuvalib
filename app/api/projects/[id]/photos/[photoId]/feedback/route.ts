@@ -4,7 +4,7 @@
 import { NextRequest } from 'next/server'
 import { verifyGalleryAccess } from '@/lib/gallery-auth'
 import { getProject, getPhoto } from '@/lib/projects'
-import { createFeedback } from '@/lib/photo-feedback'
+import { createFeedback, deleteVisitorFeedback } from '@/lib/photo-feedback'
 import { checkRateLimit } from '@/lib/rate-limit'
 import { Prisma } from '@/lib/generated/prisma/client'
 
@@ -67,4 +67,36 @@ export async function POST(request: NextRequest, ctx: Ctx) {
     }
     throw err
   }
+}
+
+// Lets a visitor undo their own like/dislike/comment on a single photo — the
+// client-facing "reset" button, scoped to this photo and this visitor only
+// (unlike the admin's project-wide reset). Deletes both the visitor's own DB
+// row here and, on success, the client's corresponding localStorage entry.
+export async function DELETE(request: NextRequest, ctx: Ctx) {
+  const { id, photoId } = await ctx.params
+
+  if (!(await verifyGalleryAccess(id))) {
+    return Response.json({ error: 'Unauthorized' }, { status: 401 })
+  }
+
+  const project = await getProject(id)
+  if (!project) return Response.json({ error: 'Not found' }, { status: 404 })
+  if (!project.feedbackEnabled) {
+    return Response.json({ error: 'Feedback is not enabled for this gallery' }, { status: 403 })
+  }
+
+  const photo = await getPhoto(photoId)
+  if (!photo || photo.projectId !== id) {
+    return Response.json({ error: 'Not found' }, { status: 404 })
+  }
+
+  const body = await request.json().catch(() => null)
+  const visitorId = body?.visitorId
+  if (typeof visitorId !== 'string' || !visitorId || visitorId.length > 100) {
+    return Response.json({ error: 'A visitor id is required' }, { status: 400 })
+  }
+
+  await deleteVisitorFeedback(photoId, visitorId)
+  return Response.json({ ok: true })
 }

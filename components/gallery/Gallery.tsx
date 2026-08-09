@@ -169,7 +169,6 @@ export default function Gallery({
         title={title}
         mode={state.mode === 'selection' ? 'selection' : 'gallery'}
         selectedCount={selected?.size ?? 0}
-        archiveUrl={archiveUrl}
         onEnterSelection={() => dispatch({ type: 'ENTER_SELECTION' })}
         onExitSelection={() => dispatch({ type: 'EXIT_SELECTION' })}
         onOpenDownloadOptions={openDownloadDialog}
@@ -198,11 +197,24 @@ export default function Gallery({
                   onLike={() => feedback.submit(photo.id, 'LIKE')}
                   onDislike={() => feedback.submit(photo.id, 'DISLIKE')}
                   onComment={() => openCommentDialog(photo.id)}
+                  onReset={() => feedback.resetOne(photo.id)}
                 />
               )}
             </div>
           ))}
         </div>
+
+        {archiveUrl && state.mode === 'gallery' && (
+          <div className="mt-8 flex justify-center">
+            <a
+              href={archiveUrl}
+              download
+              className="inline-flex h-11 items-center justify-center rounded-lg border border-white/20 px-5 text-sm font-medium text-zinc-300 transition-colors hover:bg-zinc-800 hover:text-white focus:outline-none focus-visible:ring-2 focus-visible:ring-white/50"
+            >
+              Download All (Original ZIP)
+            </a>
+          </div>
+        )}
       </main>
 
       {state.mode === 'viewer' && (
@@ -219,6 +231,7 @@ export default function Gallery({
           feedbackEnabled={feedbackEnabled}
           getFeedback={feedback.reactionFor}
           submitFeedback={feedback.submit}
+          resetFeedback={feedback.resetOne}
         />
       )}
 

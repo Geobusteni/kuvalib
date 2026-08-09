@@ -164,6 +164,7 @@ export default async function EditProjectPage({ params }: Props) {
               photoId: p.id,
               originalName: p.originalName,
               thumbSm: `/api/uploads/${id}/thumbs/${p.filename.replace(/\.[^.]+$/, '')}-sm.jpg`,
+              thumbLg: `/api/uploads/${id}/thumbs/${p.filename.replace(/\.[^.]+$/, '')}-lg.jpg`,
               likes: feedbackSummary.get(p.id)?.likes ?? 0,
               dislikes: feedbackSummary.get(p.id)?.dislikes ?? 0,
               comments: (feedbackSummary.get(p.id)?.comments ?? []).map((c) => ({

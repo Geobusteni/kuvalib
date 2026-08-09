@@ -58,3 +58,20 @@ export function recordFeedback(
   localStorage.setItem(storageKey(projectId), JSON.stringify(next))
   return next
 }
+
+// The client-facing "undo my reaction" counterpart to recordFeedback — used
+// after the server confirms this visitor's own row for the photo is gone, so
+// the two stay in sync rather than the browser remembering a reaction the
+// database no longer has.
+export function clearFeedback(
+  projectId: string,
+  serverResetAt: string,
+  photoId: string
+): LocalFeedbackState {
+  const state = loadFeedbackState(projectId, serverResetAt)
+  const photos = { ...state.photos }
+  delete photos[photoId]
+  const next: LocalFeedbackState = { resetAt: serverResetAt, photos }
+  localStorage.setItem(storageKey(projectId), JSON.stringify(next))
+  return next
+}

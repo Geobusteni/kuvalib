@@ -192,6 +192,7 @@ Do not add anything outside this scope unless explicitly requested.
 - Download the archive the photographer uploaded, when there is one
 - Like, dislike, or comment on individual photos, once per photo per browser, when the
   photographer has enabled feedback for the gallery
+- Undo their own like/dislike/comment on a photo, freeing it up to react again
 
 ---
 
@@ -203,13 +204,15 @@ Do not add anything outside this scope unless explicitly requested.
   below. It is never flush to the edges.
 - Tap/click an image opens the lightbox
 - No checkboxes, no selection indicators
-- Top bar: **Select** | **Download ZIP** (the latter only when an archive was uploaded)
+- Top bar: **Select**
+- **Download All (Original ZIP)** sits below the grid, at the bottom of the page (the latter only
+  when an archive was uploaded) — kept off the top bar so title and Select have room
 
 ### Gallery — Selection Mode
 
 - Images become selectable; lightbox is disabled
 - Top bar: **Cancel** | **Download Selected**
-- Download ZIP disappears
+- The bottom "Download All (Original ZIP)" link disappears
 - Cancel exits selection mode
 
 ### Mobile Lightbox Gestures
@@ -218,8 +221,8 @@ Do not add anything outside this scope unless explicitly requested.
 |------------|---------------------|
 | Swipe left | Next image          |
 | Swipe right| Previous image      |
-| Swipe down | Close viewer        |
-| Swipe up   | Reveal action panel |
+| Swipe down | Close the action panel if it's open; otherwise close viewer |
+| Swipe up   | Reveal action panel (hides the feedback buttons while open) |
 | Tap        | Toggle controls     |
 | Pinch      | Zoom in / out (1x–4x) |
 | Double-tap | Toggle 2x zoom at the tapped point |

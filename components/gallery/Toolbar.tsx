@@ -7,8 +7,6 @@ interface ToolbarProps {
   title: string
   mode: 'gallery' | 'selection'
   selectedCount: number
-  /** Null unless the photographer uploaded an archive — nothing is generated. */
-  archiveUrl: string | null
   onEnterSelection: () => void
   onExitSelection: () => void
   onOpenDownloadOptions: () => void
@@ -21,7 +19,6 @@ export default function Toolbar({
   title,
   mode,
   selectedCount,
-  archiveUrl,
   onEnterSelection,
   onExitSelection,
   onOpenDownloadOptions,
@@ -35,11 +32,6 @@ export default function Toolbar({
           <button onClick={onEnterSelection} className={buttonClass}>
             Select
           </button>
-          {archiveUrl && (
-            <a href={archiveUrl} download className={buttonClass}>
-              Download All (Original ZIP)
-            </a>
-          )}
         </div>
       ) : (
         <div className="flex shrink-0 items-center gap-2">

@@ -26,6 +26,14 @@ export async function createFeedback(data: CreateFeedbackData) {
   })
 }
 
+// Idempotent: at most one row can match, per the (photoId, visitorId) unique
+// constraint, and deleting zero rows (already reset, or never reacted) is not
+// an error — the client's own "reset" button should never fail just because
+// it was already clicked once.
+export async function deleteVisitorFeedback(photoId: string, visitorId: string): Promise<void> {
+  await prisma.photoFeedback.deleteMany({ where: { photoId, visitorId } })
+}
+
 export interface PhotoFeedbackSummary {
   likes: number
   dislikes: number

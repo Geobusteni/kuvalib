@@ -10,6 +10,7 @@ interface PhotoFeedbackRowProps {
   onLike: () => void
   onDislike: () => void
   onComment: () => void
+  onReset: () => void
 }
 
 export default function PhotoFeedbackRow({
@@ -17,16 +18,17 @@ export default function PhotoFeedbackRow({
   onLike,
   onDislike,
   onComment,
+  onReset,
 }: PhotoFeedbackRowProps) {
   const locked = reaction !== null
 
   return (
     <div role="group" aria-label="React to this photo" className="mt-1 flex items-center justify-center gap-1">
-      <button
+      <TooltipButton
         onClick={onLike}
         disabled={locked}
-        aria-pressed={reaction === 'LIKE'}
-        aria-label={
+        pressed={reaction === 'LIKE'}
+        label={
           reaction === 'LIKE'
             ? 'Liked'
             : locked
@@ -36,12 +38,12 @@ export default function PhotoFeedbackRow({
         className={feedbackBtn(reaction === 'LIKE', 'green')}
       >
         <LikeIcon />
-      </button>
-      <button
+      </TooltipButton>
+      <TooltipButton
         onClick={onDislike}
         disabled={locked}
-        aria-pressed={reaction === 'DISLIKE'}
-        aria-label={
+        pressed={reaction === 'DISLIKE'}
+        label={
           reaction === 'DISLIKE'
             ? 'Disliked'
             : locked
@@ -51,12 +53,12 @@ export default function PhotoFeedbackRow({
         className={feedbackBtn(reaction === 'DISLIKE', 'red')}
       >
         <DislikeIcon />
-      </button>
-      <button
+      </TooltipButton>
+      <TooltipButton
         onClick={onComment}
         disabled={locked}
-        aria-pressed={reaction === 'COMMENT'}
-        aria-label={
+        pressed={reaction === 'COMMENT'}
+        label={
           reaction === 'COMMENT'
             ? 'Commented'
             : locked
@@ -66,8 +68,50 @@ export default function PhotoFeedbackRow({
         className={feedbackBtn(reaction === 'COMMENT', 'yellow')}
       >
         <CommentIcon />
-      </button>
+      </TooltipButton>
+      {locked && (
+        <TooltipButton onClick={onReset} label="Undo your reaction" className={resetBtn}>
+          <ResetIcon />
+        </TooltipButton>
+      )}
     </div>
+  )
+}
+
+interface TooltipButtonProps {
+  onClick: () => void
+  disabled?: boolean
+  pressed?: boolean
+  label: string
+  className: string
+  children: React.ReactNode
+}
+
+// The tooltip's own wrapper (not the disabled button) carries the hover
+// listener, so it still shows an explanation even once a button locks. It
+// only appears after a deliberate pause (delay-[1200ms]) so it doesn't
+// flicker in on every incidental mouse pass — aria-label already gives
+// screen readers the same text immediately, with no dependency on hover.
+function TooltipButton({ onClick, disabled, pressed, label, className, children }: TooltipButtonProps) {
+  return (
+    <span className="group relative inline-flex">
+      <button
+        onClick={onClick}
+        disabled={disabled}
+        aria-pressed={pressed}
+        aria-label={label}
+        className={className}
+      >
+        {children}
+      </button>
+      <span
+        role="tooltip"
+        aria-hidden="true"
+        className="pointer-events-none absolute -top-9 left-1/2 z-10 -translate-x-1/2 whitespace-nowrap rounded-md bg-zinc-900 px-2 py-1 text-xs text-white opacity-0 shadow-lg transition-opacity delay-[1200ms] duration-150 group-hover:opacity-100 group-focus-visible:opacity-100 group-focus-visible:delay-0"
+      >
+        {label}
+      </span>
+    </span>
   )
 }
 
@@ -81,6 +125,9 @@ function feedbackBtn(active: boolean, accent: 'green' | 'red' | 'yellow') {
     active ? accentClass : 'text-white/70 hover:bg-white/10 hover:text-white'
   }`
 }
+
+const resetBtn =
+  'flex h-11 w-11 items-center justify-center rounded-full text-white/50 transition-colors hover:bg-white/10 hover:text-white focus:outline-none focus-visible:ring-2 focus-visible:ring-white/50'
 
 function LikeIcon() {
   return (
@@ -103,6 +150,15 @@ function CommentIcon() {
     <svg width="20" height="20" viewBox="0 0 20 20" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" aria-hidden>
       <rect x="4" y="2.5" width="12" height="15" rx="1.5" />
       <path d="M7 7h6M7 10h6M7 13h3" />
+    </svg>
+  )
+}
+
+function ResetIcon() {
+  return (
+    <svg width="18" height="18" viewBox="0 0 20 20" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" aria-hidden>
+      <path d="M4 4v5h5" />
+      <path d="M4.6 13a6.5 6.5 0 1 0 1-8.4L4 9" />
     </svg>
   )
 }

@@ -5,6 +5,7 @@
 set -e
 
 # Configuration
+# Repo was renamed from "Geobusteni/photolib" to "Geobusteni/kuvalib".
 REPO="Geobusteni/kuvalib"
 ARTIFACT_NAME="kuvalib-deploy"
 PACKAGE_FILE="kuvalib-deploy.tar.gz"

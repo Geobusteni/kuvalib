@@ -27,6 +27,16 @@ if [ -f ".env" ]; then
   cp .env .env.backup
 fi
 
+# The GitHub repo was renamed from "photolib" to "kuvalib". Point this
+# checkout's 'origin' at the current URL before pulling, so older clones keep
+# working without relying on GitHub's redirect.
+REPO_URL="https://github.com/Geobusteni/kuvalib.git"
+CURRENT_URL="$(git remote get-url origin 2>/dev/null || true)"
+if [ -n "$CURRENT_URL" ] && [ "$CURRENT_URL" != "$REPO_URL" ]; then
+  echo "🔗 Updating 'origin' remote: $CURRENT_URL → $REPO_URL"
+  git remote set-url origin "$REPO_URL"
+fi
+
 # Pull latest changes from git
 echo "📥 Pulling latest changes from repository..."
 git fetch --tags

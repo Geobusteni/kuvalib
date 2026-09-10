@@ -32,13 +32,23 @@ export function ThumbnailRail({
       style={{ background: 'linear-gradient(to top, rgba(0,0,0,0.6), transparent)' }}
     >
       {pages.map((page, i) => (
-        <button
+        // A <div role="button"> rather than a real <button>: the preview inside
+        // can contain a Button block (which renders as <button>/<a>), and
+        // interactive content cannot nest inside a <button>.
+        <div
           key={page.id}
-          type="button"
+          role="button"
+          tabIndex={0}
           onClick={() => onSelect(i)}
+          onKeyDown={(e) => {
+            if (e.key === 'Enter' || e.key === ' ') {
+              e.preventDefault()
+              onSelect(i)
+            }
+          }}
           aria-label={`Go to page ${i + 1}`}
           aria-current={i === current ? 'true' : undefined}
-          className="relative shrink-0 overflow-hidden rounded-md border-2"
+          className="relative shrink-0 cursor-pointer overflow-hidden rounded-md border-2 focus:outline-none focus-visible:ring-2 focus-visible:ring-white/70"
           style={{
             width: THUMB_W,
             height: THUMB_W * (PREVIEW_H / PREVIEW_W),
@@ -64,13 +74,13 @@ export function ThumbnailRail({
           <span
             className="absolute bottom-0.5 right-1 text-[10px] font-semibold tabular-nums"
             style={{
-              color: i === current ? 'var(--sc-accent)' : 'rgba(255,255,255,0.8)',
+              color: i === current ? 'var(--sc-accent)' : 'rgba(255,255,255,0.85)',
               textShadow: '0 1px 2px rgba(0,0,0,0.7)',
             }}
           >
             {i + 1}
           </span>
-        </button>
+        </div>
       ))}
     </div>
   )

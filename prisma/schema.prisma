@@ -24,6 +24,28 @@ enum FeedbackType {
   COMMENT
 }
 
+/// Drives the showcase accent hue. Purely presentational — the gallery has no
+/// notion of an event type.
+enum ShowcaseEventType {
+  WEDDING
+  BIRTHDAY
+  CHRISTENING
+  CORPORATE
+  GENERIC
+}
+
+enum ShowcaseBg {
+  NEUTRAL
+  DEEP
+  ACCENT
+}
+
+enum ShowcaseAnimation {
+  TURN
+  FADE
+  ZOOM
+}
+
 model User {
   id        String   @id @default(cuid())
   email     String   @unique
@@ -76,6 +98,77 @@ model Project {
 
   photos      Photo[]
   assignments ProjectAssignment[]
+
+  /// A project has at most one showcase — a designed, page-by-page slideshow
+  /// built from the same photos and shared on its own link. It inherits this
+  /// project's accessType, password and expiresAt; there is no separate gate.
+  showcase Showcase?
+}
+
+/// Stage 2: the client-facing designed slideshow. One per project. Photos are
+/// referenced by existing Photo.id — never duplicated. Access is the project's:
+/// passing the showcase gate sets the same kuvalib_gallery_[projectId] cookie the
+/// gallery checks, so a client moves between the two without re-entering the
+/// password.
+model Showcase {
+  id        String  @id @default(cuid())
+  projectId String  @unique
+  project   Project @relation(fields: [projectId], references: [id], onDelete: Cascade)
+
+  title     String
+  eventDate DateTime?
+
+  eventType      ShowcaseEventType @default(GENERIC)
+  albumBg        ShowcaseBg        @default(NEUTRAL)
+  animationStyle ShowcaseAnimation @default(TURN)
+
+  autoplay        Boolean @default(false)
+  autoplaySeconds Int     @default(5)
+  playlistLoop    Boolean @default(true)
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  pages  ShowcasePage[]
+  tracks ShowcaseTrack[]
+}
+
+/// One slide. The whole block tree is stored as a single JSON blob rather than
+/// normalised into a row-per-block table — a page is authored and saved as a
+/// unit, and nothing queries an individual block.
+model ShowcasePage {
+  id         String   @id @default(cuid())
+  showcaseId String
+  showcase   Showcase @relation(fields: [showcaseId], references: [id], onDelete: Cascade)
+
+  sortOrder Int @default(0)
+
+  /// Block[] — see lib/showcase-blocks.ts for the shape. Coordinates are
+  /// percentages of the page frame, canvas-absolute even for grouped blocks.
+  blocksJson Json
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@index([showcaseId])
+}
+
+/// A background-music track. Files live on disk under
+/// uploads/[projectId]/audio/[filename], the same split of generated disk name
+/// vs. uploaded name as Photo.
+model ShowcaseTrack {
+  id         String   @id @default(cuid())
+  showcaseId String
+  showcase   Showcase @relation(fields: [showcaseId], references: [id], onDelete: Cascade)
+
+  filename     String
+  originalName String
+  size         Int
+  sortOrder    Int    @default(0)
+
+  createdAt DateTime @default(now())
+
+  @@index([showcaseId])
 }
 
 model ProjectAssignment {
@@ -107,9 +200,9 @@ model Photo {
   sortOrder Int      @default(0)
   createdAt DateTime @default(now())
 
-  @@unique([projectId, originalName])
-
   feedback PhotoFeedback[]
+
+  @@unique([projectId, originalName])
 }
 
 /// One row per (photo, visitor) action. There are no gallery-visitor accounts —

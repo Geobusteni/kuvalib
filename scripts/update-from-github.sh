@@ -5,9 +5,9 @@
 set -e
 
 # Configuration
-REPO="Geobusteni/photolib"
-ARTIFACT_NAME="photolib-deploy"
-PACKAGE_FILE="photolib-deploy.tar.gz"
+REPO="Geobusteni/kuvalib"
+ARTIFACT_NAME="kuvalib-deploy"
+PACKAGE_FILE="kuvalib-deploy.tar.gz"
 FORCE_UPDATE=false
 FORCE_SCHEMA=false
 
@@ -42,7 +42,7 @@ for arg in "$@"; do
     esac
 done
 
-echo "📥 Photolib Production Update Script"
+echo "📥 Kuvalib Production Update Script"
 
 # Check for gh CLI
 if ! command -v gh &> /dev/null; then
@@ -92,9 +92,9 @@ gh run download "$RUN_ID" --repo "$REPO" --name "$ARTIFACT_NAME"
 # produces a tar.gz inside that zip if not careful. 
 # Actually upload-artifact@v4 zips the path.
 # In our workflow we did: 
-#   run: tar -czf photolib-deploy.tar.gz -C deploy .
-#   path: photolib-deploy.tar.gz
-# So gh run download will result in photolib-deploy.tar.gz file (in the current dir)
+#   run: tar -czf kuvalib-deploy.tar.gz -C deploy .
+#   path: kuvalib-deploy.tar.gz
+# So gh run download will result in kuvalib-deploy.tar.gz file (in the current dir)
 
 if [ ! -f "$PACKAGE_FILE" ]; then
     # Sometimes gh download creates a directory with the name of the artifact
@@ -219,11 +219,11 @@ else
 fi
 
 echo "🔄 Restarting service..."
-if command -v systemctl &> /dev/null && systemctl is-active --quiet photolib; then
-    sudo systemctl restart photolib
+if command -v systemctl &> /dev/null && systemctl is-active --quiet kuvalib; then
+    sudo systemctl restart kuvalib
     echo "✅ Service restarted."
-elif command -v pm2 &> /dev/null && pm2 describe photolib &> /dev/null; then
-    pm2 restart photolib
+elif command -v pm2 &> /dev/null && pm2 describe kuvalib &> /dev/null; then
+    pm2 restart kuvalib
     echo "✅ PM2 process restarted."
 else
     echo "⚠️  Could not automatically restart service. Please restart it manually."

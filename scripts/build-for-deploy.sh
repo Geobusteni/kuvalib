@@ -4,7 +4,7 @@
 
 set -e
 
-echo "🏗️  Building Photolib for deployment..."
+echo "🏗️  Building Kuvalib for deployment..."
 echo ""
 
 # Ensure we're in the project root

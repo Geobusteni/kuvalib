@@ -5,8 +5,8 @@
 
 export type FeedbackType = 'LIKE' | 'DISLIKE' | 'COMMENT'
 
-const VISITOR_ID_KEY = 'photolib:visitorId'
-const FEEDBACK_KEY_PREFIX = 'photolib:feedback:'
+const VISITOR_ID_KEY = 'kuvalib:visitorId'
+const FEEDBACK_KEY_PREFIX = 'kuvalib:feedback:'
 
 // One id per browser, reused across every project it visits — not per-project.
 export function getVisitorId(): string {

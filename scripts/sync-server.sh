@@ -6,11 +6,11 @@ set -e
 
 # Configuration
 REMOTE_USER="" # e.g. "ubuntu"
-REMOTE_HOST="" # e.g. "photolib.example.com"
-REMOTE_PATH="" # e.g. "/var/www/photolib"
-PACKAGE_FILE="photolib-deploy.tar.gz"
+REMOTE_HOST="" # e.g. "kuvalib.example.com"
+REMOTE_PATH="" # e.g. "/var/www/kuvalib"
+PACKAGE_FILE="kuvalib-deploy.tar.gz"
 
-echo "🔄 Photolib Sync Script"
+echo "🔄 Kuvalib Sync Script"
 
 # Check if we have the package
 if [ ! -f "$PACKAGE_FILE" ]; then
@@ -24,7 +24,7 @@ if [ -z "$REMOTE_USER" ] || [ -z "$REMOTE_HOST" ] || [ -z "$REMOTE_PATH" ]; then
   echo "⚠️  Remote configuration not set in script."
   read -p "Remote user (e.g. ubuntu): " REMOTE_USER
   read -p "Remote host (e.g. 1.2.3.4): " REMOTE_HOST
-  read -p "Remote path (e.g. /var/www/photolib): " REMOTE_PATH
+  read -p "Remote path (e.g. /var/www/kuvalib): " REMOTE_PATH
 fi
 
 echo "📤 Uploading package to $REMOTE_USER@$REMOTE_HOST:$REMOTE_PATH..."
@@ -49,8 +49,8 @@ echo "📊 Running database migrations..."
 ssh "$REMOTE_USER@$REMOTE_HOST" "cd $REMOTE_PATH && npx prisma migrate deploy"
 
 echo "🔄 Restarting service..."
-echo "   (This assumes you have a systemd service named 'photolib')"
-ssh "$REMOTE_USER@$REMOTE_HOST" "sudo systemctl restart photolib || echo '⚠️ Could not restart photolib service. Is it configured?'"
+echo "   (This assumes you have a systemd service named 'kuvalib')"
+ssh "$REMOTE_USER@$REMOTE_HOST" "sudo systemctl restart kuvalib || echo '⚠️ Could not restart kuvalib service. Is it configured?'"
 
 echo ""
 echo "✅ Sync complete!"

@@ -1,6 +1,6 @@
-# Photolib
+# Kuvalib
 
-**Version 1.3.0** — See [`CHANGELOG.md`](./CHANGELOG.md) for details.
+**Version 1.5.0** — See [`CHANGELOG.md`](./CHANGELOG.md) for details.
 
 A private photography delivery application. Clients receive a gallery — gated by a shared
 password or by their email address — where they can view and download delivered photographs.
@@ -10,6 +10,7 @@ password or by their email address — where they can view and download delivere
 ## Documentation
 
 - **[README.md](./README.md)** (this file) — Installation and development setup
+- **[SHOWCASE.md](./SHOWCASE.md)** — Building and sharing an album showcase
 - **[DEPLOYMENT.md](./DEPLOYMENT.md)** — Production deployment guide
 - **[OPERATIONS.md](./OPERATIONS.md)** — Day-to-day operations (starting/stopping, logs, troubleshooting)
 - **[ARCHITECTURE.md](./ARCHITECTURE.md)** — Technical architecture and design decisions
@@ -27,6 +28,7 @@ password or by their email address — where they can view and download delivere
 - **Iron Session** for cookie-based auth
 - **Sharp** for thumbnail generation
 - **fflate** for ZIP creation and extraction
+- **Craft.js**, **react-rnd**, **zustand** — the album-showcase builder only
 
 ---
 
@@ -48,9 +50,9 @@ own values throughout.
 brew install mysql
 brew services start mysql
 mysql -u root
-CREATE DATABASE photolib CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
-CREATE USER 'photolib'@'localhost' IDENTIFIED BY 'your-password';
-GRANT ALL PRIVILEGES ON photolib.* TO 'photolib'@'localhost';
+CREATE DATABASE kuvalib CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
+CREATE USER 'kuvalib'@'localhost' IDENTIFIED BY 'your-password';
+GRANT ALL PRIVILEGES ON kuvalib.* TO 'kuvalib'@'localhost';
 FLUSH PRIVILEGES;
 EXIT;
 ```
@@ -61,9 +63,9 @@ EXIT;
 sudo apt install mysql-server
 sudo systemctl start mysql
 sudo mysql
-CREATE DATABASE photolib CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
-CREATE USER 'photolib'@'localhost' IDENTIFIED BY 'your-password';
-GRANT ALL PRIVILEGES ON photolib.* TO 'photolib'@'localhost';
+CREATE DATABASE kuvalib CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
+CREATE USER 'kuvalib'@'localhost' IDENTIFIED BY 'your-password';
+GRANT ALL PRIVILEGES ON kuvalib.* TO 'kuvalib'@'localhost';
 FLUSH PRIVILEGES;
 EXIT;
 ```
@@ -76,7 +78,7 @@ npm install
 
 ### 4. Configure
 
-Photolib uses **one** configuration file: `.env` in the project root, like WordPress's `wp-config.php`.
+Kuvalib uses **one** configuration file: `.env` in the project root, like WordPress's `wp-config.php`.
 
 ```bash
 cp .env.example .env
@@ -97,7 +99,7 @@ node -e "console.log(require('crypto').randomBytes(32).toString('hex'))"
 A finished `.env`:
 
 ```
-DATABASE_URL='mysql://photolib:your-password@localhost:3306/photolib'
+DATABASE_URL='mysql://kuvalib:your-password@localhost:3306/kuvalib'
 SESSION_SECRET='<64-hex-characters>'
 UPLOAD_DIR=./uploads
 ```
@@ -134,9 +136,9 @@ mysql://USER:PASSWORD@HOST:PORT/DATABASE
 
 | Variation            | Example                                                              |
 |----------------------|----------------------------------------------------------------------|
-| Standard (localhost) | `mysql://photolib:your-password@localhost:3306/photolib`            |
-| Remote server        | `mysql://photolib:your-password@192.168.1.100:3306/photolib`        |
-| Custom port          | `mysql://photolib:your-password@localhost:3307/photolib`            |
+| Standard (localhost) | `mysql://kuvalib:your-password@localhost:3306/kuvalib`            |
+| Remote server        | `mysql://kuvalib:your-password@192.168.1.100:3306/kuvalib`        |
+| Custom port          | `mysql://kuvalib:your-password@localhost:3307/kuvalib`            |
 
 Passwords sit inside a URL, so `@ / : # ?` must be percent-encoded:
 
@@ -147,7 +149,7 @@ node -e "console.log(encodeURIComponent('your-password'))"
 Verify the connection before running migrations:
 
 ```bash
-mysql -u photolib -p -e "SELECT 1;"
+mysql -u kuvalib -p -e "SELECT 1;"
 ```
 
 | Message                          | Cause                                         |
@@ -208,7 +210,7 @@ again. Account passwords remain hashed and cannot be read back.
 Sign in at `/login`. From **Projects** you can:
 
 - Create a project (title, event date, access type, password, expiration, download toggles)
-- Upload JPEG photos, or a ZIP that Photolib unpacks into photos — the upload zone shows a
+- Upload JPEG photos, or a ZIP that Kuvalib unpacks into photos — the upload zone shows a
   progress percentage, so a large photo (13MB+) doesn't look stuck
 - Upload the client-facing archive under **Download archive**
 - Assign users and guests under **People**
@@ -231,11 +233,21 @@ Uploading a name that already exists in the project prompts for a choice:
 
 #### The Download ZIP button
 
-Clients see **Download ZIP** only when you upload an archive under **Download archive**. Photolib
+Clients see **Download ZIP** only when you upload an archive under **Download archive**. Kuvalib
 never builds a full archive itself — upload the export from your editing software instead.
 
 Clients can always zip their own selection; that is generated on demand regardless. The **Offer
 the uploaded archive for download** toggle hides the button without deleting the archive.
+
+#### Album showcase
+
+Optionally, build a **showcase** for a project: a designed, page-by-page slideshow (cover,
+captions, chapters, background music) shared on its own link, `https://yourdomain.com/s/[showcase-id]`.
+It uses the **same password and expiry as the gallery**, and a client who has opened one can
+move to the other without signing in again.
+
+**Create showcase** in the project's **Showcase** section opens the builder. Full guide:
+**[SHOWCASE.md](./SHOWCASE.md)**.
 
 ### Client gallery
 
@@ -269,6 +281,17 @@ the uploaded archive for download** toggle hides the button without deleting the
 | `Home`    | First image       |
 | `End`     | Last image        |
 
+**Showcase viewer**
+
+| Key       | Action                  |
+|-----------|-------------------------|
+| `←` / `→` | Previous / Next page    |
+| `Home` / `End` | First / Last page  |
+| `F`       | Toggle fullscreen       |
+| `Space`   | Play / pause autoplay   |
+| `D`       | Download the album      |
+| `Escape`  | Exit fullscreen         |
+
 ---
 
 ## File storage
@@ -279,6 +302,7 @@ uploads/
     photos/    originals, under generated names
     thumbs/    generated thumbnails (400px and 1200px wide)
     archive/   the ZIP you uploaded for clients, if any
+    audio/     the showcase's background-music tracks, if any
 ```
 
 Uploaded filenames live in the database, not on disk, and are reattached on download. Both
@@ -309,7 +333,7 @@ npm run lint               # lint
 
 ## Accessibility
 
-Photolib targets WCAG 2.1 AA. It is fully keyboard-navigable and respects
+Kuvalib targets WCAG 2.1 AA. It is fully keyboard-navigable and respects
 `prefers-reduced-motion`; all animation is CSS-only and collapses to zero duration when motion
 is reduced.
 
@@ -319,7 +343,7 @@ is reduced.
 
 Copyright (C) 2026 Alexandru Negoita.
 
-Photolib is free software: you can redistribute it and/or modify it under the terms of the
+Kuvalib is free software: you can redistribute it and/or modify it under the terms of the
 **GNU General Public License, version 3 or later**, as published by the Free Software Foundation.
 
 It is distributed in the hope that it will be useful, but **without any warranty** — without even

@@ -1,6 +1,6 @@
 {
-  "name": "photolib",
-  "version": "1.4.0",
+  "name": "kuvalib",
+  "version": "1.5.0",
   "license": "GPL-3.0-or-later",
   "private": true,
   "engines": {
@@ -14,6 +14,7 @@
     "lint": "eslint"
   },
   "dependencies": {
+    "@craftjs/core": "^0.2.12",
     "@prisma/adapter-mariadb": "^7.9.1",
     "@prisma/client": "^7.9.1",
     "bcryptjs": "^3.0.3",
@@ -25,7 +26,9 @@
     "prisma": "^7.9.1",
     "react": "19.2.4",
     "react-dom": "19.2.4",
-    "sharp": "^0.35.3"
+    "react-rnd": "^10.5.3",
+    "sharp": "^0.35.3",
+    "zustand": "^5.0.15"
   },
   "devDependencies": {
     "@tailwindcss/postcss": "^4",

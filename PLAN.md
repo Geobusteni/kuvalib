@@ -1,4 +1,4 @@
-# Photolib – Build Plan
+# Kuvalib – Build Plan
 
 > Read `AGENTS.md` and `ARCHITECTURE.md` before starting any phase.
 >
@@ -59,7 +59,7 @@ Create `lib/db.ts` — singleton SQLite connection.
 import Database from 'better-sqlite3'
 import path from 'path'
 
-const DB_PATH = path.join(process.cwd(), 'photolib.db')
+const DB_PATH = path.join(process.cwd(), 'kuvalib.db')
 
 let db: Database.Database
 
@@ -113,7 +113,7 @@ Session options:
 ```ts
 export const sessionOptions = {
   password: process.env.SESSION_SECRET!,
-  cookieName: 'photolib_session',
+  cookieName: 'kuvalib_session',
   cookieOptions: { secure: process.env.NODE_ENV === 'production' },
 }
 ```
@@ -263,7 +263,7 @@ File: `app/(admin)/projects/[id]/page.tsx` (Server Component)
 ### 2.6 Admin navigation
 
 Update `app/(admin)/layout.tsx` to include a simple top bar:
-- "Photolib" wordmark (links to `/projects`)
+- "Kuvalib" wordmark (links to `/projects`)
 - Logout button
 
 ### 2.7 Acceptance criteria
@@ -788,7 +788,7 @@ Add a simple in-memory rate limiter on the gallery password route to prevent bru
 Update `app/layout.tsx` with proper metadata:
 ```ts
 export const metadata = {
-  title: { default: 'Photolib', template: '%s | Photolib' },
+  title: { default: 'Kuvalib', template: '%s | Kuvalib' },
   robots: { index: false, follow: false },
 }
 ```
@@ -802,7 +802,7 @@ Before first deployment, verify:
 - [ ] `SESSION_SECRET` is at least 32 random characters
 - [ ] `UPLOAD_DIR` is an absolute path writable by the Node process
 - [ ] `uploads/` is excluded from source control
-- [ ] `photolib.db` is excluded from source control
+- [ ] `kuvalib.db` is excluded from source control
 
 ### 9.7 Acceptance criteria
 
@@ -830,6 +830,50 @@ Mark each phase done as it is verified:
 - [x] Phase 10 — PostgreSQL, Prisma, Roles and Access Types
 - [x] Phase 11 — Password Visibility, Uploaded Archives, Original Filenames
 - [x] Phase 12 — Client Photo Feedback (Like/Dislike/Comment)
+- [x] Phase 13 — Album Showcase (Stage 2)
+
+---
+
+## Phase 13 — Album Showcase (Stage 2) `[DONE]`
+
+Stage 2: an admin-built, page-by-page designed slideshow assembled from a project's photos and
+shared on its own link. Built on Craft.js. See `design_handoff_album_showcase/` for the spec and
+the interactive design reference.
+
+**Data model** — `Showcase` (one per `Project`, inherits its access), `ShowcasePage`
+(`blocksJson` — one JSON blob per page), `ShowcaseTrack` (music files under
+`uploads/<project>/audio/`). Enums `ShowcaseEventType`, `ShowcaseBg`, `ShowcaseAnimation`.
+Migration `20260910120000_add_showcase`.
+
+**Shared, framework-free core** — `lib/showcase-blocks.ts` (block types, the no-overlap
+stack/align geometry, Cover composite, flatten/nest, block sanitisation) and
+`lib/showcase-theme.ts` (event-type accent CSS variables, per-block appearance). `lib/showcase.ts`
+is the data-access layer; `lib/audio.ts` sniffs upload formats.
+
+**API** — `POST/PUT/DELETE /api/projects/[id]/showcase`, `PUT .../showcase/pages`,
+`POST/GET .../showcase/tracks`, `GET/DELETE .../showcase/tracks/[trackId]` (stream gated by
+`verifyGalleryAccess`, supports `Range`). ZIP download reuses `POST /api/projects/[id]/download`.
+
+**Builder** — `app/(admin)/projects/[id]/showcase/page.tsx` → `components/showcase/builder/*`.
+Craft.js `<Editor>` with a flat node tree (group membership is the `parentGroupId` prop, not DOM
+nesting); `react-rnd` drag/resize writing percentage props; `zustand` for album settings, the
+page list and non-active page snapshots. Autosaves the whole deck.
+
+**Viewer** — `app/(gallery)/s/[slug]/page.tsx` → `components/showcase/viewer/*`. Craft-free:
+renders the flattened block list, runs the `idle→out→pre→in` page-turn machine (collapsed under
+`prefers-reduced-motion`), autoplay + loop, thumbnail rail, fullscreen (`lib/fullscreen.ts`),
+`<audio>` playlist, share link, download dialog. Reuses `components/gallery/AccessGate` and the
+existing `POST /api/projects/[id]/auth` so the showcase and gallery share the
+`kuvalib_gallery_[projectId]` cookie.
+
+- [x] Schema, migration, storage helpers, shared libs
+- [x] Create/delete showcase + admin entry point
+- [x] Craft builder: blocks, drag/resize, settings panel, pages, autosave
+- [x] Groups: re-parent by geometry, arrange without overlap
+- [x] Album settings dialog + music upload/playback
+- [x] Viewer: transitions, autoplay, thumbnails, fullscreen, music, download, access gate
+- [ ] Full keyboard-only and screen-reader passes over the builder and viewer
+- [ ] Re-run the accessibility checklist over the new surfaces
 
 ---
 
@@ -1043,7 +1087,7 @@ migration bug.
 ### Verification
 
 `npx tsc --noEmit`, `npx eslint .`, and `npm run build` all clean. A local MySQL/MariaDB dev
-database was set up (`photolib_dev`) and `.env` pointed at it, so this round — unlike Phase 12's
+database was set up (`kuvalib_dev`) and `.env` pointed at it, so this round — unlike Phase 12's
 first pass — was verified against a real running app: migrations applied cleanly, and every fix
 above was reproduced and confirmed fixed live in a browser (including the hydration bug itself,
 confirmed via the exact React hydration-mismatch console warning before the fix, and its absence

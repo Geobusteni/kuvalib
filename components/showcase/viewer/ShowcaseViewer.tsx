@@ -1,0 +1,263 @@
+// SPDX-License-Identifier: GPL-3.0-or-later
+// Copyright (C) 2026 Alexandru Negoita
+
+'use client'
+
+import { useCallback, useEffect, useRef, useState, useSyncExternalStore } from 'react'
+import type { Block } from '@/lib/showcase-blocks'
+import { collectPhotoIds } from '@/lib/showcase-blocks'
+import { showcaseThemeVars } from '@/lib/showcase-theme'
+import {
+  exitFullscreen,
+  isFullscreenActive,
+  isFullscreenSupported,
+  requestFullscreen,
+} from '@/lib/fullscreen'
+import { useReducedMotion } from '@/hooks/useReducedMotion'
+import type {
+  ShowcaseAnimation,
+  ShowcaseBg,
+  ShowcaseEventType,
+} from '@/lib/generated/prisma/client'
+import type { ShowcasePhoto } from '../photos-context'
+import { PageStage } from './PageStage'
+import { ViewerControls } from './ViewerControls'
+import { ThumbnailRail } from './ThumbnailRail'
+import { MusicPlayer } from './MusicPlayer'
+import { ShowcaseDownloadDialog } from './ShowcaseDownloadDialog'
+import { useSlideshow } from './useSlideshow'
+
+export interface ShowcaseViewerSettings {
+  title: string
+  eventType: ShowcaseEventType
+  albumBg: ShowcaseBg
+  animationStyle: ShowcaseAnimation
+  autoplay: boolean
+  autoplaySeconds: number
+  playlistLoop: boolean
+}
+
+export interface ShowcaseViewerProps {
+  projectId: string
+  pages: { id: string; blocks: Block[] }[]
+  photos: ShowcasePhoto[]
+  settings: ShowcaseViewerSettings
+  trackIds: string[]
+  galleryHref: string
+  shareUrl: string
+  downloadEnabled: boolean
+  /** Shown only inside the builder preview. */
+  backHref?: string
+}
+
+const CONTROLS_HIDE_MS = 3000
+
+export function ShowcaseViewer({
+  projectId,
+  pages,
+  photos,
+  settings,
+  trackIds,
+  galleryHref,
+  shareUrl,
+  downloadEnabled,
+  backHref,
+}: ShowcaseViewerProps) {
+  const reducedMotion = useReducedMotion()
+  const stageRef = useRef<HTMLDivElement>(null)
+  const total = Math.max(1, pages.length)
+
+  const { current, phase, dir, playing, setPlaying, next, prev, goTo } = useSlideshow({
+    total,
+    autoplay: settings.autoplay,
+    autoplaySeconds: settings.autoplaySeconds,
+    reducedMotion,
+  })
+
+  const [musicOn, setMusicOn] = useState(false)
+  const [thumbsOpen, setThumbsOpen] = useState(false)
+  const [downloadOpen, setDownloadOpen] = useState(false)
+  const [isFs, setIsFs] = useState(false)
+  const [controlsVisible, setControlsVisible] = useState(true)
+  const [toast, setToast] = useState<string | null>(null)
+  const hideTimer = useRef<ReturnType<typeof setTimeout> | null>(null)
+
+  // `isFullscreenSupported()` reads `document`; the server snapshot is `false` so
+  // the first client render matches, then React swaps in the real value without a
+  // hydration error.
+  const fullscreenSupported = useSyncExternalStore(
+    () => () => {},
+    () => isFullscreenSupported(),
+    () => false,
+  )
+  const page = pages[Math.min(current, pages.length - 1)]
+  const downloadPhotoIds = collectPhotoIds(pages.map((p) => ({ id: p.id, blocks: p.blocks })))
+
+  const flashToast = useCallback((message: string) => {
+    setToast(message)
+    setTimeout(() => setToast(null), 2200)
+  }, [])
+
+  // Fullscreen: track the browser state; leave fullscreen when the viewer unmounts.
+  useEffect(() => {
+    const onChange = () => {
+      const active = isFullscreenActive()
+      setIsFs(active)
+      if (!active) setControlsVisible(true)
+    }
+    document.addEventListener('fullscreenchange', onChange)
+    return () => {
+      document.removeEventListener('fullscreenchange', onChange)
+      if (isFullscreenActive()) exitFullscreen().catch(() => {})
+    }
+  }, [])
+
+  const toggleFullscreen = useCallback(() => {
+    if (isFullscreenActive()) {
+      exitFullscreen().catch(() => {})
+    } else if (stageRef.current) {
+      requestFullscreen(stageRef.current).catch(() => {})
+    }
+  }, [])
+
+  // Auto-hide controls after inactivity while in fullscreen. Activity handlers
+  // (event-driven) reveal them again; leaving fullscreen restores them above.
+  useEffect(() => {
+    if (!isFs) return
+    const bump = () => {
+      setControlsVisible(true)
+      if (hideTimer.current) clearTimeout(hideTimer.current)
+      hideTimer.current = setTimeout(() => setControlsVisible(false), CONTROLS_HIDE_MS)
+    }
+    hideTimer.current = setTimeout(() => setControlsVisible(false), CONTROLS_HIDE_MS)
+    window.addEventListener('mousemove', bump)
+    window.addEventListener('keydown', bump)
+    window.addEventListener('touchstart', bump)
+    return () => {
+      window.removeEventListener('mousemove', bump)
+      window.removeEventListener('keydown', bump)
+      window.removeEventListener('touchstart', bump)
+      if (hideTimer.current) clearTimeout(hideTimer.current)
+    }
+  }, [isFs])
+
+  // Keyboard shortcuts.
+  useEffect(() => {
+    const onKey = (e: KeyboardEvent) => {
+      const target = e.target as HTMLElement
+      if (target.tagName === 'INPUT' || target.tagName === 'TEXTAREA') return
+      switch (e.key) {
+        case 'ArrowRight': next(); break
+        case 'ArrowLeft': prev(); break
+        case 'Home': goTo(0); break
+        case 'End': goTo(total - 1); break
+        case 'f': case 'F': if (fullscreenSupported) toggleFullscreen(); break
+        case ' ': e.preventDefault(); setPlaying(!playing); break
+        case 'd': case 'D': if (downloadEnabled) setDownloadOpen(true); break
+        case 'Escape': if (isFullscreenActive()) exitFullscreen().catch(() => {}); break
+      }
+    }
+    window.addEventListener('keydown', onKey)
+    return () => window.removeEventListener('keydown', onKey)
+  }, [next, prev, goTo, total, toggleFullscreen, fullscreenSupported, playing, setPlaying, downloadEnabled])
+
+  const share = useCallback(() => {
+    const absolute =
+      typeof window !== 'undefined' ? new URL(shareUrl, window.location.origin).href : shareUrl
+    navigator.clipboard?.writeText(absolute).then(
+      () => flashToast('Showcase link copied'),
+      () => flashToast('Could not copy the link'),
+    )
+  }, [shareUrl, flashToast])
+
+  return (
+    <div
+      ref={stageRef}
+      className="relative flex min-h-screen flex-col items-center justify-center overflow-hidden bg-black px-6"
+      style={{
+        ...showcaseThemeVars(settings.eventType, settings.albumBg),
+        backgroundImage:
+          'radial-gradient(ellipse at 50% 15%, color-mix(in oklab, var(--sc-accent) 22%, #000), #000 62%)',
+      }}
+      onClick={() => {
+        if (isFs) setControlsVisible((v) => !v)
+      }}
+    >
+      <ViewerControls
+        pageLabel={`${current + 1} / ${total}`}
+        hasMusic={trackIds.length > 0}
+        musicOn={musicOn}
+        onToggleMusic={() => setMusicOn((v) => !v)}
+        autoplay={playing}
+        onToggleAutoplay={() => setPlaying(!playing)}
+        onToggleThumbs={() => setThumbsOpen((v) => !v)}
+        showFullscreen={fullscreenSupported}
+        onToggleFullscreen={toggleFullscreen}
+        onShare={share}
+        onDownload={() => setDownloadOpen(true)}
+        showDownload={downloadEnabled}
+        backHref={backHref}
+        visible={controlsVisible}
+      />
+
+      <div className="relative" onClick={(e) => e.stopPropagation()}>
+        <PageStage
+          blocks={page?.blocks ?? []}
+          photos={photos}
+          animationStyle={settings.animationStyle}
+          phase={phase}
+          dir={dir}
+          galleryHref={galleryHref}
+          onZipClick={downloadEnabled ? () => setDownloadOpen(true) : undefined}
+        />
+        {total > 1 && (
+          <>
+            <button
+              type="button"
+              aria-label="Previous page"
+              onClick={prev}
+              className="absolute -left-2 top-1/2 flex h-11 w-11 -translate-y-1/2 items-center justify-center rounded-full bg-white/10 text-white hover:bg-white/20 sm:-left-14"
+            >
+              <svg width="18" height="18" viewBox="0 0 20 20" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M13 4l-6 6 6 6" /></svg>
+            </button>
+            <button
+              type="button"
+              aria-label="Next page"
+              onClick={next}
+              className="absolute -right-2 top-1/2 flex h-11 w-11 -translate-y-1/2 items-center justify-center rounded-full bg-white/10 text-white hover:bg-white/20 sm:-right-14"
+            >
+              <svg width="18" height="18" viewBox="0 0 20 20" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M7 4l6 6-6 6" /></svg>
+            </button>
+          </>
+        )}
+      </div>
+
+      {thumbsOpen && (
+        <ThumbnailRail count={total} current={current} onSelect={(i) => { goTo(i); setThumbsOpen(false) }} />
+      )}
+
+      <MusicPlayer
+        projectId={projectId}
+        trackIds={trackIds}
+        loop={settings.playlistLoop}
+        playing={musicOn}
+        onStopped={() => setMusicOn(false)}
+      />
+
+      {downloadOpen && (
+        <ShowcaseDownloadDialog
+          projectId={projectId}
+          title={settings.title}
+          photoIds={downloadPhotoIds}
+          onClose={() => setDownloadOpen(false)}
+        />
+      )}
+
+      {toast && (
+        <div className="pointer-events-none absolute bottom-6 left-1/2 -translate-x-1/2 rounded-lg bg-white px-4 py-2 text-sm text-zinc-900 shadow-lg">
+          {toast}
+        </div>
+      )}
+    </div>
+  )
+}

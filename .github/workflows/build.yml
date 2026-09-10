@@ -60,11 +60,11 @@ jobs:
           cd ..
 
       - name: Create artifact
-        run: tar -czf photolib-deploy.tar.gz -C deploy .
+        run: tar -czf kuvalib-deploy.tar.gz -C deploy .
 
       - name: Upload Build Artifact
         uses: actions/upload-artifact@v4
         with:
-          name: photolib-deploy
-          path: photolib-deploy.tar.gz
+          name: kuvalib-deploy
+          path: kuvalib-deploy.tar.gz
           retention-days: 5

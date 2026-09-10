@@ -14,7 +14,7 @@ export interface SessionData {
 
 export const sessionOptions = {
   password: process.env.SESSION_SECRET!,
-  cookieName: 'photolib_session',
+  cookieName: 'kuvalib_session',
   cookieOptions: {
     // Only require secure cookies if explicitly set in env (for proxied HTTPS setups)
     secure: process.env.COOKIE_SECURE === 'true',

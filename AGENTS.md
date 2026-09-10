@@ -6,7 +6,7 @@ This version has breaking changes — APIs, conventions, and file structure may 
 
 ---
 
-# Photolib – AI Agent Instructions
+# Kuvalib – AI Agent Instructions
 
 Read these files in order before writing any code:
 
@@ -17,7 +17,7 @@ Read these files in order before writing any code:
 
 ## What This Project Is
 
-Photolib is a **private photography delivery application** for a single photographer's business.
+Kuvalib is a **private photography delivery application** for a single photographer's business.
 
 It is not a SaaS product. It is not a proofing tool. It is not an image management system.
 
@@ -65,6 +65,12 @@ Every dependency requires clear justification. Do not install libraries "just in
 **Poor reasons:** simple animations, gesture detection, small utilities already in modern JS.
 
 Framer Motion: only if a UX requirement cannot reasonably be achieved with CSS.
+
+The showcase builder is the one place with heavier dependencies — `@craftjs/core` (the canvas
+node tree, selection and serialisation), `react-rnd` (Craft has no resize handles) and `zustand`
+(album state that spans the builder and outlives Craft's per-frame editor state). These were
+approved for that feature specifically; the showcase **viewer** and everything else stay
+dependency-light (the viewer does not load Craft at all).
 
 ### 9. Database Access Goes Through the ORM
 
@@ -136,6 +142,11 @@ them impossible either.
 `SESSION_SECRET`), because the photographer has to read them back to send them to a client. Do not
 "fix" this to bcrypt. Account passwords are the ones that stay hashed.
 
+A project's **showcase** (Stage 2) has no gate of its own: it reuses `verifyGalleryAccess` and
+the existing `POST /api/projects/[id]/auth` route, so passing the showcase or the gallery gate
+sets the same `kuvalib_gallery_[projectId]` cookie and admits the visitor to both. There is one
+showcase per project. Keep it that way — do not add a per-showcase password.
+
 ---
 
 ## Files and Downloads
@@ -155,7 +166,7 @@ The admin re-sends with `strategy` set to `rename` or `overwrite`. Never resolve
 silently.
 
 **The client-facing ZIP is uploaded, never generated.** `Project.archiveName` is null until an
-admin uploads one, and the gallery shows "Download ZIP" only when it is set. The only ZIP Photolib
+admin uploads one, and the gallery shows "Download ZIP" only when it is set. The only ZIP Kuvalib
 creates is a client's own selection.
 
 ---
@@ -181,6 +192,20 @@ Do not add anything outside this scope unless explicitly requested.
 - View aggregated likes/dislikes and comment text per photo
 - Reset all feedback for a project (wipes it, lets clients react again)
 
+### Album Showcase (Stage 2)
+
+- Create one showcase per project (a designed, page-by-page slideshow built from that project's
+  photos), from a button on the project page
+- Build it on a canvas: add pages; add Cover / Image / Title / Text / Button / Group blocks;
+  drag and resize them; group blocks and arrange a group's children; pick a photo, edit text,
+  wire a button to a URL / the ZIP download / the gallery; set per-block colour and corners
+- Album settings: title, date, event type (accent hue), background, page-transition style,
+  autoplay + seconds per page
+- Upload a background-music playlist (MP3/M4A/OGG/WAV), toggle looping
+- Preview the showcase in-app; open or copy its public link; delete the showcase
+- The showcase is **read-only for clients** and inherits the project's access type, password and
+  expiry — there is no separate showcase gate
+
 ### Client Features
 
 - Password-protected or email-gated gallery
@@ -193,6 +218,10 @@ Do not add anything outside this scope unless explicitly requested.
 - Like, dislike, or comment on individual photos, once per photo per browser, when the
   photographer has enabled feedback for the gallery
 - Undo their own like/dislike/comment on a photo, freeing it up to react again
+- View a project's showcase, when the photographer has built and shared one: a page-turning
+  slideshow with autoplay, background music, fullscreen, a thumbnail rail, a copy-link button,
+  and a "Download as ZIP" of the showcase's photos
+- Move between a showcase and its gallery without re-entering the password
 
 ---
 
@@ -247,6 +276,38 @@ iOS Safari has no Fullscreen API for non-`<video>` elements. On browsers where
 `isFullscreenSupported()` (`lib/fullscreen.ts`) reports no support, the Fullscreen control is
 hidden entirely rather than offered with nothing behind it.
 
+### Showcase Builder
+
+- Three columns: page rail, canvas, per-block settings panel. The canvas is a 16:10 frame; a
+  block's position and size are stored as **percentages** of it, canvas-absolute even for a
+  block inside a group.
+- Selecting a block fills the settings panel; dragging moves it; the corner handles resize it
+  (only on the selected block).
+- A **Group** is a positioning container. Dragging a block so its centre falls inside a group's
+  box makes it that group's child; dragging a child's centre out makes it top-level again —
+  there is no explicit bind/unbind control.
+- A group's "Arrange children" actions (stack, align) **never overlap or clip** the children:
+  they re-sequence along one axis with a fixed gap, then shrink every child together if the run
+  does not fit, down to a per-type minimum.
+- A **Cover** is not a block type — it inserts a full-bleed Image plus a Group of Title / Text /
+  Button(`gallery`). Every piece is then an ordinary, individually editable block.
+- The deck autosaves; there is also an explicit Save.
+
+### Showcase Viewer
+
+- A page is exactly its blocks, rendered as laid out (WYSIWYG) — no separate chapter/photo
+  abstraction.
+- Page transition is one of turn / fade / zoom (Album settings). All of it is gated by
+  `prefers-reduced-motion`; with motion reduced the page swaps instantly and autoplay still
+  advances.
+- Top bar: page counter, music toggle (only with tracks), autoplay toggle, thumbnail-rail
+  toggle, fullscreen (hidden where unsupported), copy-link, download. In fullscreen the bar
+  auto-hides after ~3 s and returns on activity.
+- Background music starts only from the music toggle (browsers block autoplay audio); the
+  playlist advances track to track and loops if enabled.
+- A Button block with link type `zip` opens the download dialog, `gallery` links to `/g/<id>`,
+  `custom` opens an http(s) URL in a new tab (anything else is inert).
+
 ### Keyboard Shortcuts
 
 **Gallery**
@@ -274,6 +335,19 @@ hidden entirely rather than offered with nothing behind it.
 | D          | Open download options |
 | Home       | First image      |
 | End        | Last image       |
+
+**Showcase Viewer**
+
+| Key        | Action                        |
+|------------|-------------------------------|
+| ←          | Previous page                 |
+| →          | Next page                     |
+| Home       | First page                    |
+| End        | Last page                     |
+| F          | Toggle Fullscreen             |
+| Space      | Play/Pause autoplay           |
+| D          | Open the download dialog      |
+| Escape     | Exit fullscreen               |
 
 ---
 
@@ -355,6 +429,7 @@ Also keep these in sync when the relevant thing changes:
 | File              | Update when                                                      |
 |-------------------|------------------------------------------------------------------|
 | `README.md`       | Anything a user or operator would need to know                    |
+| `SHOWCASE.md`     | The showcase builder or viewer changes — blocks, settings, sharing, controls |
 | `ARCHITECTURE.md` | Schema, routes, auth flow, component structure, or a real decision|
 | `CHANGELOG.md`    | Any user-visible change, in `[Unreleased]`                        |
 | `PLAN.md`         | A phase is completed, or scope changes                            |
@@ -367,7 +442,7 @@ explaining why — including the ones that came from a bug, so nobody reverts th
 
 ## Licensing
 
-Photolib is **GPL-3.0-or-later**. The full text is in `LICENSE` and must not be edited.
+Kuvalib is **GPL-3.0-or-later**. The full text is in `LICENSE` and must not be edited.
 
 Every authored source file starts with:
 

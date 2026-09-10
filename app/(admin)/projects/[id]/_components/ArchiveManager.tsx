@@ -50,7 +50,7 @@ export default function ArchiveManager({ projectId, archiveName, archiveSize }: 
     <div className="rounded-xl border border-zinc-200 p-4 dark:border-zinc-800">
       <h2 className="text-sm font-semibold text-zinc-900 dark:text-zinc-100">Download archive</h2>
       <p className="mt-1 text-xs text-zinc-500">
-        Clients only see a “Download ZIP” button when you upload an archive here. Photolib never
+        Clients only see a “Download ZIP” button when you upload an archive here. Kuvalib never
         builds a full archive on its own — clients can still zip their own selection.
       </p>
 

@@ -4,7 +4,7 @@
 
 set -e
 
-echo "🏗️  Building Photolib for production..."
+echo "🏗️  Building Kuvalib for production..."
 echo ""
 
 # Ensure we're in the project root

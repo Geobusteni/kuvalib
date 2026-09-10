@@ -4,7 +4,7 @@
 
 set -e
 
-echo "🔄 Updating Photolib..."
+echo "🔄 Updating Kuvalib..."
 echo ""
 
 # Ensure we're in the project root
@@ -76,7 +76,7 @@ echo "✅ Update complete!"
 echo "📌 Version: $VERSION"
 echo ""
 echo "🔄 Restart the application to apply changes:"
-echo "   - If using PM2: pm2 restart photolib"
-echo "   - If using systemd: sudo systemctl restart photolib"
+echo "   - If using PM2: pm2 restart kuvalib"
+echo "   - If using systemd: sudo systemctl restart kuvalib"
 echo "   - If running manually: stop and run 'npm start' again"
 echo ""

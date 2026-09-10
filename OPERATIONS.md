@@ -1,6 +1,6 @@
-# Photolib Operations Guide
+# Kuvalib Operations Guide
 
-This guide covers day-to-day operations for running Photolib in production.
+This guide covers day-to-day operations for running Kuvalib in production.
 
 > **📖 See also:**
 > - [README.md](./README.md) — Installation and development setup
@@ -35,18 +35,18 @@ npm install -g pm2
 
 **Start the application:**
 ```bash
-cd ~/webapps/PhotoLib
-pm2 start npm --name "photolib" -- start
+cd ~/webapps/KuvaLib
+pm2 start npm --name "kuvalib" -- start
 ```
 
 **Stop the application:**
 ```bash
-pm2 stop photolib
+pm2 stop kuvalib
 ```
 
 **Restart the application:**
 ```bash
-pm2 restart photolib
+pm2 restart kuvalib
 ```
 
 **Auto-start on server reboot:**
@@ -57,16 +57,16 @@ pm2 save
 
 **Remove from PM2:**
 ```bash
-pm2 delete photolib
+pm2 delete kuvalib
 ```
 
 ### Method 2: Direct npm start (For Testing)
 
 **Start in background:**
 ```bash
-cd ~/webapps/PhotoLib
+cd ~/webapps/KuvaLib
 set -a && source .env && set +a
-nohup npm start > photolib.log 2>&1 &
+nohup npm start > kuvalib.log 2>&1 &
 ```
 
 **Stop:**
@@ -76,18 +76,18 @@ pkill -f "next start"
 
 ### Method 3: Systemd Service (Alternative)
 
-Create `/etc/systemd/system/photolib.service`:
+Create `/etc/systemd/system/kuvalib.service`:
 
 ```ini
 [Unit]
-Description=Photolib Photography Delivery Application
+Description=Kuvalib Photography Delivery Application
 After=network.target mysql.service
 
 [Service]
 Type=simple
-User=photolib
-WorkingDirectory=/home/photolib/webapps/PhotoLib
-EnvironmentFile=/home/photolib/webapps/PhotoLib/.env
+User=kuvalib
+WorkingDirectory=/home/kuvalib/webapps/KuvaLib
+EnvironmentFile=/home/kuvalib/webapps/KuvaLib/.env
 ExecStart=/usr/bin/npm start
 Restart=always
 RestartSec=10
@@ -98,11 +98,11 @@ WantedBy=multi-user.target
 
 **Manage the service:**
 ```bash
-sudo systemctl enable photolib
-sudo systemctl start photolib
-sudo systemctl stop photolib
-sudo systemctl restart photolib
-sudo systemctl status photolib
+sudo systemctl enable kuvalib
+sudo systemctl start kuvalib
+sudo systemctl stop kuvalib
+sudo systemctl restart kuvalib
+sudo systemctl status kuvalib
 ```
 
 ---
@@ -129,13 +129,13 @@ curl http://localhost:3000/api/health
 
 ```bash
 pm2 status
-pm2 show photolib
+pm2 show kuvalib
 ```
 
 ### With systemd:
 
 ```bash
-systemctl status photolib
+systemctl status kuvalib
 ```
 
 ---
@@ -146,33 +146,33 @@ systemctl status photolib
 
 ```bash
 # View real-time logs
-pm2 logs photolib
+pm2 logs kuvalib
 
 # View last 100 lines
-pm2 logs photolib --lines 100
+pm2 logs kuvalib --lines 100
 
 # View only errors
-pm2 logs photolib --err
+pm2 logs kuvalib --err
 ```
 
 ### Direct npm start:
 
 ```bash
 # View the log file
-tail -f ~/webapps/PhotoLib/photolib.log
+tail -f ~/webapps/KuvaLib/kuvalib.log
 
 # View last 100 lines
-tail -100 ~/webapps/PhotoLib/photolib.log
+tail -100 ~/webapps/KuvaLib/kuvalib.log
 
 # Search for errors
-grep -i error ~/webapps/PhotoLib/photolib.log
+grep -i error ~/webapps/KuvaLib/kuvalib.log
 ```
 
 ### With systemd:
 
 ```bash
-sudo journalctl -u photolib -f
-sudo journalctl -u photolib --since "1 hour ago"
+sudo journalctl -u kuvalib -f
+sudo journalctl -u kuvalib --since "1 hour ago"
 ```
 
 ---
@@ -188,7 +188,7 @@ pm2 monit
 ### Application Metrics:
 
 ```bash
-pm2 show photolib
+pm2 show kuvalib
 ```
 
 ### Memory and CPU Usage:
@@ -200,7 +200,7 @@ pm2 list
 ### Restart on File Changes (Development):
 
 ```bash
-pm2 start npm --name "photolib-dev" --watch -- run dev
+pm2 start npm --name "kuvalib-dev" --watch -- run dev
 ```
 
 ### Save PM2 Configuration:
@@ -219,7 +219,7 @@ pm2 resurrect
 
 ### Required Variables
 
-The application requires these variables in `/home/photolib/webapps/PhotoLib/.env`:
+The application requires these variables in `/home/kuvalib/webapps/KuvaLib/.env`:
 
 ```bash
 # Database connection
@@ -247,15 +247,15 @@ After editing `.env`, restart the application:
 
 ```bash
 # With PM2
-pm2 restart photolib
+pm2 restart kuvalib
 
 # With systemd
-sudo systemctl restart photolib
+sudo systemctl restart kuvalib
 
 # Direct npm start
 pkill -f "next start"
 set -a && source .env && set +a
-nohup npm start > photolib.log 2>&1 &
+nohup npm start > kuvalib.log 2>&1 &
 ```
 
 ---
@@ -266,41 +266,41 @@ nohup npm start > photolib.log 2>&1 &
 
 ```bash
 # Create timestamped backup
-mysqldump -u photolib -p photolib > backup-$(date +%Y%m%d-%H%M%S).sql
+mysqldump -u kuvalib -p kuvalib > backup-$(date +%Y%m%d-%H%M%S).sql
 
 # Backup to specific location
-mysqldump -u photolib -p photolib > ~/backups/photolib-backup.sql
+mysqldump -u kuvalib -p kuvalib > ~/backups/kuvalib-backup.sql
 ```
 
 ### Restore Database:
 
 ```bash
-mysql -u photolib -p photolib < backup-20260730-123456.sql
+mysql -u kuvalib -p kuvalib < backup-20260730-123456.sql
 ```
 
 ### Sync Database Schema:
 
 ```bash
-cd ~/webapps/PhotoLib
+cd ~/webapps/KuvaLib
 npx prisma db push
 ```
 
 ### View Database Tables:
 
 ```bash
-mysql -u photolib -p photolib -e "SHOW TABLES;"
+mysql -u kuvalib -p kuvalib -e "SHOW TABLES;"
 ```
 
 ### Check User Accounts:
 
 ```bash
-mysql -u photolib -p photolib -e "SELECT id, email, username, role FROM User;"
+mysql -u kuvalib -p kuvalib -e "SELECT id, email, username, role FROM User;"
 ```
 
 ### Check Projects:
 
 ```bash
-mysql -u photolib -p photolib -e "SELECT id, title, createdAt FROM Project;"
+mysql -u kuvalib -p kuvalib -e "SELECT id, title, createdAt FROM Project;"
 ```
 
 ---
@@ -319,7 +319,7 @@ pkill -f "next start"
 **Check if database is accessible:**
 ```bash
 # Test database connection
-mysql -u photolib -p photolib -e "SELECT 1;"
+mysql -u kuvalib -p kuvalib -e "SELECT 1;"
 ```
 
 **Verify environment variables are loaded:**
@@ -368,7 +368,7 @@ sudo tail -50 /var/log/nginx/error.log
 
 **Restart both nginx and app:**
 ```bash
-pm2 restart photolib
+pm2 restart kuvalib
 sudo systemctl reload nginx
 ```
 
@@ -382,7 +382,7 @@ sudo nginx -T | grep -A10 "location /"
 
 **Verify .next build exists:**
 ```bash
-ls -la ~/webapps/PhotoLib/.next/
+ls -la ~/webapps/KuvaLib/.next/
 ```
 
 ### Database connection errors
@@ -395,12 +395,12 @@ sudo systemctl status mysql
 **Test connection string:**
 ```bash
 # Extract connection details from DATABASE_URL
-mysql -h localhost -u photolib -p photolib -e "SELECT 1;"
+mysql -h localhost -u kuvalib -p kuvalib -e "SELECT 1;"
 ```
 
 **Check if database exists:**
 ```bash
-mysql -u photolib -p -e "SHOW DATABASES;"
+mysql -u kuvalib -p -e "SHOW DATABASES;"
 ```
 
 ### Out of disk space
@@ -408,12 +408,12 @@ mysql -u photolib -p -e "SHOW DATABASES;"
 **Check disk usage:**
 ```bash
 df -h
-du -sh ~/webapps/PhotoLib/*
+du -sh ~/webapps/KuvaLib/*
 ```
 
 **Check upload directory:**
 ```bash
-du -sh ~/webapps/PhotoLib/uploads/
+du -sh ~/webapps/KuvaLib/uploads/
 ```
 
 **Clean up old logs:**
@@ -422,7 +422,7 @@ du -sh ~/webapps/PhotoLib/uploads/
 pm2 flush
 
 # Application logs
-> ~/webapps/PhotoLib/photolib.log
+> ~/webapps/KuvaLib/kuvalib.log
 ```
 
 ### Memory issues
@@ -430,19 +430,19 @@ pm2 flush
 **Check memory usage:**
 ```bash
 free -h
-pm2 show photolib
+pm2 show kuvalib
 ```
 
 **Restart the application:**
 ```bash
-pm2 restart photolib
+pm2 restart kuvalib
 ```
 
 ### Application crashes repeatedly
 
 **View crash logs:**
 ```bash
-pm2 logs photolib --lines 200 --err
+pm2 logs kuvalib --lines 200 --err
 ```
 
 **Common causes:**
@@ -453,8 +453,8 @@ pm2 logs photolib --lines 200 --err
 
 **Check file permissions:**
 ```bash
-ls -la ~/webapps/PhotoLib/
-# Ensure photolib user owns all files
+ls -la ~/webapps/KuvaLib/
+# Ensure kuvalib user owns all files
 ```
 
 ---
@@ -482,7 +482,7 @@ htop
 ### Check database performance:
 
 ```bash
-mysql -u photolib -p photolib -e "SHOW PROCESSLIST;"
+mysql -u kuvalib -p kuvalib -e "SHOW PROCESSLIST;"
 ```
 
 ---
@@ -503,16 +503,16 @@ mysql -u photolib -p photolib -e "SHOW PROCESSLIST;"
 
 ```bash
 # Start app
-pm2 start npm --name "photolib" -- start
+pm2 start npm --name "kuvalib" -- start
 
 # Stop app
-pm2 stop photolib
+pm2 stop kuvalib
 
 # Restart app
-pm2 restart photolib
+pm2 restart kuvalib
 
 # View logs
-pm2 logs photolib
+pm2 logs kuvalib
 
 # Check status
 pm2 status
@@ -521,7 +521,7 @@ pm2 status
 curl http://localhost:3000/api/health
 
 # Backup database
-mysqldump -u photolib -p photolib > backup-$(date +%Y%m%d).sql
+mysqldump -u kuvalib -p kuvalib > backup-$(date +%Y%m%d).sql
 
 # Update from GitHub
 ./scripts/update-from-github.sh
@@ -533,4 +533,4 @@ mysqldump -u photolib -p photolib > backup-$(date +%Y%m%d).sql
 
 - Check `DEPLOYMENT.md` for initial setup
 - Check `README.md` for application overview
-- Check GitHub issues: https://github.com/Geobusteni/photolib/issues
+- Check GitHub issues: https://github.com/Geobusteni/kuvalib/issues

@@ -16,7 +16,7 @@ interface GallerySessionData {
 function gallerySessionOptions(projectId: string) {
   return {
     password: process.env.SESSION_SECRET!,
-    cookieName: `photolib_gallery_${projectId}`,
+    cookieName: `kuvalib_gallery_${projectId}`,
     cookieOptions: {
       secure: process.env.NODE_ENV === 'production',
       httpOnly: true,

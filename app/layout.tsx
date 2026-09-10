@@ -8,7 +8,7 @@ import './globals.css'
 const geist = Geist({ subsets: ['latin'], variable: '--font-geist-sans' })
 
 export const metadata: Metadata = {
-  title: { default: 'Photolib', template: '%s | Photolib' },
+  title: { default: 'Kuvalib', template: '%s | Kuvalib' },
   robots: { index: false, follow: false },
 }
 

@@ -25,11 +25,17 @@ export function archiveDir(projectId: string): string {
   return path.join(projectDir(projectId), 'archive')
 }
 
+/** Background-music tracks for the project's showcase, kept apart from photos. */
+export function audioDir(projectId: string): string {
+  return path.join(projectDir(projectId), 'audio')
+}
+
 export async function ensureProjectDirs(projectId: string): Promise<void> {
   await Promise.all([
     fs.mkdir(photosDir(projectId), { recursive: true }),
     fs.mkdir(thumbsDir(projectId), { recursive: true }),
     fs.mkdir(archiveDir(projectId), { recursive: true }),
+    fs.mkdir(audioDir(projectId), { recursive: true }),
   ])
 }
 
@@ -47,6 +53,14 @@ export function archivePath(projectId: string): string {
 
 export async function deleteArchiveFile(projectId: string): Promise<void> {
   await fs.rm(archivePath(projectId), { force: true })
+}
+
+export function audioPath(projectId: string, filename: string): string {
+  return path.join(audioDir(projectId), filename)
+}
+
+export async function deleteAudioFile(projectId: string, filename: string): Promise<void> {
+  await fs.rm(audioPath(projectId, filename), { force: true })
 }
 
 export async function deletePhotoFiles(projectId: string, filename: string): Promise<void> {

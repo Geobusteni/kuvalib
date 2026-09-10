@@ -27,7 +27,7 @@ export default async function AdminLayout({ children }: { children: React.ReactN
               href="/projects"
               className="text-sm font-semibold tracking-tight text-zinc-900 dark:text-zinc-100"
             >
-              Photolib
+              Kuvalib
             </Link>
             <Link
               href="/projects"

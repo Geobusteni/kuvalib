@@ -1,6 +1,6 @@
 # Changelog
 
-All notable changes to Photolib are documented here.
+All notable changes to Kuvalib are documented here.
 
 The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/), and the project
 adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html). While the major version is
@@ -9,6 +9,46 @@ adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html). While the
 ---
 
 ## [Unreleased]
+
+## [1.5.0] - 2026-09-10
+
+### Added
+
+- **Album Showcase.** Each project can now have one showcase — a designed, page-by-page
+  slideshow built from the project's photos and shared on its own link, separate from the
+  gallery.
+  - Admin: a **Showcase** section on the project page creates it (seeded with a Cover page) and
+    opens the builder. The builder is a canvas with a page rail, an "+ Add block" menu (Cover,
+    Image, Title, Text, Button, Group), a per-block settings panel, and drag/resize with
+    percentage-based positioning. Groups position their children, re-parent them automatically
+    when a block is dragged in or out, and arrange them without ever overlapping. Album settings
+    (title, date, event type, background, page transition, autoplay) and a background-music
+    playlist (MP3/M4A/OGG/WAV upload, loop) live in a dialog. Changes autosave.
+  - Client: the showcase viewer is a page-turning slideshow (turn / fade / zoom transitions,
+    all disabled under reduced motion) with autoplay + loop, a thumbnail rail, fullscreen,
+    background music, a copy-link control, and a "Download as ZIP" of the showcase's photos.
+    Keyboard: ← / → pages, `Home` / `End`, `F` fullscreen, `Space` play/pause, `D` download.
+  - A showcase inherits the project's access type, password and expiry. Passing either the
+    showcase or the gallery gate admits the visitor to the other without re-entering the
+    password.
+  - New route `/s/<id>` (viewer) and `/projects/<id>/showcase` (builder). New upload folder
+    `uploads/<project>/audio/`. No new `.env` keys. Requires the `add_showcase` migration
+    (`npx prisma migrate deploy`).
+
+### Changed
+
+- The project is now named **Kuvalib** (formerly Photolib). The name in the admin header, the
+  browser tab title, the login and setup screens, and all documentation changes accordingly.
+- New dependencies: `@craftjs/core` (showcase builder canvas), `react-rnd` (block resize),
+  `zustand` (builder state). All MIT-licensed.
+
+### Security
+
+- Session and gallery cookies were renamed (`photolib_session` → `kuvalib_session`,
+  `photolib_gallery_*` → `kuvalib_gallery_*`). **After upgrading, every admin, user, and gallery
+  visitor must sign in again** — existing sessions are not carried over. Clients' once-per-photo
+  feedback records (kept in the browser under a renamed key) also reset, so a client may react to
+  a photo again.
 
 ## [1.4.0] - 2026-08-09
 
@@ -182,7 +222,7 @@ adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html). While the
 
 If you're upgrading from 0.1.1 (PostgreSQL + Docker):
 
-1. Export your data: `docker compose exec db pg_dump -U photolib photolib > backup.sql`
+1. Export your data: `docker compose exec db pg_dump -U kuvalib kuvalib > backup.sql`
 2. Remove Docker: See "Removing Docker" section in `DEPLOYMENT.md`
 3. Create MySQL database in your hosting panel
 4. Pull latest code: `git pull`

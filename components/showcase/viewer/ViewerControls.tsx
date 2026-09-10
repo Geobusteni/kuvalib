@@ -1,0 +1,113 @@
+// SPDX-License-Identifier: GPL-3.0-or-later
+// Copyright (C) 2026 Alexandru Negoita
+
+'use client'
+
+import type { ReactNode } from 'react'
+
+const btn =
+  'flex h-11 w-11 items-center justify-center rounded-full text-white/90 hover:bg-white/10 focus:outline-none focus-visible:ring-2 focus-visible:ring-white/70'
+
+function Icon({ children, label, onClick, pressed }: {
+  children: ReactNode
+  label: string
+  onClick: () => void
+  pressed?: boolean
+}) {
+  return (
+    <button type="button" aria-label={label} aria-pressed={pressed} onClick={onClick} className={btn} title={label}>
+      {children}
+    </button>
+  )
+}
+
+export function ViewerControls({
+  pageLabel,
+  hasMusic,
+  musicOn,
+  onToggleMusic,
+  autoplay,
+  onToggleAutoplay,
+  onToggleThumbs,
+  showFullscreen,
+  onToggleFullscreen,
+  onShare,
+  onDownload,
+  showDownload,
+  backHref,
+  visible,
+}: {
+  pageLabel: string
+  hasMusic: boolean
+  musicOn: boolean
+  onToggleMusic: () => void
+  autoplay: boolean
+  onToggleAutoplay: () => void
+  onToggleThumbs: () => void
+  showFullscreen: boolean
+  onToggleFullscreen: () => void
+  onShare: () => void
+  onDownload: () => void
+  showDownload: boolean
+  backHref?: string
+  visible: boolean
+}) {
+  return (
+    <div
+      className="pointer-events-none absolute inset-x-0 top-0 z-10 flex items-center justify-between px-3 py-2 transition-opacity duration-300"
+      style={{
+        opacity: visible ? 1 : 0,
+        background: 'linear-gradient(to bottom, rgba(0,0,0,0.55), transparent)',
+      }}
+    >
+      <div className="pointer-events-auto flex items-center gap-1">
+        {backHref && (
+          <a href={backHref} className="flex h-11 items-center rounded-full px-3 text-sm text-white/90 hover:bg-white/10">
+            ← Edit
+          </a>
+        )}
+      </div>
+      <span className="pointer-events-auto text-xs text-white/70">{pageLabel}</span>
+      <div className="pointer-events-auto flex items-center gap-0.5">
+        {hasMusic && (
+          <Icon label={musicOn ? 'Mute music' : 'Play music'} onClick={onToggleMusic} pressed={musicOn}>
+            <svg width="18" height="18" viewBox="0 0 20 20" fill="none" stroke="currentColor" strokeWidth="1.6" strokeLinecap="round" strokeLinejoin="round">
+              {musicOn ? <path d="M6 4h3v12H6zM11 4h3v12h-3z" /> : <path d="M6 4l10 6-10 6z" />}
+            </svg>
+          </Icon>
+        )}
+        <Icon label={autoplay ? 'Pause slideshow' : 'Play slideshow'} onClick={onToggleAutoplay} pressed={autoplay}>
+          <svg width="18" height="18" viewBox="0 0 20 20" fill="none" stroke="currentColor" strokeWidth="1.6" strokeLinecap="round" strokeLinejoin="round">
+            {autoplay ? <path d="M6 4h3v12H6zM11 4h3v12h-3z" /> : <path d="M4 10a6 6 0 1 1 2 4.5M4 10V6M4 10h4" />}
+          </svg>
+        </Icon>
+        <Icon label="Toggle thumbnails" onClick={onToggleThumbs}>
+          <svg width="18" height="18" viewBox="0 0 20 20" fill="none" stroke="currentColor" strokeWidth="1.6">
+            <rect x="3" y="4" width="6" height="5" rx="1" /><rect x="11" y="4" width="6" height="5" rx="1" />
+            <rect x="3" y="11" width="6" height="5" rx="1" /><rect x="11" y="11" width="6" height="5" rx="1" />
+          </svg>
+        </Icon>
+        {showFullscreen && (
+          <Icon label="Toggle fullscreen" onClick={onToggleFullscreen}>
+            <svg width="18" height="18" viewBox="0 0 20 20" fill="none" stroke="currentColor" strokeWidth="1.6" strokeLinecap="round">
+              <path d="M3 7V3h4M13 3h4v4M17 13v4h-4M7 17H3v-4" />
+            </svg>
+          </Icon>
+        )}
+        <Icon label="Copy showcase link" onClick={onShare}>
+          <svg width="18" height="18" viewBox="0 0 20 20" fill="none" stroke="currentColor" strokeWidth="1.6" strokeLinecap="round" strokeLinejoin="round">
+            <circle cx="15" cy="4" r="2" /><circle cx="5" cy="10" r="2" /><circle cx="15" cy="16" r="2" />
+            <path d="M13 5 7 9M7 11l6 4" />
+          </svg>
+        </Icon>
+        {showDownload && (
+          <Icon label="Download album" onClick={onDownload}>
+            <svg width="18" height="18" viewBox="0 0 20 20" fill="none" stroke="currentColor" strokeWidth="1.6" strokeLinecap="round" strokeLinejoin="round">
+              <path d="M10 3v10M6 9l4 4 4-4M3 15h14" />
+            </svg>
+          </Icon>
+        )}
+      </div>
+    </div>
+  )
+}

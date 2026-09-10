@@ -4,7 +4,7 @@
 
 set -e
 
-echo "🔄 Updating Photolib..."
+echo "🔄 Updating Kuvalib..."
 echo ""
 
 # Ensure we're in the project root
@@ -74,10 +74,10 @@ echo ""
 echo "🔄 Restart the application to apply changes:"
 echo ""
 echo "   # If using PM2:"
-echo "   pm2 restart photolib"
+echo "   pm2 restart kuvalib"
 echo ""
 echo "   # If using systemd:"
-echo "   sudo systemctl restart photolib"
+echo "   sudo systemctl restart kuvalib"
 echo ""
 echo "   # If running manually:"
 echo "   # Stop the current process and run: npm start"

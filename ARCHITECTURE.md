@@ -1,4 +1,4 @@
-# Photolib – Architecture
+# Kuvalib – Architecture
 
 > Read `AGENTS.md` first for project philosophy, roles, and feature scope.
 
@@ -12,16 +12,17 @@
 | Language   | TypeScript 5                        |
 | UI         | React 19                            |
 | Styling    | Tailwind CSS 4                      |
-| Database   | PostgreSQL                          |
-| ORM        | Prisma 7 (with `@prisma/adapter-pg`)|
+| Database   | MySQL / MariaDB                     |
+| ORM        | Prisma 7 (with `@prisma/adapter-mariadb`) |
 | Auth       | Iron Session (signed cookies) + bcryptjs |
 | Images     | Sharp (server-side thumbnails)      |
 | Archives   | fflate (ZIP create and extract)     |
+| Showcase builder | `@craftjs/core` + `react-rnd` + `zustand` (Stage 2, admin only) |
 
 > Before writing any Next.js code, read the relevant guide in `node_modules/next/dist/docs/`.
 
 Prisma 7 requires a **driver adapter**; there is no implicit connection. The client is
-constructed once in `lib/prisma.ts` with `PrismaPg`.
+constructed once in `lib/prisma.ts` with `PrismaMariaDb`.
 
 ---
 
@@ -30,7 +31,7 @@ constructed once in `lib/prisma.ts` with `PrismaPg`.
 One file: `.env` (gitignored). `.env.example` documents it.
 
 ```
-DATABASE_URL='postgresql://user:password@localhost:5432/photolib'
+DATABASE_URL='mysql://user:password@localhost:3306/kuvalib'
 SESSION_SECRET='32+ random characters'
 UPLOAD_DIR=./uploads
 ```
@@ -42,7 +43,7 @@ Values containing `$` must be single-quoted or the loader will interpolate and t
 ## Repository Layout
 
 ```
-photolib/
+kuvalib/
 ├── AGENTS.md                  # AI instructions (read first)
 ├── ARCHITECTURE.md            # This file
 ├── PLAN.md                    # Phased build plan
@@ -65,12 +66,14 @@ photolib/
 │   │   │   ├── new/page.tsx
 │   │   │   └── [id]/
 │   │   │       ├── page.tsx
-│   │   │       └── _components/{UploadZone,AdminPhotoGrid,AssignmentManager}.tsx
+│   │   │       ├── _components/{UploadZone,AdminPhotoGrid,AssignmentManager,ShowcaseManager}.tsx
+│   │   │       └── showcase/page.tsx    # The showcase builder (Stage 2)
 │   │   └── users/
 │   │       ├── page.tsx               # Admin only
 │   │       └── _components/UserManager.tsx
 │   ├── (gallery)/
-│   │   └── g/[slug]/page.tsx  # Client-facing gallery
+│   │   ├── g/[slug]/page.tsx  # Client-facing gallery
+│   │   └── s/[slug]/page.tsx  # Client-facing showcase viewer (Stage 2)
 │   ├── api/
 │   │   ├── setup/route.ts
 │   │   ├── auth/route.ts
@@ -88,9 +91,13 @@ photolib/
 │   │   │       ├── feedback/route.ts        # Admin reset (DELETE)
 │   │   │       └── photos/
 │   │   │           ├── route.ts
-│   │   │           └── [photoId]/
-│   │   │               ├── route.ts
-│   │   │               └── feedback/route.ts   # Client like/dislike/comment
+│   │   │           ├── [photoId]/
+│   │   │           │   ├── route.ts
+│   │   │           │   └── feedback/route.ts   # Client like/dislike/comment
+│   │   │           └── showcase/          # Stage 2
+│   │   │               ├── route.ts               # create / settings / delete
+│   │   │               ├── pages/route.ts         # replace the deck
+│   │   │               └── tracks/{route.ts,[trackId]/route.ts}
 │   │   └── uploads/[...path]/route.ts   # File serving
 │   ├── layout.tsx
 │   ├── error.tsx
@@ -99,19 +106,28 @@ photolib/
 ├── components/
 │   ├── gallery/{Gallery,ImageTile,Toolbar,AccessGate,DownloadOptionsDialog,PhotoFeedbackRow,FeedbackCommentDialog}.tsx
 │   ├── lightbox/{PhotoViewer,ViewerControls,PhotoFeedbackBar}.tsx
+│   ├── showcase/            # Stage 2 — builder (Craft.js) + viewer (Craft-free) + shared
+│   │   ├── {store,craft-bridge,frame-size,photos-context,BlockContent}.*
+│   │   ├── builder/{ShowcaseBuilder,Canvas,PageRail,SettingsPanel,AddBlockMenu,AlbumSettingsDialog,useBuilder}.tsx
+│   │   ├── builder/blocks/{BlockShell,index}.tsx
+│   │   └── viewer/{ShowcaseViewer,PageStage,BlockRenderer,ViewerControls,ThumbnailRail,MusicPlayer,ShowcaseDownloadDialog,useSlideshow}.*
 │   └── ui/{ProjectForm,DeleteProjectButton,LogoutButton,ProgressBar}.tsx
 ├── hooks/{useKeyboard,useGestures,useImageZoom,useFocusTrap,useReducedMotion,usePhotoFeedback}.ts
 ├── lib/
-│   ├── prisma.ts              # Client singleton with the pg adapter
+│   ├── prisma.ts              # Client singleton with the MariaDB adapter
 │   ├── auth.ts                # Session, role guards, password hashing
 │   ├── users.ts                # User CRUD, setup detection
 │   ├── projects.ts            # Project/photo/assignment data access
+│   ├── showcase.ts            # Showcase/page/track data access (Stage 2)
+│   ├── showcase-blocks.ts     # Block model + no-overlap geometry (no React)
+│   ├── showcase-theme.ts      # Event-type accent vars + per-block appearance
+│   ├── audio.ts               # Audio upload format sniffing
 │   ├── gallery-auth.ts        # Gallery access: password, email, role
-│   ├── photo-data.ts          # DB record → client-facing PhotoData
+│   ├── photo-data.ts          # DB record → client-facing PhotoData / ShowcasePhoto
 │   ├── photo-feedback.ts      # Like/dislike/comment CRUD, summaries, reset
 │   ├── feedback-storage.ts    # Client-only: visitor id + localStorage cache
 │   ├── images.ts              # Sharp thumbnails
-│   ├── storage.ts             # Upload paths, traversal guard
+│   ├── storage.ts             # Upload paths (photos, thumbs, archive, audio), traversal guard
 │   ├── rate-limit.ts          # In-memory limiter
 │   ├── fullscreen.ts          # Fullscreen API wrapper with legacy WebKit fallback
 │   ├── xhr-upload.ts          # XHR wrapper for client-side upload progress
@@ -133,6 +149,9 @@ erDiagram
     Project ||--o{ ProjectAssignment : has
     Project ||--o{ Photo : contains
     Photo ||--o{ PhotoFeedback : has
+    Project ||--o| Showcase : "has (0..1)"
+    Showcase ||--o{ ShowcasePage : contains
+    Showcase ||--o{ ShowcaseTrack : contains
 
     User {
         string id PK
@@ -181,6 +200,32 @@ erDiagram
         FeedbackType type "LIKE | DISLIKE | COMMENT"
         string comment "only set when type is COMMENT"
     }
+    Showcase {
+        string id PK "also the /s/ URL slug"
+        string projectId FK "UNIQUE — one showcase per project"
+        string title
+        datetime eventDate
+        ShowcaseEventType eventType "accent hue"
+        ShowcaseBg albumBg
+        ShowcaseAnimation animationStyle "TURN | FADE | ZOOM"
+        boolean autoplay
+        int autoplaySeconds
+        boolean playlistLoop
+    }
+    ShowcasePage {
+        string id PK
+        string showcaseId FK
+        int sortOrder
+        json blocksJson "the whole block tree, one blob"
+    }
+    ShowcaseTrack {
+        string id PK
+        string showcaseId FK
+        string filename "generated UUID, on disk"
+        string originalName "as uploaded"
+        int size
+        int sortOrder
+    }
 ```
 
 `Photo` has a composite unique constraint on `(projectId, originalName)`. That constraint is what
@@ -195,6 +240,14 @@ same browser (a second tab, a cleared local cache, a replayed request) is reject
 regardless of what the client believes. It cascades on `Photo` delete, so removing a photo
 removes its feedback with it. `visitorId` is a random id the browser keeps in `localStorage`,
 never a real identity.
+
+`Showcase` has a unique constraint on `projectId` — a project has at most one. It carries no
+password or access fields: `verifyGalleryAccess(projectId)` gates the showcase exactly as it
+gates the gallery. `ShowcasePage.blocksJson` stores the entire block tree (groups nested under
+`children`) as one JSON document — a page is authored and saved as a unit and nothing queries an
+individual block. The shape and geometry live in `lib/showcase-blocks.ts`; that JSON is
+untrusted on the way in and passes through `sanitizeBlocks` before it is stored. A block's
+`photoId` is a plain reference to an existing `Photo.id` — showcase photos are never duplicated.
 
 Only metadata lives in the database. Files live on disk.
 
@@ -218,8 +271,8 @@ Two independent cookie sessions:
 
 | Cookie                        | Purpose                                        |
 |-------------------------------|------------------------------------------------|
-| `photolib_session`            | Logged-in admin or user: `{ userId, role }`    |
-| `photolib_gallery_[projectId]`| Per-project gallery grant, 7 days              |
+| `kuvalib_session`            | Logged-in admin or user: `{ userId, role }`    |
+| `kuvalib_gallery_[projectId]`| Per-project gallery grant, 7 days. Covers the showcase too. |
 
 ### Gallery access resolution
 
@@ -228,6 +281,12 @@ Two independent cookie sessions:
 1. The session belongs to an `ADMIN`.
 2. The session belongs to a `USER` **and** a `ProjectAssignment` exists for that project.
 3. A valid per-project gallery cookie exists (set by password or email at the gate).
+
+The showcase viewer (`/s/[slug]`) calls the same `verifyGalleryAccess(project.id)` and renders
+the same `components/gallery/AccessGate` against the same `POST /api/projects/[id]/auth` route on
+failure. So the gallery and the showcase share one grant: passing either gate sets
+`kuvalib_gallery_[projectId]` and admits the visitor to both. There is no showcase-specific
+cookie or auth code.
 
 ### Guarding rules
 
@@ -300,6 +359,25 @@ DELETE /api/projects/[id]/photos/[pid]/feedback   { visitorId } → undo that vi
                                                     reaction on this one photo
 ```
 
+### Showcase (Stage 2)
+
+```
+POST   /api/projects/[id]/showcase                 Create the project's showcase; 409 if one
+                                                     exists. Seeds a Cover page (admin)
+PUT    /api/projects/[id]/showcase                 Album settings (admin)
+DELETE /api/projects/[id]/showcase                 Delete it + its audio files (admin)
+PUT    /api/projects/[id]/showcase/pages           Replace the whole page list; blocks are
+                                                     sanitised before storage (admin)
+GET    /api/projects/[id]/showcase/tracks          List tracks (admin)
+POST   /api/projects/[id]/showcase/tracks          Upload one audio file, format sniffed (admin)
+DELETE /api/projects/[id]/showcase/tracks/[tid]    Remove a track + its file (admin)
+GET    /api/projects/[id]/showcase/tracks/[tid]    Stream a track; requires gallery access;
+                                                     supports HTTP Range
+```
+
+The showcase's "Download as ZIP" reuses `POST /api/projects/[id]/download` with the showcase's
+own `photoIds`.
+
 ---
 
 ## File Storage
@@ -310,6 +388,7 @@ uploads/
     photos/    originals, named [uuid].jpg
     thumbs/    [uuid]-sm.jpg (400px), [uuid]-lg.jpg (1200px), [uuid]-share.jpg (2048px)
     archive/   archive.zip — the ZIP the photographer uploaded, if any
+    audio/     [uuid].mp3|m4a|ogg|wav — the showcase's background-music tracks
 ```
 
 Thumbnails are generated **once at upload**. Originals are never resized per request.
@@ -393,6 +472,25 @@ single finger pans instead once zoomed in.
 | `PasswordReveal`         | Show and copy a project's gallery password           |
 | `UploadZone`             | Photo upload, including duplicate resolution and progress |
 | `FeedbackPanel`          | Admin view of per-photo likes/dislikes/comments + reset |
+| `ShowcaseManager`        | Project-page section: create / open / view / delete the showcase |
+
+### Showcase architecture (Stage 2)
+
+`components/showcase/` splits into a Craft.js **builder** and a Craft-free **viewer** over a
+shared, framework-free core.
+
+| Piece | Responsibility |
+|-------|----------------|
+| `lib/showcase-blocks.ts` | Block types; the no-overlap stack/align geometry; `buildCoverComposite`; `flattenBlocks` / `nestFlatBlocks`; `sanitizeBlocks`; `collectPhotoIds`. No React. |
+| `lib/showcase-theme.ts` | Event-type → accent CSS variables; per-block background/text/radius resolvers. |
+| `lib/showcase.ts` | Data access (mirrors `lib/projects.ts`). `lib/audio.ts` sniffs upload formats. |
+| `components/showcase/store.ts` | `zustand`: album settings, page list, current page, non-active page snapshots, autosave flags. |
+| `components/showcase/craft-bridge.ts` | Nested `Block[]` ⇆ Craft `SerializedNodes`. Craft's tree is **flat** — a block's group membership is its `parentGroupId` prop, not DOM nesting. |
+| `builder/BlockShell` + `builder/blocks/*` | Craft user components. `react-rnd` does drag/resize in pixels; positions are written back as percentages. Dragging re-parents a leaf by which group box holds its centre; dragging or resizing a group carries its children. |
+| `builder/SettingsPanel`, `PageRail`, `AddBlockMenu`, `AlbumSettingsDialog`, `useBuilder` | The panel reads the selected Craft node; `useBuilder` couples Craft `query`/`actions` with the store (page switching, inserts, the Cover shortcut, arrange, debounced autosave to `PUT .../pages`). |
+| `viewer/ShowcaseViewer` + `useSlideshow` | `idle → out → pre → in` page-turn machine (collapsed under `prefers-reduced-motion`); autoplay + loop; fullscreen as a local boolean (like the lightbox); keyboard. |
+| `viewer/BlockRenderer`, `PageStage`, `ViewerControls`, `ThumbnailRail`, `MusicPlayer`, `ShowcaseDownloadDialog` | Render the flattened block list; per-`animationStyle` transform; controls; `<audio>` playlist; ZIP dialog reusing `POST /api/projects/[id]/download`. |
+| `BlockContent` | The visual inside a block (image/title/text/button) — shared by builder and viewer so they never drift. |
 
 ---
 
@@ -446,3 +544,14 @@ single finger pans instead once zoomed in.
 | A visitor can undo their own reaction (`DELETE /api/projects/[id]/photos/[photoId]/feedback`), scoped to that visitor and that photo only | Distinguishes it from the admin's project-wide reset — a client changing their mind about one photo shouldn't require the photographer to wipe every visitor's feedback on the whole gallery |
 | Mobile lightbox: swipe down closes the swipe-up action sheet first, then the viewer | The two gestures previously fought over the same bottom region — swiping up revealed Cancel/Download, and swiping down would then close the whole viewer regardless, so there was no way to dismiss just the action sheet. The feedback bar is also hidden while the action sheet is open, since both anchor to the bottom of the screen |
 | `prisma/migrations/20260730093327_init` and `20260730100000_...` rewritten from PostgreSQL to MySQL syntax | The originals used `CREATE TYPE ... AS ENUM`, which is not valid MySQL — `prisma migrate deploy` could never have completed against a real, empty MySQL database despite `migration_lock.toml` declaring `mysql`. Any live deployment can only have been created via `prisma db push` reading `schema.prisma` directly, never by applying these files |
+| `add_showcase` migration written with `prisma migrate diff` instead of `prisma migrate dev` | The dev database user cannot create the shadow database `migrate dev` needs. `diff --from-config-datasource --to-schema` produces the same SQL; `migrate deploy` applies it without a shadow DB |
+| One `Showcase` per project, inheriting the project's access | The photographer shares "the gallery" and "the showcase" as two views of one delivery. A second password to manage, or many showcases per project, buys nothing the feature was asked for. `@unique` on `projectId` enforces it |
+| Showcase reuses `verifyGalleryAccess` + the gallery cookie rather than its own gate | The requirement is that a client who opened one can walk into the other without re-typing the password. Sharing `kuvalib_gallery_[projectId]` makes that automatic and adds zero auth surface |
+| A page's block tree is one `Json` blob (`ShowcasePage.blocksJson`), not a `ShowcaseBlock` table | A page is authored and saved as a whole; nothing queries a single block. A blob is the simplest thing that works and matches how the builder autosaves (the entire deck in one `PUT`). Normalise later only if per-block queries appear |
+| Craft.js runs a **flat** node tree; group membership is a `parentGroupId` prop | The design handoff calls for "flatten to one positioned list per page; `parentGroupId` is metadata, not DOM nesting" — grouped blocks keep canvas-absolute coordinates. A flat tree honours that and sidesteps rebasing children's coordinates inside a nested DOM box. `craft-bridge.ts` nests/flattens at the DB boundary |
+| `react-rnd` for drag/resize, not Craft's own drag-drop | Craft has no resize handles, and its drag-drop reorders within DOM parents — the showcase needs free percentage positioning and geometric re-parenting instead. Craft still owns the node registry, selection and serialization |
+| `zustand` for album state, despite "useReducer over a state library" elsewhere | Album settings, the page list and non-active page snapshots live outside Craft's per-frame editor and are read across the whole builder tree. This was approved for the showcase specifically; the rest of the app is unchanged |
+| The showcase **viewer** never loads Craft.js | It only needs geometry. It renders the flattened `Block[]` as positioned `div`s and shares `BlockContent` with the builder, keeping the client bundle for `/s/[slug]` small |
+| Showcase tracks are served by a guarded route, not `/api/uploads` | `/api/uploads` is thumbnails-only by an earlier decision. `GET /api/projects/[id]/showcase/tracks/[tid]` checks `verifyGalleryAccess` and supports `Range` so a link that never passed the gate cannot pull the audio |
+| `ShowcaseViewer` resolves `isFullscreenSupported()` in a `useEffect`, not during render | It reads `document`; evaluating it during render made the server omit the Fullscreen control and the client add it — a hydration mismatch that shuffled the whole control row. Same fix as `usePhotoFeedback` and the lightbox |
+| Showcase builder seeds `zustand` in a `useEffect` and renders a placeholder until ready | The builder is an admin-only interactive island with nothing to server-render. Initialising after mount avoids a module-singleton store bleeding one request's deck into another's SSR |

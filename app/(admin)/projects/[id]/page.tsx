@@ -14,7 +14,9 @@ import AdminPhotoGrid from './_components/AdminPhotoGrid'
 import UploadZone from './_components/UploadZone'
 import AssignmentManager from './_components/AssignmentManager'
 import ArchiveManager from './_components/ArchiveManager'
+import ShowcaseManager from './_components/ShowcaseManager'
 import PasswordReveal from './_components/PasswordReveal'
+import { getShowcaseByProject } from '@/lib/showcase'
 import FeedbackPanel from './_components/FeedbackPanel'
 import { decryptSecret } from '@/lib/crypto'
 
@@ -64,6 +66,8 @@ export default async function EditProjectPage({ params }: Props) {
     isAdmin && project.feedbackEnabled
       ? await summarizeProjectFeedback(id)
       : new Map()
+
+  const showcase = isAdmin ? await getShowcaseByProject(id) : null
 
   // Only an admin ever sees the gallery password in the clear.
   const galleryPassword = isAdmin ? decryptSecret(project.password) : null
@@ -129,6 +133,15 @@ export default async function EditProjectPage({ params }: Props) {
             projectId={id}
             archiveName={project.archiveName}
             archiveSize={project.archiveSize}
+          />
+        </section>
+      )}
+
+      {isAdmin && (
+        <section>
+          <ShowcaseManager
+            projectId={id}
+            showcase={showcase ? { id: showcase.id, pageCount: showcase.pages.length } : null}
           />
         </section>
       )}

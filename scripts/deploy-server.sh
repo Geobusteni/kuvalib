@@ -4,7 +4,7 @@
 
 set -e
 
-echo "🚀 Deploying Photolib..."
+echo "🚀 Deploying Kuvalib..."
 echo ""
 
 # Ensure we're in the project root
@@ -90,7 +90,7 @@ echo "🌐 Start the application:"
 echo ""
 echo "   # Option 1: Using PM2 (recommended)"
 echo "   npm install -g pm2"
-echo "   pm2 start npm --name photolib -- start"
+echo "   pm2 start npm --name kuvalib -- start"
 echo "   pm2 save"
 echo "   pm2 startup  # Follow instructions to enable on boot"
 echo ""

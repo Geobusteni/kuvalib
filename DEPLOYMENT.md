@@ -1,6 +1,6 @@
-# Photolib Deployment Guide
+# Kuvalib Deployment Guide
 
-This guide covers deploying Photolib to a production server with MySQL.
+This guide covers deploying Kuvalib to a production server with MySQL.
 
 > **📖 See also:**
 > - [README.md](./README.md) — Development setup
@@ -13,7 +13,7 @@ This guide covers deploying Photolib to a production server with MySQL.
 
 ```bash
 # 1. Prepare environment on server
-sudo mkdir -p /var/www/photolib && cd /var/www/photolib
+sudo mkdir -p /var/www/kuvalib && cd /var/www/kuvalib
 gh auth login
 
 # 2. Get the update script (or download manually)
@@ -41,14 +41,14 @@ nano .env
 
 ## Development vs Production
 
-Photolib distinguishes between **Development** (where you write code) and **Production** (where clients view photos).
+Kuvalib distinguishes between **Development** (where you write code) and **Production** (where clients view photos).
 
 | Feature | Development Server | Production Server |
 |---------|-------------------|-------------------|
 | **Code** | Full Git repository clone | Build artifacts only (no `.git`, no source TS files) |
 | **Dependencies** | All (`npm install`) | Production only (`npm install --omit=dev`) |
 | **Build Process** | Done locally or by GitHub | Never build on production (OOM risk) |
-| **Update Method** | `git pull` | Download & unpack `photolib-deploy.tar.gz` |
+| **Update Method** | `git pull` | Download & unpack `kuvalib-deploy.tar.gz` |
 
 ---
 
@@ -66,9 +66,9 @@ curl -fsSL https://deb.nodesource.com/setup_20.x | sudo -E bash -
 sudo apt install -y nodejs gh
 
 # Create app directory
-sudo mkdir -p /var/www/photolib
-sudo chown $USER:$USER /var/www/photolib
-cd /var/www/photolib
+sudo mkdir -p /var/www/kuvalib
+sudo chown $USER:$USER /var/www/kuvalib
+cd /var/www/kuvalib
 
 # Authenticate with GitHub (needed to download private artifacts)
 gh auth login
@@ -80,7 +80,7 @@ Instead of `git pull`, use the update script to grab the latest build from GitHu
 
 ```bash
 # Get the script (change REPO to your repository); for now the script is in the main brannch, on Geobusteni's project.
-curl -fsSL https://raw.githubusercontent.com/Geobusteni/photolib/main/scripts/update-from-github.sh -o scripts/update-from-github.sh
+curl -fsSL https://raw.githubusercontent.com/Geobusteni/kuvalib/main/scripts/update-from-github.sh -o scripts/update-from-github.sh
 chmod +x scripts/update-from-github.sh
 
 # Run it to update
@@ -113,7 +113,7 @@ The update script automatically protects your data:
 **Example: Force schema reset (LOSES DATA)**
 ```bash
 # Create backup first!
-mysqldump -uUSER -pPASS photolib > backup-$(date +%Y%m%d).sql
+mysqldump -uUSER -pPASS kuvalib > backup-$(date +%Y%m%d).sql
 
 # Then force reset
 ./scripts/update-from-github.sh --force-schema
@@ -139,9 +139,9 @@ mysqldump -uUSER -pPASS photolib > backup-$(date +%Y%m%d).sql
 **Via Command Line:**
 ```bash
 mysql -u root -p
-CREATE DATABASE photolib CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
-CREATE USER 'photolib'@'localhost' IDENTIFIED BY 'your-secure-password';
-GRANT ALL PRIVILEGES ON photolib.* TO 'photolib'@'localhost';
+CREATE DATABASE kuvalib CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
+CREATE USER 'kuvalib'@'localhost' IDENTIFIED BY 'your-secure-password';
+GRANT ALL PRIVILEGES ON kuvalib.* TO 'kuvalib'@'localhost';
 FLUSH PRIVILEGES;
 EXIT;
 ```
@@ -167,7 +167,7 @@ sudo apt install -y nodejs
 ```bash
 # Clone to your web app directory
 cd /home/runcloud/webapps/your-app
-git clone https://github.com/yourusername/photolib.git .
+git clone https://github.com/yourusername/kuvalib.git .
 chmod +x scripts/*.sh
 ```
 
@@ -180,7 +180,7 @@ nano .env
 
 **Required:**
 ```env
-DATABASE_URL='mysql://photolib:your-password@localhost:3306/photolib'
+DATABASE_URL='mysql://kuvalib:your-password@localhost:3306/kuvalib'
 SESSION_SECRET='<64-hex-characters>'  # Generate: node -e "console.log(require('crypto').randomBytes(32).toString('hex'))"
 UPLOAD_DIR=/absolute/path/to/uploads
 ```
@@ -199,18 +199,18 @@ You have two main options for keeping the application running in the background.
 
 #### Option A: systemd (Recommended for Ubuntu)
 
-Create `/etc/systemd/system/photolib.service`:
+Create `/etc/systemd/system/kuvalib.service`:
 
 ```ini
 [Unit]
-Description=Photolib
+Description=Kuvalib
 After=network.target mysql.service
 
 [Service]
 Type=simple
 User=your-user
 Group=your-user
-WorkingDirectory=/path/to/photolib
+WorkingDirectory=/path/to/kuvalib
 Environment=NODE_ENV=production
 ExecStart=/usr/bin/npm start
 Restart=on-failure
@@ -224,9 +224,9 @@ Enable and start the service:
 
 ```bash
 sudo systemctl daemon-reload
-sudo systemctl enable photolib
-sudo systemctl start photolib
-sudo systemctl status photolib
+sudo systemctl enable kuvalib
+sudo systemctl start kuvalib
+sudo systemctl status kuvalib
 ```
 
 #### Option B: PM2
@@ -235,7 +235,7 @@ If you prefer PM2:
 
 ```bash
 npm install -g pm2
-pm2 start npm --name photolib -- start
+pm2 start npm --name kuvalib -- start
 pm2 save
 pm2 startup
 ```
@@ -247,7 +247,7 @@ RunCloud does this automatically. For manual setup:
 ```nginx
 server {
     listen 80;
-    server_name photolib.yourdomain.com;
+    server_name kuvalib.yourdomain.com;
     client_max_body_size 500M;
 
     location / {
@@ -268,12 +268,12 @@ server {
 
 ```bash
 sudo apt install certbot python3-certbot-nginx
-sudo certbot --nginx -d photolib.yourdomain.com
+sudo certbot --nginx -d kuvalib.yourdomain.com
 ```
 
 ### 9. Create Admin Account
 
-Visit `https://photolib.yourdomain.com/setup`
+Visit `https://kuvalib.yourdomain.com/setup`
 
 ---
 
@@ -281,7 +281,7 @@ Visit `https://photolib.yourdomain.com/setup`
 
 ```bash
 ./scripts/update-production.sh
-pm2 restart photolib  # or: sudo systemctl restart photolib
+pm2 restart kuvalib  # or: sudo systemctl restart kuvalib
 ```
 
 ---
@@ -290,12 +290,12 @@ pm2 restart photolib  # or: sudo systemctl restart photolib
 
 **Database (crontab):**
 ```bash
-0 2 * * * mysqldump -u photolib -p'password' photolib | gzip > /var/backups/photolib-$(date +\%Y\%m\%d).sql.gz
+0 2 * * * mysqldump -u kuvalib -p'password' kuvalib | gzip > /var/backups/kuvalib-$(date +\%Y\%m\%d).sql.gz
 ```
 
 **Files:**
 ```bash
-0 3 * * * tar -czf /var/backups/photolib-files-$(date +\%Y\%m\%d).tar.gz /path/to/photolib/.env /path/to/photolib/uploads/
+0 3 * * * tar -czf /var/backups/kuvalib-files-$(date +\%Y\%m\%d).tar.gz /path/to/kuvalib/.env /path/to/kuvalib/uploads/
 ```
 
 ---
@@ -304,14 +304,14 @@ pm2 restart photolib  # or: sudo systemctl restart photolib
 
 **App won't start:**
 ```bash
-pm2 logs photolib
+pm2 logs kuvalib
 # Check .env configuration
 # Verify MySQL is running
 ```
 
 **Database connection fails:**
 ```bash
-mysql -u photolib -p -e "SELECT 1;"
+mysql -u kuvalib -p -e "SELECT 1;"
 # Check DATABASE_URL format
 # Special characters need percent-encoding
 ```
@@ -345,8 +345,8 @@ NODE_OPTIONS="--max-old-space-size=4096" npm run build
 
 ```bash
 pm2 status              # Check status
-pm2 logs photolib       # View logs
-pm2 restart photolib    # Restart
+pm2 logs kuvalib       # View logs
+pm2 restart kuvalib    # Restart
 npx prisma studio       # Database GUI
 npx prisma migrate deploy  # Run migrations
 ```

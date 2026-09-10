@@ -2,9 +2,9 @@
 # SPDX-License-Identifier: GPL-3.0-or-later
 # Copyright (C) 2026 Alexandru Negoita
 
-# Simple script to restart the Photolib application
+# Simple script to restart the Kuvalib application
 
-echo "🔄 Restarting Photolib..."
+echo "🔄 Restarting Kuvalib..."
 
 # Stop any running instance
 echo "⏹️  Stopping current process..."
@@ -44,7 +44,7 @@ set -a
 source .env
 set +a
 
-nohup npm start > photolib.log 2>&1 &
+nohup npm start > kuvalib.log 2>&1 &
 
 # Wait and check if it started
 sleep 3
@@ -52,9 +52,9 @@ sleep 3
 if pgrep -f "next start" > /dev/null; then
     echo "✅ Application started successfully"
     echo "📊 Check status: curl http://localhost:3000/api/health"
-    echo "📋 View logs: tail -f photolib.log"
+    echo "📋 View logs: tail -f kuvalib.log"
 else
     echo "❌ Failed to start application"
-    echo "📋 Check logs: tail -50 photolib.log"
+    echo "📋 Check logs: tail -50 kuvalib.log"
     exit 1
 fi

@@ -1,16 +1,14 @@
 // SPDX-License-Identifier: GPL-3.0-or-later
 // Copyright (C) 2026 Alexandru Negoita
 
-import { redirect } from 'next/navigation'
-import { getSession } from '@/lib/auth'
+import { requireAdmin } from '@/lib/auth'
 import { listUsers } from '@/lib/users'
 import UserManager from './_components/UserManager'
 
 export const metadata = { title: 'Users' }
 
 export default async function UsersPage() {
-  const session = await getSession()
-  if (session.role !== 'ADMIN') redirect('/projects')
+  const session = await requireAdmin()
 
   const users = await listUsers()
 

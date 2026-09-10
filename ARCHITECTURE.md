@@ -293,6 +293,10 @@ cookie or auth code.
 - All admin routes are `force-dynamic` — they depend on session and live database state.
   Without this, Next.js attempts to prerender them at build time and the build fails on a
   database connection error.
+- Admin pages call `requireAuth()` (or `requireAdmin()`), **not** raw `getSession()`. The
+  helpers redirect to `/login` when there is no session and return a `SessionData` with a
+  non-null `userId`. A page that reads `session.userId` from a bare `getSession()` and passes
+  it to a query throws a Prisma validation error on an expired session instead of redirecting.
 - Admin-only API routes call `requireAdmin()`, which redirects non-admins.
 - The `users` page and the project settings/danger sections render only for admins.
 

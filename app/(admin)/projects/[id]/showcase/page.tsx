@@ -2,7 +2,7 @@
 // Copyright (C) 2026 Alexandru Negoita
 
 import { notFound, redirect } from 'next/navigation'
-import { getSession } from '@/lib/auth'
+import { requireAuth } from '@/lib/auth'
 import prisma from '@/lib/prisma'
 import { getProject, listPhotos } from '@/lib/projects'
 import { getShowcaseByProject } from '@/lib/showcase'
@@ -20,7 +20,7 @@ export async function generateMetadata({ params }: Props) {
 
 export default async function ShowcaseBuilderPage({ params }: Props) {
   const { id } = await params
-  const session = await getSession()
+  const session = await requireAuth()
 
   const project = await getProject(id)
   if (!project) notFound()

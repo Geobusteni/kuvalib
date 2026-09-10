@@ -2,7 +2,7 @@
 // Copyright (C) 2026 Alexandru Negoita
 
 import Link from 'next/link'
-import { getSession } from '@/lib/auth'
+import { requireAuth } from '@/lib/auth'
 import { countPhotos, getUserProjects, listProjects } from '@/lib/projects'
 
 export const metadata = { title: 'Projects' }
@@ -13,7 +13,7 @@ function formatDate(date: Date | null) {
 }
 
 export default async function ProjectsPage() {
-  const session = await getSession()
+  const session = await requireAuth()
   const isAdmin = session.role === 'ADMIN'
 
   const projects = isAdmin ? await listProjects() : await getUserProjects(session.userId)

@@ -3,7 +3,7 @@
 
 import Link from 'next/link'
 import { notFound, redirect } from 'next/navigation'
-import { getSession } from '@/lib/auth'
+import { requireAuth } from '@/lib/auth'
 import prisma from '@/lib/prisma'
 import { getProject, getProjectAssignments, listPhotos } from '@/lib/projects'
 import { listUsers } from '@/lib/users'
@@ -44,7 +44,7 @@ function Stat({ label, value }: { label: string; value: string | number }) {
 
 export default async function EditProjectPage({ params }: Props) {
   const { id } = await params
-  const session = await getSession()
+  const session = await requireAuth()
 
   const project = await getProject(id)
   if (!project) notFound()

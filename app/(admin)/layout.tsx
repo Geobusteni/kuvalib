@@ -3,7 +3,7 @@
 
 import { redirect } from 'next/navigation'
 import Link from 'next/link'
-import { getSession } from '@/lib/auth'
+import { requireAuth } from '@/lib/auth'
 import { setupRequired } from '@/lib/users'
 import LogoutButton from '@/components/ui/LogoutButton'
 
@@ -13,9 +13,7 @@ export const dynamic = 'force-dynamic'
 export default async function AdminLayout({ children }: { children: React.ReactNode }) {
   if (await setupRequired()) redirect('/setup')
 
-  const session = await getSession()
-  if (!session.userId) redirect('/login')
-
+  const session = await requireAuth()
   const isAdmin = session.role === 'ADMIN'
 
   return (

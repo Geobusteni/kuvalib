@@ -10,6 +10,20 @@ adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html). While the
 
 ## [Unreleased]
 
+## [1.5.2] - 2026-09-10
+
+### Fixed
+
+- **Admin pages no longer crash on an expired or missing session.** Opening a
+  project or the showcase builder without a valid session threw a Prisma error
+  (`userId` missing) instead of redirecting to the login page. The admin pages
+  now go through `requireAuth()` / `requireAdmin()`, which redirect to
+  `/login`.
+- **Showcase viewer: the thumbnail rail no longer blanks the page.** The new
+  page previews render Button blocks as real `<button>`/`<a>`, and wrapping
+  that in a `<button>` is invalid HTML — it threw a hydration error the moment
+  the rail was opened. Each thumbnail is now a `<div role="button">`.
+
 ## [1.5.1] - 2026-09-10
 
 ### Added

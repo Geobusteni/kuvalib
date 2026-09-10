@@ -4,7 +4,9 @@
 import type { NextConfig } from 'next'
 
 const nextConfig: NextConfig = {
-  // Generate standalone output for Docker
+  // Production is deployed as the self-contained `.next/standalone` bundle
+  // (server.js + traced node_modules), assembled by .github/workflows/build.yml
+  // and run by scripts/kuvalib.service. See DEPLOYMENT.md.
   output: 'standalone',
 }
 

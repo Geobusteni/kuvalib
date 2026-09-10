@@ -1,536 +1,233 @@
 # Kuvalib Operations Guide
 
-This guide covers day-to-day operations for running Kuvalib in production.
+Day-to-day operations for a running Kuvalib server.
 
-> **📖 See also:**
-> - [README.md](./README.md) — Installation and development setup
-> - [DEPLOYMENT.md](./DEPLOYMENT.md) — Initial production deployment
-> - [ARCHITECTURE.md](./ARCHITECTURE.md) — Technical architecture
-> - [CHANGELOG.md](./CHANGELOG.md) — Version history
+> **See also:**
+> - [DEPLOYMENT.md](./DEPLOYMENT.md) — first-time setup and updating
+> - [README.md](./README.md) — development setup
+> - [ARCHITECTURE.md](./ARCHITECTURE.md) — technical architecture
 
----
+The app is deployed as the Next.js **standalone** bundle and started with
+`node server.js`. `server.js` does not read `.env` — the process manager passes
+the environment in.
 
-## Table of Contents
-
-1. [Starting and Stopping the Application](#starting-and-stopping-the-application)
-2. [Checking Application Status](#checking-application-status)
-3. [Viewing Logs](#viewing-logs)
-4. [Managing the Application with PM2](#managing-the-application-with-pm2)
-5. [Environment Variables](#environment-variables)
-6. [Database Operations](#database-operations)
-7. [Troubleshooting](#troubleshooting)
+Examples below assume the app directory is `/var/www/kuvalib` and port `3000`.
 
 ---
 
-## Starting and Stopping the Application
+## 1. Start / stop / restart
 
-### Method 1: Using PM2 (Recommended)
+### systemd (recommended — auto-restarts on any crash)
 
-PM2 is a production process manager that keeps your app running and auto-restarts it on crashes.
-
-**Install PM2:**
 ```bash
-npm install -g pm2
-```
-
-**Start the application:**
-```bash
-cd ~/webapps/KuvaLib
-pm2 start npm --name "kuvalib" -- start
-```
-
-**Stop the application:**
-```bash
-pm2 stop kuvalib
-```
-
-**Restart the application:**
-```bash
-pm2 restart kuvalib
-```
-
-**Auto-start on server reboot:**
-```bash
-pm2 startup
-pm2 save
-```
-
-**Remove from PM2:**
-```bash
-pm2 delete kuvalib
-```
-
-### Method 2: Direct npm start (For Testing)
-
-**Start in background:**
-```bash
-cd ~/webapps/KuvaLib
-set -a && source .env && set +a
-nohup npm start > kuvalib.log 2>&1 &
-```
-
-**Stop:**
-```bash
-pkill -f "next start"
-```
-
-### Method 3: Systemd Service (Alternative)
-
-Create `/etc/systemd/system/kuvalib.service`:
-
-```ini
-[Unit]
-Description=Kuvalib Photography Delivery Application
-After=network.target mysql.service
-
-[Service]
-Type=simple
-User=kuvalib
-WorkingDirectory=/home/kuvalib/webapps/KuvaLib
-EnvironmentFile=/home/kuvalib/webapps/KuvaLib/.env
-ExecStart=/usr/bin/npm start
-Restart=always
-RestartSec=10
-
-[Install]
-WantedBy=multi-user.target
-```
-
-**Manage the service:**
-```bash
-sudo systemctl enable kuvalib
 sudo systemctl start kuvalib
 sudo systemctl stop kuvalib
 sudo systemctl restart kuvalib
 sudo systemctl status kuvalib
 ```
 
----
+Installed by `./scripts/install-service.sh`. The unit uses `Restart=always` with
+no start-limit, so the app is brought back after a crash, an OOM kill, or a
+manual `systemctl kill`. It also starts on boot (`systemctl enable`, done by the
+installer).
 
-## Checking Application Status
+`./scripts/restart-app.sh` is a convenience wrapper that restarts the service
+(or a plain `node` process if there's no service).
 
-### Check if the app is running:
-
-```bash
-# Check process
-ps aux | grep "next start" | grep -v grep
-
-# Check if listening on port 3000
-netstat -tlnp | grep :3000
-# Or
-ss -tlnp | grep :3000
-
-# Test the health endpoint
-curl http://localhost:3000/api/health
-# Should return: {"status":"ok"}
-```
-
-### With PM2:
+### PM2 (hosts without systemd)
 
 ```bash
-pm2 status
-pm2 show kuvalib
-```
+cd /var/www/kuvalib
+set -a && . ./.env && set +a
+pm2 start server.js --name kuvalib --update-env
+pm2 save && pm2 startup      # once, to start on boot
 
-### With systemd:
-
-```bash
-systemctl status kuvalib
-```
-
----
-
-## Viewing Logs
-
-### With PM2:
-
-```bash
-# View real-time logs
+pm2 restart kuvalib --update-env
+pm2 stop kuvalib
 pm2 logs kuvalib
-
-# View last 100 lines
-pm2 logs kuvalib --lines 100
-
-# View only errors
-pm2 logs kuvalib --err
 ```
 
-### Direct npm start:
+### Plain process (testing only — no auto-restart)
 
 ```bash
-# View the log file
-tail -f ~/webapps/KuvaLib/kuvalib.log
-
-# View last 100 lines
-tail -100 ~/webapps/KuvaLib/kuvalib.log
-
-# Search for errors
-grep -i error ~/webapps/KuvaLib/kuvalib.log
+cd /var/www/kuvalib
+set -a && . ./.env && set +a
+nohup node server.js > kuvalib.log 2>&1 &
+# stop:
+pkill -TERM -f "node server.js"
 ```
 
-### With systemd:
+---
+
+## 2. Is it up?
 
 ```bash
+curl http://127.0.0.1:3000/api/health      # -> {"status":"ok"}
+sudo systemctl status kuvalib
+ss -tlnp | grep :3000
+```
+
+---
+
+## 3. Logs
+
+```bash
+# systemd
 sudo journalctl -u kuvalib -f
 sudo journalctl -u kuvalib --since "1 hour ago"
+sudo journalctl -u kuvalib -p err
+
+# PM2
+pm2 logs kuvalib --lines 100
+
+# plain process
+tail -f /var/www/kuvalib/kuvalib.log
 ```
 
 ---
 
-## Managing the Application with PM2
-
-### View PM2 Dashboard:
+## 4. Updating
 
 ```bash
-pm2 monit
-```
-
-### Application Metrics:
-
-```bash
-pm2 show kuvalib
-```
-
-### Memory and CPU Usage:
-
-```bash
-pm2 list
-```
-
-### Restart on File Changes (Development):
-
-```bash
-pm2 start npm --name "kuvalib-dev" --watch -- run dev
-```
-
-### Save PM2 Configuration:
-
-```bash
-# Save current process list
-pm2 save
-
-# Restore saved processes
-pm2 resurrect
-```
-
----
-
-## Environment Variables
-
-### Required Variables
-
-The application requires these variables in `/home/kuvalib/webapps/KuvaLib/.env`:
-
-```bash
-# Database connection
-DATABASE_URL='mysql://user:password@localhost:3306/database'
-
-# Session encryption key (64 hex characters)
-SESSION_SECRET='5360d4f7dd1f19117ffc4a530962ffe84c155528ac3b11fec73fec2d06a49728'
-
-# File storage path
-UPLOAD_DIR=./uploads
-
-# Optional: Enable secure cookies for HTTPS sites
-COOKIE_SECURE=true
-```
-
-### Generate a new SESSION_SECRET:
-
-```bash
-node -e "console.log(require('crypto').randomBytes(32).toString('hex'))"
-```
-
-### Reload Environment Variables:
-
-After editing `.env`, restart the application:
-
-```bash
-# With PM2
-pm2 restart kuvalib
-
-# With systemd
-sudo systemctl restart kuvalib
-
-# Direct npm start
-pkill -f "next start"
-set -a && source .env && set +a
-nohup npm start > kuvalib.log 2>&1 &
-```
-
----
-
-## Database Operations
-
-### Backup Database:
-
-```bash
-# Create timestamped backup
-mysqldump -u kuvalib -p kuvalib > backup-$(date +%Y%m%d-%H%M%S).sql
-
-# Backup to specific location
-mysqldump -u kuvalib -p kuvalib > ~/backups/kuvalib-backup.sql
-```
-
-### Restore Database:
-
-```bash
-mysql -u kuvalib -p kuvalib < backup-20260730-123456.sql
-```
-
-### Sync Database Schema:
-
-```bash
-cd ~/webapps/KuvaLib
-npx prisma db push
-```
-
-### View Database Tables:
-
-```bash
-mysql -u kuvalib -p kuvalib -e "SHOW TABLES;"
-```
-
-### Check User Accounts:
-
-```bash
-mysql -u kuvalib -p kuvalib -e "SELECT id, email, username, role FROM User;"
-```
-
-### Check Projects:
-
-```bash
-mysql -u kuvalib -p kuvalib -e "SELECT id, title, createdAt FROM Project;"
-```
-
----
-
-## Troubleshooting
-
-### Application won't start
-
-**Check if port 3000 is already in use:**
-```bash
-netstat -tlnp | grep :3000
-# If something is using it, kill it:
-pkill -f "next start"
-```
-
-**Check if database is accessible:**
-```bash
-# Test database connection
-mysql -u kuvalib -p kuvalib -e "SELECT 1;"
-```
-
-**Verify environment variables are loaded:**
-```bash
-# Check if DATABASE_URL is set
-grep DATABASE_URL .env
-
-# Test loading env vars
-set -a && source .env && set +a
-echo $DATABASE_URL
-```
-
-### Login not working (cookies)
-
-**Check if HTTPS is configured:**
-```bash
-# If using HTTPS, ensure COOKIE_SECURE is set
-grep COOKIE_SECURE .env
-```
-
-**Test login API directly:**
-```bash
-curl -X POST http://localhost:3000/api/auth \
-  -H "Content-Type: application/json" \
-  -d '{"identifier":"your@email.com","password":"yourpassword"}'
-```
-
-**Check nginx proxy headers:**
-```bash
-# Ensure these headers are set in nginx config:
-# proxy_set_header X-Forwarded-Proto $scheme;
-# proxy_set_header Host $host;
-```
-
-### 502 Bad Gateway
-
-**Check if app is running:**
-```bash
-curl http://localhost:3000/api/health
-```
-
-**Check nginx error logs:**
-```bash
-sudo tail -50 /var/log/nginx/error.log
-```
-
-**Restart both nginx and app:**
-```bash
-pm2 restart kuvalib
-sudo systemctl reload nginx
-```
-
-### 404 on all routes
-
-**Check nginx proxy configuration:**
-```bash
-# Ensure location / block has proxy_pass
-sudo nginx -T | grep -A10 "location /"
-```
-
-**Verify .next build exists:**
-```bash
-ls -la ~/webapps/KuvaLib/.next/
-```
-
-### Database connection errors
-
-**Check if MySQL is running:**
-```bash
-sudo systemctl status mysql
-```
-
-**Test connection string:**
-```bash
-# Extract connection details from DATABASE_URL
-mysql -h localhost -u kuvalib -p kuvalib -e "SELECT 1;"
-```
-
-**Check if database exists:**
-```bash
-mysql -u kuvalib -p -e "SHOW DATABASES;"
-```
-
-### Out of disk space
-
-**Check disk usage:**
-```bash
-df -h
-du -sh ~/webapps/KuvaLib/*
-```
-
-**Check upload directory:**
-```bash
-du -sh ~/webapps/KuvaLib/uploads/
-```
-
-**Clean up old logs:**
-```bash
-# PM2 logs
-pm2 flush
-
-# Application logs
-> ~/webapps/KuvaLib/kuvalib.log
-```
-
-### Memory issues
-
-**Check memory usage:**
-```bash
-free -h
-pm2 show kuvalib
-```
-
-**Restart the application:**
-```bash
-pm2 restart kuvalib
-```
-
-### Application crashes repeatedly
-
-**View crash logs:**
-```bash
-pm2 logs kuvalib --lines 200 --err
-```
-
-**Common causes:**
-- Database connection lost
-- Out of memory
-- Missing environment variables
-- File permissions issues
-
-**Check file permissions:**
-```bash
-ls -la ~/webapps/KuvaLib/
-# Ensure kuvalib user owns all files
-```
-
----
-
-## Performance Monitoring
-
-### Check response times:
-
-```bash
-# Test health endpoint
-time curl http://localhost:3000/api/health
-```
-
-### Monitor resource usage:
-
-```bash
-# With PM2
-pm2 monit
-
-# System resources
-top
-htop
-```
-
-### Check database performance:
-
-```bash
-mysql -u kuvalib -p kuvalib -e "SHOW PROCESSLIST;"
-```
-
----
-
-## Security Best Practices
-
-1. **Never commit `.env` to git** - it contains secrets
-2. **Use strong SESSION_SECRET** - regenerate if compromised
-3. **Regular database backups** - automate with cron
-4. **Keep Node.js updated** - check for security updates
-5. **Use HTTPS in production** - set `COOKIE_SECURE=true`
-6. **Restrict file permissions** - uploads directory should not be executable
-7. **Monitor logs** - watch for suspicious activity
-
----
-
-## Quick Reference Commands
-
-```bash
-# Start app
-pm2 start npm --name "kuvalib" -- start
-
-# Stop app
-pm2 stop kuvalib
-
-# Restart app
-pm2 restart kuvalib
-
-# View logs
-pm2 logs kuvalib
-
-# Check status
-pm2 status
-
-# Test app
-curl http://localhost:3000/api/health
-
-# Backup database
-mysqldump -u kuvalib -p kuvalib > backup-$(date +%Y%m%d).sql
-
-# Update from GitHub
+cd /var/www/kuvalib
 ./scripts/update-from-github.sh
 ```
 
+Stages and validates the new build with no downtime, then does a clean
+stop → swap → `prisma db push` → start, verifying `/api/health`. On failure it
+restores the previous build from `.rollback/` automatically. Full details and
+flags (`--force`, `--force-schema`, `--local`) are in
+[DEPLOYMENT.md](./DEPLOYMENT.md#2-updating).
+
 ---
 
-## Need More Help?
+## 5. Environment variables
 
-- Check `DEPLOYMENT.md` for initial setup
-- Check `README.md` for application overview
-- Check GitHub issues: https://github.com/Geobusteni/kuvalib/issues
+Live in `/var/www/kuvalib/.env`:
+
+```env
+DATABASE_URL='mysql://user:password@localhost:3306/kuvalib'
+SESSION_SECRET='<64 hex chars>'
+UPLOAD_DIR=/var/www/kuvalib/uploads
+# PORT=3000
+# COOKIE_SECURE=true    # for HTTPS
+```
+
+Generate a secret: `node -e "console.log(require('crypto').randomBytes(32).toString('hex'))"`
+
+After editing `.env`, restart so the new values are picked up:
+
+```bash
+sudo systemctl restart kuvalib      # systemd reads EnvironmentFile on start
+pm2 restart kuvalib --update-env    # PM2
+```
+
+`update-from-github.sh` never overwrites `.env`.
+
+---
+
+## 6. Database
+
+```bash
+# Backup
+mysqldump -u kuvalib -p kuvalib > backup-$(date +%Y%m%d-%H%M%S).sql
+
+# Restore
+mysql -u kuvalib -p kuvalib < backup-20260101-120000.sql
+
+# Inspect
+mysql -u kuvalib -p kuvalib -e "SHOW TABLES;"
+mysql -u kuvalib -p kuvalib -e "SELECT id, email, username, role FROM User;"
+mysql -u kuvalib -p kuvalib -e "SELECT id, title, createdAt FROM Project;"
+```
+
+Schema changes are applied by `update-from-github.sh` (`prisma db push`, via
+`npx prisma`). To push a change by hand from the app directory:
+
+```bash
+cd .prisma-migrate
+DATABASE_URL="$(grep -E '^DATABASE_URL=' ../.env | cut -d= -f2- | tr -d "'\"")" \
+  npx --yes "prisma@$(cat PRISMA_VERSION)" db push
+```
+
+---
+
+## 7. Disk
+
+```bash
+df -h
+du -sh /var/www/kuvalib/* /var/www/kuvalib/uploads
+
+# The app bundle is ~185 MB; .rollback/ holds the previous build.
+rm -rf /var/www/kuvalib/.rollback     # safe once the current deploy is confirmed good
+rm -rf /var/www/kuvalib/.staging      # only present if an update was interrupted
+```
+
+---
+
+## 8. Troubleshooting
+
+### Won't start
+
+```bash
+sudo journalctl -u kuvalib -n 50 --no-pager
+```
+
+- **`.env` missing or incomplete** — the unit's `EnvironmentFile` fails.
+- **DB unreachable** — `mysql -u kuvalib -p kuvalib -e "SELECT 1;"`
+- **Port in use** — `ss -tlnp | grep :3000`, then `pkill -f "node server.js"`.
+
+### `sudo` prompts during `update-from-github.sh`
+
+The passwordless sudoers entry for `systemctl … kuvalib` is missing. Re-run
+`./scripts/install-service.sh`.
+
+### An update rolled itself back
+
+The new build failed `/api/health`. The previous build is running again. Read
+`journalctl -u kuvalib` for the cause, fix it, and redeploy.
+
+### Login not working over HTTPS
+
+Set `COOKIE_SECURE=true` in `.env` and confirm nginx sends
+`X-Forwarded-Proto $scheme` and `Host $host`. Restart after changing `.env`.
+
+### 502 Bad Gateway
+
+```bash
+curl http://127.0.0.1:3000/api/health
+sudo systemctl status kuvalib
+sudo tail -50 /var/log/nginx/error.log
+```
+
+### Crash loop
+
+```bash
+sudo journalctl -u kuvalib --since "15 min ago" | tail -100
+```
+
+Common causes: DB down, out of memory, a required env var missing. `Restart=always`
+means systemd keeps trying — fix the root cause and it recovers on its own.
+
+---
+
+## 9. Security checklist
+
+- Strong `SESSION_SECRET` (64 hex) and DB password
+- HTTPS on, `COOKIE_SECURE=true`
+- App runs as a non-root user, bound to `127.0.0.1`
+- `uploads/` not executable, owned by the deploy user
+- Nightly database + `uploads/` backups (see [DEPLOYMENT.md](./DEPLOYMENT.md#backups))
+- Node.js and MySQL kept patched
+
+---
+
+## Quick reference
+
+```bash
+sudo systemctl restart kuvalib          # restart
+sudo journalctl -u kuvalib -f           # logs
+curl http://127.0.0.1:3000/api/health   # health
+./scripts/update-from-github.sh         # deploy latest build
+mysqldump -u kuvalib -p kuvalib > backup-$(date +%Y%m%d).sql
+```

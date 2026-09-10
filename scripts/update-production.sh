@@ -4,6 +4,18 @@
 
 set -e
 
+# ─────────────────────────────────────────────────────────────────────────────
+# DEPRECATED. Builds on the server (git pull + npm build), which the deployment
+# model forbids. Use the artifact flow instead:
+#
+#   ./scripts/update-from-github.sh
+#
+# See DEPLOYMENT.md. Kept only for old muscle memory; removed in a future release.
+# ─────────────────────────────────────────────────────────────────────────────
+echo "⚠️  update-production.sh is deprecated — use ./scripts/update-from-github.sh" >&2
+read -r -p "Run it anyway? [y/N] " _ans
+[ "$_ans" = "y" ] || [ "$_ans" = "Y" ] || exit 1
+
 echo "🔄 Updating Kuvalib..."
 echo ""
 

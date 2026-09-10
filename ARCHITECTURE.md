@@ -503,6 +503,38 @@ shared, framework-free core.
 
 ---
 
+## Deployment
+
+`next.config.ts` sets `output: 'standalone'`. `next build` therefore emits
+`.next/standalone/` — a `server.js` plus only the `node_modules` files the app's routes were
+traced to need (the `mariadb` driver is bundled in; nothing external is required at runtime).
+The `postbuild` script copies `public/` and `.next/static/` into it, since standalone omits
+those by design.
+
+`.github/workflows/build.yml` ("Build and Package") builds on every push to `main`, assembles
+`.next/standalone/` into a `deploy/` tree — adding `prisma/` (schema + migrations), `scripts/`,
+`.env.example`, and a `.prisma-migrate/` folder holding an import-free `prisma.config.ts` — boot-checks
+it against `/api/health`, and uploads it as the `kuvalib-deploy` artifact (~185 MB).
+
+On the server:
+
+- **`scripts/kuvalib.service`** (installed by `scripts/install-service.sh`) runs
+  `node server.js` with `Restart=always` and `StartLimitIntervalSec=0`, so the process is
+  brought back after any exit and systemd never gives up. `server.js` does not read `.env`;
+  the unit supplies the environment via `EnvironmentFile`. It binds `127.0.0.1` — nginx
+  terminates TLS in front.
+- **`scripts/update-from-github.sh`** downloads the latest artifact into `.staging/`, validates
+  it and warms the `npx prisma` cache while the current server keeps serving, then: stops the
+  service, `rsync -a --delete`s the new build over the app directory (preserving `.env` and
+  `uploads/`, and — crucially — deleting files the new build no longer contains), runs
+  `prisma db push`, starts the service, and confirms `/api/health`. The pre-swap build is
+  hardlink-snapshotted into `.rollback/` and restored automatically if the health check fails.
+- Migrations run through `npx prisma@<pinned>` (Prisma's ~250 MB CLI tree is not shipped); the
+  config in `.prisma-migrate/` is a plain object rather than `defineConfig(...)` because the
+  `prisma/config` specifier is not resolvable from an `npx` cache.
+
+---
+
 ## Decisions Log
 
 | Decision                          | Reason                                                        |
@@ -555,3 +587,8 @@ shared, framework-free core.
 | Showcase tracks are served by a guarded route, not `/api/uploads` | `/api/uploads` is thumbnails-only by an earlier decision. `GET /api/projects/[id]/showcase/tracks/[tid]` checks `verifyGalleryAccess` and supports `Range` so a link that never passed the gate cannot pull the audio |
 | `ShowcaseViewer` resolves `isFullscreenSupported()` in a `useEffect`, not during render | It reads `document`; evaluating it during render made the server omit the Fullscreen control and the client add it — a hydration mismatch that shuffled the whole control row. Same fix as `usePhotoFeedback` and the lightbox |
 | Showcase builder seeds `zustand` in a `useEffect` and renders a placeholder until ready | The builder is an admin-only interactive island with nothing to server-render. Initialising after mount avoids a module-singleton store bleeding one request's deck into another's SSR |
+| Production ships `.next/standalone` + `node server.js`, not full `.next` + `next start` | The old workflow hand-picked which folders to copy into the artifact and kept missing some (`components/`, `next.config.ts`); `next start` also warns and is unsupported under `output: 'standalone'`. Standalone lets Next's own tracer decide what to include — the artifact is smaller and complete by construction |
+| `server.js` gets its env from systemd, not a `.env` file | The Next standalone server has no `.env` loader (unlike `next start`). The systemd unit's `EnvironmentFile=` supplies it; `update-from-github.sh` `source`s `.env` only for the commands it runs itself |
+| systemd unit uses `Restart=always` + `StartLimitIntervalSec=0` | The app must come back after *any* stop — crash, OOM kill, `systemctl kill`, a bad deploy. The default `Restart=on-failure` plus a start-limit would leave it dead after a burst of fast restarts |
+| Deploy swaps the build with `rsync -a --delete` while the service is stopped, snapshotting the old build first | `--delete` removes files the new build dropped (the failure mode that plagued the hand-picked copy list). Stopping first avoids a running Node process reading half-swapped chunks. The `--link-dest` snapshot into `.rollback/` is near-free and enables automatic restore on a failed health check |
+| Server-side migrations run via `npx prisma@<pinned>`, not a bundled CLI | Prisma's CLI pulls a ~250 MB dependency tree (`@prisma/dev`/pglite, studio) that cannot be safely hand-pruned and would dwarf the 185 MB app bundle. `npx` caches it after the first deploy. The deploy-only `prisma.config.ts` is a plain object because `import "prisma/config"` is unresolvable from an npx cache dir |

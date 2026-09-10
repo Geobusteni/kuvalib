@@ -4,6 +4,20 @@
 
 set -e
 
+# ─────────────────────────────────────────────────────────────────────────────
+# DEPRECATED. This script does a `git pull` and builds on the server, which the
+# deployment model explicitly forbids (OOM risk, and production ships build
+# artifacts only). Use the artifact flow instead:
+#
+#   ./scripts/update-from-github.sh      # pull + deploy the latest CI build
+#
+# See DEPLOYMENT.md. This script is kept only for old muscle memory and will be
+# removed in a future release.
+# ─────────────────────────────────────────────────────────────────────────────
+echo "⚠️  update-server.sh is deprecated — use ./scripts/update-from-github.sh" >&2
+read -r -p "Run it anyway? [y/N] " _ans
+[ "$_ans" = "y" ] || [ "$_ans" = "Y" ] || exit 1
+
 echo "🔄 Updating Kuvalib..."
 echo ""
 

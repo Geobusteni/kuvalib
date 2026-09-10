@@ -10,6 +10,46 @@ adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html). While the
 
 ## [Unreleased]
 
+### Changed
+
+- **Production is now deployed as the Next.js standalone bundle.** The
+  "Build and Package" workflow ships `.next/standalone` (a self-contained
+  `server.js` with only its traced dependencies) instead of the full `.next`
+  tree plus a hand-picked list of source folders and a complete
+  `node_modules`. The deploy artifact drops from ~450 MB to ~185 MB, and the
+  "missing folder" class of bug (e.g. `components/` absent from the package)
+  is gone — Next decides what to include.
+  - The server is started with `node server.js`, not `next start`.
+  - `server.js` does not read `.env` — the process manager supplies the
+    environment (the systemd unit does this via `EnvironmentFile`).
+  - **Action on upgrade:** re-run `./scripts/install-service.sh` on the
+    server to install the refreshed systemd unit, then deploy with
+    `./scripts/update-from-github.sh` as usual.
+
+### Added
+
+- **`scripts/kuvalib.service` + `scripts/install-service.sh`** — a systemd unit
+  that keeps the server running and restarts it automatically after *any* stop
+  (crash, OOM kill, unhandled rejection, manual kill), with no "start-limit"
+  give-up state. The installer fills in the paths, enables start-on-boot, and
+  grants the deploy user passwordless `systemctl start/stop/restart kuvalib`
+  so updates can swap builds unattended.
+- **`./scripts/update-from-github.sh` now deploys safely.** It stages the new
+  build, validates it and warms the Prisma CLI cache while the old server keeps
+  serving, then stops the server cleanly, swaps the build in with
+  `rsync --delete` (removing files the new build dropped), applies schema
+  changes, and starts the new server — verifying `/api/health` before
+  declaring success. A hardlink snapshot of the previous build is kept in
+  `.rollback/` and restored automatically if the new build fails its health
+  check. New `--local <tarball>` flag deploys a build without going through
+  GitHub.
+
+### Fixed
+
+- The deploy package no longer omits files the app needs, and no longer carries
+  a second unused copy of the app inside `.next/standalone/`.
+- A locally-run build can no longer leak a real `.env` into the artifact.
+
 ## [1.5.0] - 2026-09-10
 
 ### Added

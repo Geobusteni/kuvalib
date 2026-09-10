@@ -118,8 +118,12 @@ npx prisma migrate deploy            # deployments
 
 ```bash
 npm run dev                  # development
-npm run build && npm start   # production
+npm run build && npm start   # production build, served locally
 ```
+
+`npm run build` emits the self-contained `.next/standalone/` bundle (`output:
+'standalone'`); `npm start` runs it with `node .next/standalone/server.js`.
+Production servers do **not** build — see [DEPLOYMENT.md](./DEPLOYMENT.md).
 
 ### 7. Create your administrator account
 

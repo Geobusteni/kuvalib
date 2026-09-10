@@ -1,11 +1,10 @@
 // SPDX-License-Identifier: GPL-3.0-or-later
 // Copyright (C) 2026 Alexandru Negoita
 
-import mariadb, { type Pool } from 'mariadb'
 import { PrismaMariaDb } from '@prisma/adapter-mariadb'
 import { PrismaClient } from './generated/prisma/client'
 
-const globalForPrisma = globalThis as unknown as { prisma?: PrismaClient; pool?: Pool }
+const globalForPrisma = globalThis as unknown as { prisma?: PrismaClient }
 
 function createClient(): PrismaClient {
   const connectionString = process.env.DATABASE_URL

@@ -7,6 +7,8 @@ interface ToolbarProps {
   title: string
   mode: 'gallery' | 'selection'
   selectedCount: number
+  /** Link to this project's showcase, when it has one. */
+  showcaseHref: string | null
   onEnterSelection: () => void
   onExitSelection: () => void
   onOpenDownloadOptions: () => void
@@ -19,6 +21,7 @@ export default function Toolbar({
   title,
   mode,
   selectedCount,
+  showcaseHref,
   onEnterSelection,
   onExitSelection,
   onOpenDownloadOptions,
@@ -29,6 +32,11 @@ export default function Toolbar({
 
       {mode === 'gallery' ? (
         <div className="flex shrink-0 items-center gap-2">
+          {showcaseHref && (
+            <a href={showcaseHref} className={buttonClass}>
+              View showcase
+            </a>
+          )}
           <button onClick={onEnterSelection} className={buttonClass}>
             Select
           </button>

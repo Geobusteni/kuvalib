@@ -4,6 +4,7 @@
 import { notFound } from 'next/navigation'
 import type { Metadata } from 'next'
 import { getProject, incrementVisit, listPhotos } from '@/lib/projects'
+import { getShowcaseByProject } from '@/lib/showcase'
 import { verifyGalleryAccess } from '@/lib/gallery-auth'
 import { toPhotoData } from '@/lib/photo-data'
 import AccessGate from '@/components/gallery/AccessGate'
@@ -39,7 +40,7 @@ export default async function GalleryPage({ params }: Props) {
 
   await incrementVisit(slug)
 
-  const photos = await listPhotos(slug)
+  const [photos, showcase] = await Promise.all([listPhotos(slug), getShowcaseByProject(slug)])
 
   return (
     <div className="min-h-screen bg-black">
@@ -50,6 +51,7 @@ export default async function GalleryPage({ params }: Props) {
         hasArchive={project.zipEnabled && !!project.archiveName}
         feedbackEnabled={project.feedbackEnabled}
         feedbackResetAt={project.feedbackResetAt.toISOString()}
+        showcaseHref={showcase ? `/s/${showcase.id}` : null}
       />
     </div>
   )

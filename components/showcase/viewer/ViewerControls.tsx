@@ -77,14 +77,14 @@ export function ViewerControls({
           </Icon>
         )}
         <Icon label={autoplay ? 'Pause slideshow' : 'Play slideshow'} onClick={onToggleAutoplay} pressed={autoplay}>
-          <svg width="18" height="18" viewBox="0 0 20 20" fill="none" stroke="currentColor" strokeWidth="1.6" strokeLinecap="round" strokeLinejoin="round">
-            {autoplay ? <path d="M6 4h3v12H6zM11 4h3v12h-3z" /> : <path d="M4 10a6 6 0 1 1 2 4.5M4 10V6M4 10h4" />}
+          <svg width="18" height="18" viewBox="0 0 20 20" fill="currentColor" stroke="currentColor" strokeWidth="1.6" strokeLinecap="round" strokeLinejoin="round">
+            {autoplay ? <path d="M6 4h3v12H6zM11 4h3v12h-3z" /> : <path d="M6 4l11 6-11 6z" />}
           </svg>
         </Icon>
-        <Icon label="Toggle thumbnails" onClick={onToggleThumbs}>
-          <svg width="18" height="18" viewBox="0 0 20 20" fill="none" stroke="currentColor" strokeWidth="1.6">
-            <rect x="3" y="4" width="6" height="5" rx="1" /><rect x="11" y="4" width="6" height="5" rx="1" />
-            <rect x="3" y="11" width="6" height="5" rx="1" /><rect x="11" y="11" width="6" height="5" rx="1" />
+        <Icon label="Toggle page thumbnails" onClick={onToggleThumbs}>
+          <svg width="18" height="18" viewBox="0 0 20 20" fill="none" stroke="currentColor" strokeWidth="1.6" strokeLinecap="round" strokeLinejoin="round">
+            <rect x="2.5" y="5" width="15" height="10" rx="1.5" />
+            <path d="M7 5v10M13 5v10" />
           </svg>
         </Icon>
         {showFullscreen && (

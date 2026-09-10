@@ -105,18 +105,13 @@ export function SettingsPanel() {
     markDirty()
   }
 
-  const siblingIds = query
-    .node('ROOT')
-    .get()
-    .data.nodes.filter(
-      (nid) => (query.node(nid).get().data.props.parentGroupId ?? null) === parentGroupId,
-    )
-
+  // Paint order in both the builder canvas and the viewer follows the flat node
+  // order (the viewer keeps a group's children right after the group, so a child
+  // moved to the front/back of the whole list still ends up front/back *within*
+  // its group). So "bring to front" is append, "send to back" is prepend.
   const moveWithinBand = (toFront: boolean) => {
-    const rootNodes = query.node('ROOT').get().data.nodes
-    const bandIndexes = siblingIds.map((nid) => rootNodes.indexOf(nid))
-    const target = toFront ? Math.max(...bandIndexes) : Math.min(...bandIndexes)
-    actions.move(selectedId, 'ROOT', target)
+    const count = query.node('ROOT').get().data.nodes.length
+    actions.move(selectedId, 'ROOT', toFront ? count : 0)
     markDirty()
   }
 

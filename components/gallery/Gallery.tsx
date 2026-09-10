@@ -69,6 +69,8 @@ interface GalleryProps {
   feedbackEnabled: boolean
   /** ISO timestamp; bumped by the admin's "reset feedback" action. */
   feedbackResetAt: string
+  /** Set when this project has a showcase, so the gallery can link to it. */
+  showcaseHref?: string | null
 }
 
 export default function Gallery({
@@ -78,6 +80,7 @@ export default function Gallery({
   hasArchive,
   feedbackEnabled,
   feedbackResetAt,
+  showcaseHref,
 }: GalleryProps) {
   const [state, dispatch] = useReducer(reducer, { mode: 'gallery' })
   const openedFrom = useRef<HTMLElement | null>(null)
@@ -169,6 +172,7 @@ export default function Gallery({
         title={title}
         mode={state.mode === 'selection' ? 'selection' : 'gallery'}
         selectedCount={selected?.size ?? 0}
+        showcaseHref={showcaseHref ?? null}
         onEnterSelection={() => dispatch({ type: 'ENTER_SELECTION' })}
         onExitSelection={() => dispatch({ type: 'EXIT_SELECTION' })}
         onOpenDownloadOptions={openDownloadDialog}

@@ -16,6 +16,19 @@ export default function ShowcaseManager({ projectId, showcase }: Props) {
   const [busy, setBusy] = useState(false)
   const [error, setError] = useState<string | null>(null)
   const [confirmingDelete, setConfirmingDelete] = useState(false)
+  const [copied, setCopied] = useState(false)
+
+  function copyLink() {
+    if (!showcase) return
+    const url = `${window.location.origin}/s/${showcase.id}`
+    navigator.clipboard?.writeText(url).then(
+      () => {
+        setCopied(true)
+        setTimeout(() => setCopied(false), 2000)
+      },
+      () => setError('Could not copy the link'),
+    )
+  }
 
   async function create() {
     setError(null)
@@ -66,6 +79,13 @@ export default function ShowcaseManager({ projectId, showcase }: Props) {
           >
             View showcase ↗
           </a>
+          <button
+            type="button"
+            onClick={copyLink}
+            className="inline-flex h-9 items-center rounded-lg border border-zinc-300 px-3 text-sm font-medium hover:bg-zinc-100 focus:outline-none focus-visible:ring-2 focus-visible:ring-zinc-500 dark:border-zinc-700 dark:hover:bg-zinc-800"
+          >
+            {copied ? 'Link copied ✓' : 'Copy client link'}
+          </button>
           {confirmingDelete ? (
             <span className="flex items-center gap-2 text-sm">
               <span className="text-zinc-600 dark:text-zinc-400">Delete the whole showcase?</span>

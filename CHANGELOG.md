@@ -10,24 +10,15 @@ adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html). While the
 
 ## [Unreleased]
 
-### Changed
-
-- **Production is now deployed as the Next.js standalone bundle.** The
-  "Build and Package" workflow ships `.next/standalone` (a self-contained
-  `server.js` with only its traced dependencies) instead of the full `.next`
-  tree plus a hand-picked list of source folders and a complete
-  `node_modules`. The deploy artifact drops from ~450 MB to ~185 MB, and the
-  "missing folder" class of bug (e.g. `components/` absent from the package)
-  is gone — Next decides what to include.
-  - The server is started with `node server.js`, not `next start`.
-  - `server.js` does not read `.env` — the process manager supplies the
-    environment (the systemd unit does this via `EnvironmentFile`).
-  - **Action on upgrade:** re-run `./scripts/install-service.sh` on the
-    server to install the refreshed systemd unit, then deploy with
-    `./scripts/update-from-github.sh` as usual.
+## [1.5.1] - 2026-09-10
 
 ### Added
 
+- **The gallery links to its showcase.** When a project has a showcase, the
+  gallery's top bar shows a **View showcase** button (no re-entering the
+  password).
+- **Admin: a "Copy client link" button** on the project's Showcase section,
+  next to *View showcase*.
 - **`scripts/kuvalib.service` + `scripts/install-service.sh`** — a systemd unit
   that keeps the server running and restarts it automatically after *any* stop
   (crash, OOM kill, unhandled rejection, manual kill), with no "start-limit"
@@ -44,8 +35,44 @@ adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html). While the
   check. New `--local <tarball>` flag deploys a build without going through
   GitHub.
 
+### Changed
+
+- **Production is now deployed as the Next.js standalone bundle.** The
+  "Build and Package" workflow ships `.next/standalone` (a self-contained
+  `server.js` with only its traced dependencies) instead of the full `.next`
+  tree plus a hand-picked list of source folders and a complete
+  `node_modules`. The deploy artifact drops from ~450 MB to ~185 MB, and the
+  "missing folder" class of bug (e.g. `components/` absent from the package)
+  is gone — Next decides what to include.
+  - The server is started with `node server.js`, not `next start`.
+  - `server.js` does not read `.env` — the process manager supplies the
+    environment (the systemd unit does this via `EnvironmentFile`).
+  - **Action on upgrade:** re-run `./scripts/install-service.sh` on the
+    server to install the refreshed systemd unit, then deploy with
+    `./scripts/update-from-github.sh` as usual.
+
 ### Fixed
 
+- **Showcase builder: blocks can be resized again.** A mousedown on a resize
+  handle was being taken over by the drag layer, and the canvas was deselecting
+  the block mid-gesture — so the handles vanished and nothing happened. Handles
+  now stay mounted while the block is selected, the drag layer ignores them, and
+  the block stays selected through the resize.
+- **Showcase builder: "Bring to front" / "Send to back" now work.** They were
+  passing an out-of-range position to the editor and silently doing nothing.
+- **Showcase builder: selecting a block no longer changes what's on top.**
+  Selecting a background block used to lift it in front of everything else,
+  hiding the blocks above it. Selection is shown by the outline only.
+- **Showcase builder: the Save button is disabled once everything is saved** and
+  reads *Save / Saving… / Saved*.
+- **Showcase viewer: the slideshow arrows are no longer clipped.** They sat
+  outside the frame, which has `overflow: hidden`; they now sit just inside it.
+- **Showcase viewer: the play/pause control shows a play triangle**, not a
+  reload icon.
+- **Showcase viewer: the thumbnail strip shows real page previews**, not just
+  page numbers, and its toolbar button uses a filmstrip icon.
+- **Showcase viewer: the "link copied" message floats under the copy button**
+  instead of appearing at the bottom of the screen.
 - The deploy package no longer omits files the app needs, and no longer carries
   a second unused copy of the app inside `.next/standalone/`.
 - A locally-run build can no longer leak a real `.env` into the artifact.

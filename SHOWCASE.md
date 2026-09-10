@@ -13,7 +13,8 @@ A project has **at most one** showcase. It is optional: build one only when you 
 
 On the project page, the **Showcase** section has a **Create showcase** button. It makes the
 showcase (seeded with a Cover page) and opens the builder. Once it exists the section shows
-**Open builder**, **View showcase ↗**, and a **Delete** control.
+**Open builder**, **View showcase ↗**, **Copy client link** (the `/s/<id>` URL, ready to send
+to the client), and a **Delete** control.
 
 Deleting a showcase removes its pages and music files. It does not touch the gallery or the
 photos.
@@ -141,11 +142,13 @@ https://yourdomain.com/s/<showcase-id>
 - It uses the **same access as the gallery** — the same password, or the same email list, and
   the same expiry date. There is no separate showcase password to manage.
 - A client who has entered the password (or their email) on **either** the showcase or the
-  gallery can move to the other **without entering it again**.
+  gallery can move to the other **without entering it again**. The gallery's top bar shows a
+  **View showcase** button whenever the project has one; the showcase links back with any
+  Button block set to *Back to gallery*.
 - If the project has expired, the showcase shows an "expired" message, same as the gallery.
 
-Copy the link from **View showcase ↗** on the project page, or with the share button inside the
-viewer.
+Copy the link with **Copy client link** on the project page, or with the share button inside the
+viewer (which floats a "link copied" confirmation under the button).
 
 ---
 
@@ -158,7 +161,7 @@ A page is exactly its blocks, shown as you laid them out.
 - Page counter
 - **Music** toggle (only when there are tracks)
 - **Autoplay** toggle
-- **Thumbnails** — a strip of page numbers to jump around
+- **Thumbnails** — a strip of scaled-down page previews to jump around
 - **Fullscreen** (hidden on browsers without Fullscreen support, e.g. iOS Safari)
 - **Copy link**
 - **Download** — the showcase's photos as a ZIP of originals (when downloads are enabled)

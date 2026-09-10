@@ -21,6 +21,19 @@ import { useFrameSize, pctToPx, pxToPct } from '../../frame-size'
 
 const MIN_PCT = 4
 
+// react-rnd wraps react-draggable around re-resizable. Without this, a mousedown
+// on a resize handle also starts a drag, and the drag wins — so the block never
+// resizes. Giving the handles a class and passing it as react-draggable's
+// `cancel` selector makes the drag layer ignore mousedowns that begin on a
+// handle.
+const RESIZE_HANDLE_CLASS = 'sc-resize-handle'
+const resizeHandleClasses = {
+  bottomRight: RESIZE_HANDLE_CLASS,
+  bottomLeft: RESIZE_HANDLE_CLASS,
+  topRight: RESIZE_HANDLE_CLASS,
+  topLeft: RESIZE_HANDLE_CLASS,
+}
+
 interface NodeCollected {
   block: Block
   parentGroupId: string | null
@@ -82,17 +95,23 @@ export function BlockShell({
     h: pctToPx(block.h, frameH),
   }
 
+  // Handles are always mounted (so the mousedown that starts a resize is never
+  // racing an unmount when Craft briefly deselects the block) but only shown and
+  // hit-tested while this block is selected.
+  const activeHandleStyle: React.CSSProperties = {
+    ...handleStyle,
+    opacity: isActive ? 1 : 0,
+    pointerEvents: isActive ? 'auto' : 'none',
+  }
+
   return (
     <Rnd
       size={{ width: px.w, height: px.h }}
       position={{ x: px.x, y: px.y }}
       bounds="parent"
-      enableResizing={
-        isActive
-          ? { bottomRight: true, bottomLeft: true, topRight: true, topLeft: true }
-          : false
-      }
+      enableResizing={{ bottomRight: true, bottomLeft: true, topRight: true, topLeft: true }}
       disableDragging={false}
+      cancel={`.${RESIZE_HANDLE_CLASS}`}
       onDragStart={() => {
         actions.selectNode(id)
         dragStart.current = { x: block.x, y: block.y }
@@ -155,13 +174,14 @@ export function BlockShell({
           }
         }
         patchNode(id, { x: nextX, y: nextY, w: nextW, h: nextH })
+        actions.selectNode(id)
       }}
-      style={{ zIndex: isActive ? 5 : undefined }}
+      resizeHandleClasses={resizeHandleClasses}
       resizeHandleStyles={{
-        bottomRight: handleStyle,
-        bottomLeft: handleStyle,
-        topRight: handleStyle,
-        topLeft: handleStyle,
+        bottomRight: activeHandleStyle,
+        bottomLeft: activeHandleStyle,
+        topRight: activeHandleStyle,
+        topLeft: activeHandleStyle,
       }}
     >
       <div
@@ -198,9 +218,12 @@ export function BlockShell({
 }
 
 const handleStyle: React.CSSProperties = {
-  width: 12,
-  height: 12,
+  width: 18,
+  height: 18,
   background: 'var(--sc-accent)',
-  borderRadius: 3,
+  borderRadius: 4,
   border: '2px solid white',
+  boxShadow: '0 0 0 1px rgba(0,0,0,0.25)',
+  // Sit above neighbouring blocks so a handle at a shared edge stays grabbable.
+  zIndex: 20,
 }

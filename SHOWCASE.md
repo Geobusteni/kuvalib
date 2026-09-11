@@ -44,9 +44,9 @@ Changes **autosave**. There is also an explicit **Save** button, and a status li
 
 | Block  | What it is |
 |--------|------------|
-| **Cover** | Not a block type of its own — a shortcut that drops a full-bleed **Image** (sent to the back) plus a **Group** holding a **Title**, a **Text** line, and a **Button** linked to the gallery. Every piece is then an ordinary block you can move, restyle, or delete. |
+| **Cover** | Not a block type of its own — a shortcut that drops a full-bleed **Image** (sent to the back) plus a **Group** holding a **Headline**, a **Text** line, and a **Button** linked to the gallery. Every piece is then an ordinary block you can move, restyle, or delete. |
 | **Image** | One photo. Pick it from the project's photos in the settings panel. |
-| **Title** | A heading. Editable text, alignment. |
+| **Headline** | A heading — H1 through H6, editable text, alignment. |
 | **Text** | A paragraph. Editable text, alignment. |
 | **Button** | A labelled button. Links to a custom URL, to the ZIP download, or back to the gallery. |
 | **Group** | A positioning container for other blocks (see below). |
@@ -72,19 +72,42 @@ title-and-button pair.
   together if the group is too small, down to a minimum size.
 - **Align in group** (in the panel, when a block *inside* a group is selected): snaps that one
   block to the group's left, centre, or right.
-- **Add inside this group** adds a Title / Text / Button straight into the selected group.
+- **Add inside this group** adds a Headline / Text / Button straight into the selected group.
+- Dragging a block over a group only re-parents it if the group is at least half that block's
+  own area — a small caption group sitting in front of a full-bleed cover image can't
+  accidentally swallow the image behind it.
 
 ### Appearance
 
-For Title, Text, Button and Group blocks the panel has:
-
-- **Corners** — square, rounded, or pill.
-- **Background** — none, a surface tone, a deep tone, an accent tint, solid accent, or a custom
-  colour with an opacity slider.
-- **Text colour** (Title / Text / Button) — default, accent, muted, or a custom colour with
-  opacity.
+- **Corners** — Text, Button and Group blocks: square, rounded, or pill.
+- **Background** — Text, Button and Group blocks: none, a surface tone, a deep tone, an accent
+  tint, solid accent, a custom colour with an opacity slider, or a two-colour **gradient** with
+  an adjustable angle.
+- **Blur** (Group only) — a backdrop blur behind the group, for a glass-panel effect over a
+  photo.
+- **Text colour** — Text and Button: default, accent, muted, or a custom colour with an opacity
+  slider. **Headline text is always solid** — same swatches, no opacity, so it stays legible over
+  a photo.
+- **Border** (Image blocks) — style (solid / dashed / dotted), width, and colour.
+- **Size** — Headline: pick a level (H1–H6); the pixel size for each level comes from Album
+  settings, or set a custom size on the block to override it. Text: pick a preset (small /
+  normal / medium / large / huge), same override. Long text wraps inside the block and is
+  clipped if it still overflows — it never spills outside the block's box.
 
 The **accent** colour comes from the album's event type (see below).
+
+### Page settings
+
+Click empty canvas (or leave nothing selected) and the settings panel shows the **current
+page's** own appearance instead of a block's:
+
+- **Background** and **Border** — same controls as a Group/Image, applied to the whole page
+  behind its blocks.
+- **Ken Burns** — a slow pan/zoom on the page while it's on screen: none, zoom in, or slide
+  left/right/up/down. **Speed** is a range in seconds, capped to the page's autoplay interval
+  when autoplay is on (so the effect never gets cut off mid-motion). Disabled entirely under
+  `prefers-reduced-motion`.
+- A page's content always clips at its own edges — nothing bleeds past the page frame.
 
 ### Button links
 
@@ -103,11 +126,15 @@ The **Album settings** dialog (button in the top bar):
 
 | Setting | Effect |
 |---------|--------|
-| **Title**, **Date** | Shown wherever a Title/Text block defaults to them; also the browser tab title of the public page. |
+| **Title**, **Date** | Shown wherever a Headline/Text block defaults to them; also the browser tab title of the public page. |
 | **Event type** | Wedding / Birthday / Christening / Corporate / Generic — picks the accent hue used across the showcase. |
 | **Album background** | Neutral, Deep, or Accent tint — the colour behind the page. |
-| **Page transition** | Turn, Fade, or Zoom — how one page gives way to the next. |
+| **Page transition** | Turn, Fade, Zoom, or Rotate — how one page gives way to the next. |
 | **Autoplay** + **seconds per page** | Advance automatically and loop. |
+| **Heading sizes** | The default pixel size for each Headline level, H1–H6. A block can still override it with a custom size. |
+| **Text sizes** | The default pixel size for each Text preset (small / normal / medium / large / huge). A block can still override it. |
+| **Page dots** | Active and inactive colours for the page-position dots in the viewer. Leave blank to use the event colour / a translucent white. |
+| **Custom CSS** | A free-form stylesheet injected into the public viewer, for tweaks the settings panel doesn't cover. Admin-authored — treat it like any other content you control. |
 | **Music playlist** | See below. |
 
 ### Music
@@ -154,11 +181,13 @@ viewer (which floats a "link copied" confirmation under the button).
 
 ## The client viewer
 
-A page is exactly its blocks, shown as you laid them out.
+A page is exactly its blocks, shown as you laid them out. The viewer is full-width — it fills
+the whole browser window rather than sitting in a centred content column, so the photography
+gets all the available space.
 
-**Top bar**
+**Controls** float as one compact pill in the top-right corner, over the photo, instead of a
+full-width bar:
 
-- Page counter
 - **Music** toggle (only when there are tracks)
 - **Autoplay** toggle
 - **Thumbnails** — a strip of scaled-down page previews to jump around
@@ -166,8 +195,13 @@ A page is exactly its blocks, shown as you laid them out.
 - **Copy link**
 - **Download** — the showcase's photos as a ZIP of originals (when downloads are enabled)
 
-**Arrows** on the sides move between pages. In fullscreen the bar hides after a few seconds and
-returns when the visitor moves the mouse or presses a key.
+A column of **dots** on the left edge shows the page position — the current page's dot is
+larger; click any dot to jump to that page. Colours come from the Album settings' **Page dots**
+setting. A screen-reader-only "Page N of Total" announcement keeps the page count accessible
+without a visible numeric counter.
+
+**Arrows** on the sides move between pages. In fullscreen the controls hide after a few seconds
+and return when the visitor moves the mouse or presses a key.
 
 ### Keyboard
 
@@ -182,8 +216,8 @@ returns when the visitor moves the mouse or presses a key.
 
 ### Reduced motion
 
-If the visitor's device has "reduce motion" turned on, page transitions are dropped — pages
-change instantly and autoplay still advances. Nothing is lost.
+If the visitor's device has "reduce motion" turned on, page transitions and the Ken Burns
+pan/zoom are dropped — pages change instantly and autoplay still advances. Nothing is lost.
 
 ---
 

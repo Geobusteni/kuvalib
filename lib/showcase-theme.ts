@@ -10,7 +10,24 @@
 
 import type { CSSProperties } from 'react'
 import type { ShowcaseEventType, ShowcaseBg } from './generated/prisma/client'
-import type { Block, BlockRadius } from './showcase-blocks'
+import {
+  HEADING_SIZE_DEFAULTS,
+  TEXT_SIZE_DEFAULTS,
+  type Block,
+  type BlockRadius,
+  type BorderStyle,
+  type HeadingLevel,
+  type PageSettings,
+  type TextSizePreset,
+} from './showcase-blocks'
+
+/** The colour/gradient fields shared by a block and a page's own background —
+ *  same shape, same rendering, different table. */
+type BackgroundLike = Pick<
+  Block | PageSettings,
+  'bg' | 'bgCustom' | 'bgCustomAlpha' | 'bgGradientFrom' | 'bgGradientTo' | 'bgGradientAngle'
+>
+type BorderLike = { borderStyle?: BorderStyle; borderWidth?: number; borderColor?: string }
 
 export const EVENT_TYPE_LABELS: Record<ShowcaseEventType, string> = {
   WEDDING: 'Wedding',
@@ -72,13 +89,15 @@ export function blockRadiusCss(radius: BlockRadius | undefined): string {
   return radius === 'md' ? '0.5rem' : radius === 'pill' ? '999px' : '0px'
 }
 
-export function blockBackgroundCss(block: Pick<Block, 'bg' | 'bgCustom' | 'bgCustomAlpha'>): string {
+export function blockBackgroundCss(block: BackgroundLike): string {
   switch (block.bg) {
     case 'surface': return 'var(--sc-surface)'
     case 'deep': return 'var(--sc-deep)'
     case 'accentTint': return 'var(--sc-accent-tint)'
     case 'accentSolid': return 'var(--sc-accent)'
     case 'custom': return withAlpha(block.bgCustom || '#1a1a1a', block.bgCustomAlpha)
+    case 'gradient':
+      return `linear-gradient(${block.bgGradientAngle ?? 135}deg, ${block.bgGradientFrom || '#000'}, ${block.bgGradientTo || '#fff'})`
     default: return 'transparent'
   }
 }
@@ -92,4 +111,34 @@ export function blockTextColorCss(
     case 'custom': return withAlpha(block.textColorCustom || '#e9e9ed', block.textColorCustomAlpha)
     default: return 'var(--sc-text)'
   }
+}
+
+/** `border` shorthand, or 'none' when there's nothing to draw. */
+export function blockBorderCss(block: BorderLike): string {
+  if (!block.borderStyle || block.borderStyle === 'none' || !block.borderWidth) return 'none'
+  return `${block.borderWidth}px ${block.borderStyle} ${block.borderColor || '#ffffff'}`
+}
+
+/**
+ * Headline (`level` 1–6) and Text (`textSize` preset) resolve their size from
+ * the album's configured defaults, unless the block sets its own `fontSize`.
+ */
+export function blockFontSizeCss(
+  block: Pick<Block, 'type' | 'level' | 'textSize' | 'fontSize'>,
+  headingSizes: Partial<Record<HeadingLevel, number>> | undefined,
+  textSizes: Partial<Record<TextSizePreset, number>> | undefined,
+): string {
+  if (typeof block.fontSize === 'number') return `${block.fontSize}px`
+  if (block.type === 'title') {
+    const level = block.level ?? 2
+    return `${headingSizes?.[level] ?? HEADING_SIZE_DEFAULTS[level]}px`
+  }
+  const preset = block.textSize ?? 'normal'
+  return `${textSizes?.[preset] ?? TEXT_SIZE_DEFAULTS[preset]}px`
+}
+
+/** Fallbacks for the viewer's page-dot indicator when the album hasn't set one. */
+export const DEFAULT_DOT_COLORS = {
+  active: 'var(--sc-accent)',
+  inactive: 'rgba(255,255,255,0.35)',
 }

@@ -9,12 +9,22 @@ import type {
   ShowcaseBg,
   ShowcaseEventType,
 } from '@/lib/generated/prisma/client'
+import {
+  DEFAULT_PAGE_SETTINGS,
+  HEADING_SIZE_DEFAULTS,
+  TEXT_SIZE_DEFAULTS,
+  type HeadingLevel,
+  type PageSettings,
+  type TextSizePreset,
+} from '@/lib/showcase-blocks'
 import { emptyCanvas } from './craft-bridge'
 
 /**
  * Album-level state that lives outside Craft.js's per-frame editor. The active
  * page's block tree is owned by Craft; every other page is kept here as a
- * serialized snapshot string and swapped into the editor on page change.
+ * serialized snapshot string and swapped into the editor on page change. Each
+ * page's own appearance (background/border/Ken Burns) is plain state here too —
+ * Craft only ever sees the block tree.
  */
 
 export interface AlbumSettings {
@@ -26,12 +36,18 @@ export interface AlbumSettings {
   autoplay: boolean
   autoplaySeconds: number
   playlistLoop: boolean
+  headingSizes: Partial<Record<HeadingLevel, number>>
+  textSizes: Partial<Record<TextSizePreset, number>>
+  dotColorActive: string | null
+  dotColorInactive: string | null
+  customCss: string
 }
 
 export interface EditorPage {
   id: string
   /** Craft serialized tree (`query.serialize()` output). Always populated. */
   snapshot: string
+  settings: PageSettings
 }
 
 export const EMPTY_PAGE_SNAPSHOT = JSON.stringify(emptyCanvas())
@@ -73,6 +89,7 @@ interface ShowcaseStore {
   addPage: () => string
   deletePage: (id: string) => void
   saveSnapshot: (id: string, snapshot: string) => void
+  setPageSettings: (id: string, patch: Partial<PageSettings>) => void
 
   markSaved: () => void
   setSaving: (saving: boolean) => void
@@ -95,6 +112,11 @@ export const useShowcaseStore = create<ShowcaseStore>((set, get) => ({
     autoplay: false,
     autoplaySeconds: 5,
     playlistLoop: true,
+    headingSizes: { ...HEADING_SIZE_DEFAULTS },
+    textSizes: { ...TEXT_SIZE_DEFAULTS },
+    dotColorActive: null,
+    dotColorInactive: null,
+    customCss: '',
   },
   pages: [],
   currentPageId: '',
@@ -107,7 +129,7 @@ export const useShowcaseStore = create<ShowcaseStore>((set, get) => ({
   init: ({ projectId, showcaseId, settings, pages, tracks }) => {
     const safePages = pages.length
       ? pages
-      : [{ id: makePageId(), snapshot: EMPTY_PAGE_SNAPSHOT }]
+      : [{ id: makePageId(), snapshot: EMPTY_PAGE_SNAPSHOT, settings: { ...DEFAULT_PAGE_SETTINGS } }]
     set({
       projectId,
       showcaseId,
@@ -132,7 +154,7 @@ export const useShowcaseStore = create<ShowcaseStore>((set, get) => ({
   addPage: () => {
     const id = makePageId()
     set((s) => ({
-      pages: [...s.pages, { id, snapshot: EMPTY_PAGE_SNAPSHOT }],
+      pages: [...s.pages, { id, snapshot: EMPTY_PAGE_SNAPSHOT, settings: { ...DEFAULT_PAGE_SETTINGS } }],
       currentPageId: id,
       dirty: true,
     }))
@@ -154,6 +176,12 @@ export const useShowcaseStore = create<ShowcaseStore>((set, get) => ({
   saveSnapshot: (id, snapshot) =>
     set((s) => ({
       pages: s.pages.map((p) => (p.id === id ? { ...p, snapshot } : p)),
+    })),
+
+  setPageSettings: (id, patch) =>
+    set((s) => ({
+      pages: s.pages.map((p) => (p.id === id ? { ...p, settings: { ...p.settings, ...patch } } : p)),
+      dirty: true,
     })),
 
   markSaved: () => set({ dirty: false, saving: false, lastSavedAt: Date.now() }),

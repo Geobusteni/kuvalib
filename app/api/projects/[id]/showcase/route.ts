@@ -11,6 +11,7 @@ import {
   updateShowcaseSettings,
   type ShowcaseSettingsData,
 } from '@/lib/showcase'
+import { hexColor, sanitizeHeadingSizes, sanitizeTextSizes } from '@/lib/showcase-blocks'
 import { deleteAudioFile } from '@/lib/storage'
 import {
   ShowcaseAnimation,
@@ -64,6 +65,13 @@ export async function PUT(request: NextRequest, ctx: Ctx) {
   if (typeof body.playlistLoop === 'boolean') data.playlistLoop = body.playlistLoop
   if (Number.isFinite(body.autoplaySeconds)) {
     data.autoplaySeconds = Math.min(60, Math.max(2, Math.round(body.autoplaySeconds)))
+  }
+  if ('headingSizes' in body) data.headingSizes = sanitizeHeadingSizes(body.headingSizes)
+  if ('textSizes' in body) data.textSizes = sanitizeTextSizes(body.textSizes)
+  if ('dotColorActive' in body) data.dotColorActive = hexColor(body.dotColorActive) ?? null
+  if ('dotColorInactive' in body) data.dotColorInactive = hexColor(body.dotColorInactive) ?? null
+  if ('customCss' in body) {
+    data.customCss = typeof body.customCss === 'string' ? body.customCss.slice(0, 20_000) : null
   }
 
   const updated = await updateShowcaseSettings(showcase.id, data)

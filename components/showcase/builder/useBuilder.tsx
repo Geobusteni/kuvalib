@@ -12,6 +12,7 @@ import {
   type ArrangeMode,
   type Block,
   type BlockType,
+  type PageSettings,
 } from '@/lib/showcase-blocks'
 import {
   ButtonBlock,
@@ -47,7 +48,7 @@ interface BuilderApi {
   arrangeGroup: (groupNodeId: string, mode: ArrangeMode) => void
   save: () => Promise<void>
   /** The whole deck as nested blocks — current page from the live editor. */
-  getDeck: () => { id: string; blocks: Block[] }[]
+  getDeck: () => { id: string; blocks: Block[]; settings: PageSettings }[]
 }
 
 const BuilderContext = createContext<BuilderApi | null>(null)
@@ -157,9 +158,23 @@ export function BuilderProvider({ children }: { children: ReactNode }) {
       const groupBlock = groupNode?.data.props.block as Block | undefined
       if (!groupBlock) return
 
-      const childNodeIds = root.data.nodes.filter(
-        (nid) => query.node(nid).get().data.props.parentGroupId === groupNodeId,
-      )
+      const groupArea = groupBlock.w * groupBlock.h
+      // A block at least half the group's own area (e.g. a Cover's full-bleed
+      // photo whose centre once drifted into this group's box) is treated as
+      // not really a child — arranging never touches it, and it's freed back
+      // to top-level so this self-heals data from before that check existed.
+      const childNodeIds = root.data.nodes.filter((nid) => {
+        const props = query.node(nid).get().data.props
+        if (props.parentGroupId !== groupNodeId) return false
+        const b = props.block as Block
+        if (b.w * b.h * 2 >= groupArea) {
+          actions.setProp(nid, (p: { parentGroupId: string | null }) => {
+            p.parentGroupId = null
+          })
+          return false
+        }
+        return true
+      })
       const children: Block[] = childNodeIds.map(
         (nid) => query.node(nid).get().data.props.block as Block,
       )
@@ -192,6 +207,7 @@ export function BuilderProvider({ children }: { children: ReactNode }) {
         page.id === state.currentPageId
           ? serializedToNested(currentSnapshot)
           : serializedToNested(page.snapshot),
+      settings: page.settings,
     }))
     const body = JSON.stringify({ pages })
 
@@ -231,7 +247,7 @@ export function BuilderProvider({ children }: { children: ReactNode }) {
     return () => clearTimeout(t)
   }, [dirty])
 
-  const getDeck = useCallback((): { id: string; blocks: Block[] }[] => {
+  const getDeck = useCallback((): { id: string; blocks: Block[]; settings: PageSettings }[] => {
     const state = useShowcaseStore.getState()
     let currentSnapshot: string | null = null
     try {
@@ -244,6 +260,7 @@ export function BuilderProvider({ children }: { children: ReactNode }) {
       blocks: serializedToNested(
         page.id === state.currentPageId && currentSnapshot ? currentSnapshot : page.snapshot,
       ),
+      settings: page.settings,
     }))
   }, [query])
 

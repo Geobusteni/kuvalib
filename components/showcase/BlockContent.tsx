@@ -3,9 +3,9 @@
 
 'use client'
 
-import type { Block } from '@/lib/showcase-blocks'
-import { safeExternalHref } from '@/lib/showcase-blocks'
-import { blockBackgroundCss, blockRadiusCss, blockTextColorCss } from '@/lib/showcase-theme'
+import type { CSSProperties } from 'react'
+import { safeExternalHref, type Block, type HeadingLevel, type TextSizePreset } from '@/lib/showcase-blocks'
+import { blockBackgroundCss, blockBorderCss, blockFontSizeCss, blockRadiusCss, blockTextColorCss } from '@/lib/showcase-theme'
 import type { ShowcasePhoto } from './photos-context'
 
 /**
@@ -22,11 +22,25 @@ interface Props {
   /** Viewer only. */
   galleryHref?: string
   onZipClick?: () => void
+  /** Album defaults a Headline/Text block's own `fontSize` overrides. */
+  headingSizes?: Partial<Record<HeadingLevel, number>>
+  textSizes?: Partial<Record<TextSizePreset, number>>
 }
 
-export function BlockContent({ block, photo, editable = false, galleryHref, onZipClick }: Props) {
+const HEADING_TAGS = ['h1', 'h2', 'h3', 'h4', 'h5', 'h6'] as const
+
+export function BlockContent({
+  block,
+  photo,
+  editable = false,
+  galleryHref,
+  onZipClick,
+  headingSizes,
+  textSizes,
+}: Props) {
   if (block.type === 'image') {
     const radius = blockRadiusCss(block.radius)
+    const border = blockBorderCss(block)
     if (photo) {
       return (
         // eslint-disable-next-line @next/next/no-img-element -- showcase art direction needs object-fit, not the Image layout box
@@ -39,6 +53,8 @@ export function BlockContent({ block, photo, editable = false, galleryHref, onZi
             height: '100%',
             objectFit: 'cover',
             borderRadius: radius,
+            border,
+            boxSizing: 'border-box',
             display: 'block',
             pointerEvents: 'none',
             userSelect: 'none',
@@ -52,6 +68,8 @@ export function BlockContent({ block, photo, editable = false, galleryHref, onZi
           width: '100%',
           height: '100%',
           borderRadius: radius,
+          border,
+          boxSizing: 'border-box',
           display: 'flex',
           alignItems: 'center',
           justifyContent: 'center',
@@ -69,7 +87,7 @@ export function BlockContent({ block, photo, editable = false, galleryHref, onZi
 
   if (block.type === 'title' || block.type === 'text') {
     const isTitle = block.type === 'title'
-    const Tag = isTitle ? 'h3' : 'p'
+    const Tag = isTitle ? HEADING_TAGS[(block.level ?? 2) - 1] : 'p'
     const hasBg = block.bg !== 'none'
     return (
       <Tag
@@ -81,7 +99,7 @@ export function BlockContent({ block, photo, editable = false, galleryHref, onZi
           flexDirection: 'column',
           justifyContent: 'center',
           textAlign: block.align ?? 'left',
-          fontSize: isTitle ? 'clamp(15px, 2.6vw, 26px)' : 'clamp(12px, 1.5vw, 15px)',
+          fontSize: blockFontSizeCss(block, headingSizes, textSizes),
           fontWeight: isTitle ? 600 : 400,
           lineHeight: 1.35,
           color: blockTextColorCss(block),
@@ -89,6 +107,8 @@ export function BlockContent({ block, photo, editable = false, galleryHref, onZi
           borderRadius: blockRadiusCss(block.radius),
           padding: hasBg ? '0.5rem 0.75rem' : 0,
           boxSizing: 'border-box',
+          // Wrap as much as fits the box, then clip the rest — never spill
+          // outside it or push other blocks around.
           overflow: 'hidden',
           whiteSpace: 'pre-wrap',
           wordBreak: 'break-word',
@@ -102,7 +122,7 @@ export function BlockContent({ block, photo, editable = false, galleryHref, onZi
   if (block.type === 'button') {
     const primary = block.style !== 'secondary'
     const hasBg = block.bg !== 'none'
-    const style: React.CSSProperties = {
+    const style: CSSProperties = {
       width: '100%',
       height: '100%',
       display: 'flex',

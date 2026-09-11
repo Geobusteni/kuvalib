@@ -13,11 +13,16 @@
 
 export type BlockType = 'image' | 'title' | 'text' | 'button' | 'group'
 export type BlockRadius = 'none' | 'md' | 'pill'
-export type BlockBg = 'none' | 'surface' | 'deep' | 'accentTint' | 'accentSolid' | 'custom'
+export type BlockBg = 'none' | 'surface' | 'deep' | 'accentTint' | 'accentSolid' | 'custom' | 'gradient'
 export type BlockTextColor = 'default' | 'accent' | 'muted' | 'custom'
 export type BlockAlign = 'left' | 'center' | 'right'
 export type ButtonStyle = 'primary' | 'secondary'
 export type ButtonLinkType = 'custom' | 'zip' | 'gallery'
+export type BorderStyle = 'none' | 'solid' | 'dashed' | 'dotted'
+export type HeadingLevel = 1 | 2 | 3 | 4 | 5 | 6
+export type TextSizePreset = 'small' | 'normal' | 'medium' | 'large' | 'huge'
+/** Page-level (viewer only) — see PageSettings. */
+export type KenBurns = 'none' | 'zoom-in' | 'slide-left' | 'slide-up' | 'slide-down' | 'slide-right'
 
 export interface Block {
   id: string
@@ -31,15 +36,32 @@ export interface Block {
   bg: BlockBg
   bgCustom?: string
   bgCustomAlpha?: number
+  /** Only meaningful when `bg === 'gradient'`. Angle in degrees. */
+  bgGradientFrom?: string
+  bgGradientTo?: string
+  bgGradientAngle?: number
+  /** group only — backdrop-filter blur in px, for a glass effect over a photo. */
+  blur?: number
   /** Not present on image blocks. */
   textColor?: BlockTextColor
   textColorCustom?: string
+  /** Title never sets this — its text colour is always solid. */
   textColorCustomAlpha?: number
   /** image */
   photoId?: string
+  borderStyle?: BorderStyle
+  borderWidth?: number
+  borderColor?: string
   /** title / text */
   text?: string
   align?: BlockAlign
+  /** title only — h1–h6. Its default size comes from the album's Heading sizes
+   *  setting for that level; `fontSize` below overrides it for this block. */
+  level?: HeadingLevel
+  /** text only — a preset keyed into the album's Text sizes setting. */
+  textSize?: TextSizePreset
+  /** title / text — px override; wins over the level/preset default. */
+  fontSize?: number
   /** button */
   label?: string
   style?: ButtonStyle
@@ -47,6 +69,42 @@ export interface Block {
   link?: string
   /** group */
   children?: Block[]
+}
+
+/** A slide's own appearance — background, border, Ken Burns. Real Prisma
+ *  columns on ShowcasePage (see schema.prisma), not part of the block tree. */
+export interface PageSettings {
+  bg: BlockBg
+  bgCustom?: string
+  bgCustomAlpha?: number
+  bgGradientFrom?: string
+  bgGradientTo?: string
+  bgGradientAngle?: number
+  borderStyle: BorderStyle
+  borderWidth: number
+  borderColor?: string
+  kenBurns: KenBurns
+  /** Seconds the effect takes to complete. Capped in the UI to the album's
+   *  autoplay interval, so it never gets cut off mid-motion. */
+  kenBurnsSpeed: number
+}
+
+export const DEFAULT_PAGE_SETTINGS: PageSettings = {
+  bg: 'none',
+  borderStyle: 'none',
+  borderWidth: 0,
+  kenBurns: 'none',
+  kenBurnsSpeed: 8,
+}
+
+/** Album-wide default px size per heading level, overridable per Headline block. */
+export const HEADING_SIZE_DEFAULTS: Record<HeadingLevel, number> = {
+  1: 48, 2: 38, 3: 30, 4: 24, 5: 19, 6: 16,
+}
+
+/** Album-wide default px size per Text block preset, overridable per block. */
+export const TEXT_SIZE_DEFAULTS: Record<TextSizePreset, number> = {
+  small: 12, normal: 15, medium: 18, large: 22, huge: 28,
 }
 
 export interface ShowcasePageData {
@@ -64,7 +122,7 @@ export interface ShowcasePhoto {
 
 export const BLOCK_TYPE_LABELS: Record<BlockType, string> = {
   image: 'Image',
-  title: 'Title',
+  title: 'Headline',
   text: 'Text',
   button: 'Button',
   group: 'Group',
@@ -94,20 +152,24 @@ export function makeBlock(type: BlockType, opts: MakeBlockOpts = {}): Block {
   const base = { id, type } as Block
   switch (type) {
     case 'image':
-      return { ...base, x: opts.x ?? 8, y: opts.y ?? 8, w: opts.w ?? 38, h: opts.h ?? 38, radius: 'md', bg: 'none' }
+      return {
+        ...base,
+        x: opts.x ?? 8, y: opts.y ?? 8, w: opts.w ?? 38, h: opts.h ?? 38, radius: 'md', bg: 'none',
+        borderStyle: 'none', borderWidth: 0,
+      }
     case 'title':
       return {
         ...base,
         text: 'Heading',
         x: opts.x ?? 8, y: opts.y ?? 8, w: opts.w ?? 60, h: opts.h ?? 14,
-        align: 'left', textColor: 'default', bg: 'none', radius: 'none',
+        align: 'left', textColor: 'default', bg: 'none', radius: 'none', level: 2,
       }
     case 'text':
       return {
         ...base,
         text: 'Add your text here.',
         x: opts.x ?? 8, y: opts.y ?? 24, w: opts.w ?? 60, h: opts.h ?? 20,
-        align: 'left', textColor: 'default', bg: 'none', radius: 'none',
+        align: 'left', textColor: 'default', bg: 'none', radius: 'none', textSize: 'normal',
       }
     case 'button':
       return {
@@ -354,11 +416,15 @@ export function safeExternalHref(link: string | undefined): string {
 
 const BLOCK_TYPES: BlockType[] = ['image', 'title', 'text', 'button', 'group']
 const RADII: BlockRadius[] = ['none', 'md', 'pill']
-const BGS: BlockBg[] = ['none', 'surface', 'deep', 'accentTint', 'accentSolid', 'custom']
+const BGS: BlockBg[] = ['none', 'surface', 'deep', 'accentTint', 'accentSolid', 'custom', 'gradient']
 const TEXT_COLORS: BlockTextColor[] = ['default', 'accent', 'muted', 'custom']
 const ALIGNS: BlockAlign[] = ['left', 'center', 'right']
 const BUTTON_STYLES: ButtonStyle[] = ['primary', 'secondary']
 const LINK_TYPES: ButtonLinkType[] = ['custom', 'zip', 'gallery']
+const BORDER_STYLES: BorderStyle[] = ['none', 'solid', 'dashed', 'dotted']
+const HEADING_LEVELS: HeadingLevel[] = [1, 2, 3, 4, 5, 6]
+const TEXT_SIZES: TextSizePreset[] = ['small', 'normal', 'medium', 'large', 'huge']
+const KEN_BURNS_STYLES: KenBurns[] = ['none', 'zoom-in', 'slide-left', 'slide-up', 'slide-down', 'slide-right']
 
 function num(value: unknown, fallback: number, lo: number, hi: number): number {
   return typeof value === 'number' && Number.isFinite(value) ? clamp(value, lo, hi) : fallback
@@ -368,6 +434,12 @@ function str(value: unknown, max = 2000): string {
 }
 function pick<T>(value: unknown, allowed: T[], fallback: T): T {
   return allowed.includes(value as T) ? (value as T) : fallback
+}
+/** `#rgb`, `#rrggbb` or `#rrggbbaa` only — never lets a colour field carry
+ *  arbitrary CSS (e.g. `url(...)`, `expression(...)`) into a style attribute. */
+export function hexColor(value: unknown): string | undefined {
+  if (typeof value !== 'string') return undefined
+  return /^#([0-9a-fA-F]{3}|[0-9a-fA-F]{6}|[0-9a-fA-F]{8})$/.test(value) ? value : undefined
 }
 
 /**
@@ -392,21 +464,45 @@ export function sanitizeBlock(raw: unknown, depth = 0): Block | null {
     radius: pick(r.radius, RADII, 'none'),
     bg: pick(r.bg, BGS, 'none'),
   }
-  if (typeof r.bgCustom === 'string') block.bgCustom = str(r.bgCustom, 32)
+  const bgCustom = hexColor(r.bgCustom)
+  if (bgCustom) block.bgCustom = bgCustom
   if (Number.isFinite(r.bgCustomAlpha)) block.bgCustomAlpha = num(r.bgCustomAlpha, 100, 0, 100)
+  if (block.bg === 'gradient') {
+    block.bgGradientFrom = hexColor(r.bgGradientFrom) ?? '#000000'
+    block.bgGradientTo = hexColor(r.bgGradientTo) ?? '#ffffff'
+    block.bgGradientAngle = num(r.bgGradientAngle, 135, 0, 360)
+  }
 
   if (type !== 'image') {
     block.textColor = pick(r.textColor, TEXT_COLORS, 'default')
-    if (typeof r.textColorCustom === 'string') block.textColorCustom = str(r.textColorCustom, 32)
-    if (Number.isFinite(r.textColorCustomAlpha)) {
+    const textColorCustom = hexColor(r.textColorCustom)
+    if (textColorCustom) block.textColorCustom = textColorCustom
+    // Headline text is always solid — no opacity field, ever.
+    if (type !== 'title' && Number.isFinite(r.textColorCustomAlpha)) {
       block.textColorCustomAlpha = num(r.textColorCustomAlpha, 100, 0, 100)
     }
   }
 
-  if (type === 'image' && typeof r.photoId === 'string') block.photoId = str(r.photoId, 200)
+  if (type === 'group') {
+    if (Number.isFinite(r.blur)) block.blur = num(r.blur, 0, 0, 40)
+  }
+
+  if (type === 'image') {
+    if (typeof r.photoId === 'string') block.photoId = str(r.photoId, 200)
+    block.borderStyle = pick(r.borderStyle, BORDER_STYLES, 'none')
+    block.borderWidth = num(r.borderWidth, 0, 0, 20)
+    block.borderColor = hexColor(r.borderColor) ?? '#ffffff'
+  }
   if (type === 'title' || type === 'text') {
     block.text = str(r.text, 4000)
     block.align = pick(r.align, ALIGNS, 'left')
+    if (Number.isFinite(r.fontSize)) block.fontSize = num(r.fontSize, 16, 8, 200)
+  }
+  if (type === 'title') {
+    block.level = pick(r.level, HEADING_LEVELS, 2)
+  }
+  if (type === 'text') {
+    block.textSize = pick(r.textSize, TEXT_SIZES, 'normal')
   }
   if (type === 'button') {
     block.label = str(r.label, 200)
@@ -422,6 +518,30 @@ export function sanitizeBlock(raw: unknown, depth = 0): Block | null {
       .filter((c): c is Block => c !== null)
   }
   return block
+}
+
+/** Normalises one page's appearance settings from client JSON, same spirit as
+ *  sanitizeBlock. Called once per page alongside sanitizeBlocks. */
+export function sanitizePageSettings(raw: unknown): PageSettings {
+  const r = (raw && typeof raw === 'object' ? raw : {}) as Record<string, unknown>
+  const settings: PageSettings = {
+    bg: pick(r.bg, BGS, 'none'),
+    borderStyle: pick(r.borderStyle, BORDER_STYLES, 'none'),
+    borderWidth: num(r.borderWidth, 0, 0, 20),
+    kenBurns: pick(r.kenBurns, KEN_BURNS_STYLES, 'none'),
+    kenBurnsSpeed: num(r.kenBurnsSpeed, 8, 2, 60),
+  }
+  const bgCustom = hexColor(r.bgCustom)
+  if (bgCustom) settings.bgCustom = bgCustom
+  if (Number.isFinite(r.bgCustomAlpha)) settings.bgCustomAlpha = num(r.bgCustomAlpha, 100, 0, 100)
+  if (settings.bg === 'gradient') {
+    settings.bgGradientFrom = hexColor(r.bgGradientFrom) ?? '#000000'
+    settings.bgGradientTo = hexColor(r.bgGradientTo) ?? '#ffffff'
+    settings.bgGradientAngle = num(r.bgGradientAngle, 135, 0, 360)
+  }
+  const borderColor = hexColor(r.borderColor)
+  if (borderColor) settings.borderColor = borderColor
+  return settings
 }
 
 export function sanitizeBlocks(raw: unknown): Block[] {
@@ -469,4 +589,31 @@ export function collectPhotoIds(pages: ShowcasePageData[]): string[] {
     }
   }
   return [...seen]
+}
+
+// ─── Album-wide size settings ───────────────────────────────────────────────
+
+/** Only the levels/presets actually present are validated and kept; missing
+ *  ones fall back to HEADING_SIZE_DEFAULTS/TEXT_SIZE_DEFAULTS at render time —
+ *  see blockFontSizeCss in showcase-theme.ts. */
+export function sanitizeHeadingSizes(raw: unknown): Partial<Record<HeadingLevel, number>> {
+  if (!raw || typeof raw !== 'object') return {}
+  const r = raw as Record<string, unknown>
+  const out: Partial<Record<HeadingLevel, number>> = {}
+  for (const level of [1, 2, 3, 4, 5, 6] as HeadingLevel[]) {
+    const v = r[String(level)]
+    if (Number.isFinite(v)) out[level] = clamp(v as number, 8, 200)
+  }
+  return out
+}
+
+export function sanitizeTextSizes(raw: unknown): Partial<Record<TextSizePreset, number>> {
+  if (!raw || typeof raw !== 'object') return {}
+  const r = raw as Record<string, unknown>
+  const out: Partial<Record<TextSizePreset, number>> = {}
+  for (const preset of ['small', 'normal', 'medium', 'large', 'huge'] as TextSizePreset[]) {
+    const v = r[preset]
+    if (Number.isFinite(v)) out[preset] = clamp(v as number, 8, 200)
+  }
+  return out
 }

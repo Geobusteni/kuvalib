@@ -5,9 +5,9 @@ import { notFound, redirect } from 'next/navigation'
 import { requireAuth } from '@/lib/auth'
 import prisma from '@/lib/prisma'
 import { getProject, listPhotos } from '@/lib/projects'
-import { getShowcaseByProject } from '@/lib/showcase'
+import { getShowcaseByProject, pageSettingsFromRow } from '@/lib/showcase'
 import { toShowcasePhoto } from '@/lib/photo-data'
-import type { Block } from '@/lib/showcase-blocks'
+import { HEADING_SIZE_DEFAULTS, TEXT_SIZE_DEFAULTS, type Block, type HeadingLevel, type TextSizePreset } from '@/lib/showcase-blocks'
 import { ShowcaseBuilder } from '@/components/showcase/builder/ShowcaseBuilder'
 
 type Props = { params: Promise<{ id: string }> }
@@ -50,8 +50,23 @@ export default async function ShowcaseBuilderPage({ params }: Props) {
         autoplay: showcase.autoplay,
         autoplaySeconds: showcase.autoplaySeconds,
         playlistLoop: showcase.playlistLoop,
+        headingSizes: {
+          ...HEADING_SIZE_DEFAULTS,
+          ...((showcase.headingSizes ?? {}) as Partial<Record<HeadingLevel, number>>),
+        },
+        textSizes: {
+          ...TEXT_SIZE_DEFAULTS,
+          ...((showcase.textSizes ?? {}) as Partial<Record<TextSizePreset, number>>),
+        },
+        dotColorActive: showcase.dotColorActive,
+        dotColorInactive: showcase.dotColorInactive,
+        customCss: showcase.customCss ?? '',
       }}
-      pages={showcase.pages.map((p) => ({ id: p.id, blocks: (p.blocksJson ?? []) as unknown as Block[] }))}
+      pages={showcase.pages.map((p) => ({
+        id: p.id,
+        blocks: (p.blocksJson ?? []) as unknown as Block[],
+        settings: pageSettingsFromRow(p),
+      }))}
       tracks={showcase.tracks.map((t) => ({ id: t.id, originalName: t.originalName, size: t.size }))}
       photos={photos.map(toShowcasePhoto)}
       galleryHref={`/g/${id}`}

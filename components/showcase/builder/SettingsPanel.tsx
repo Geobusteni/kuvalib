@@ -12,8 +12,13 @@ import {
   type BlockBg,
   type BlockRadius,
   type BlockTextColor,
+  type BorderStyle,
   type ButtonLinkType,
   type ButtonStyle,
+  type HeadingLevel,
+  type KenBurns,
+  type PageSettings,
+  type TextSizePreset,
 } from '@/lib/showcase-blocks'
 import { useShowcaseStore } from '../store'
 import { usePhotos } from '../photos-context'
@@ -24,13 +29,35 @@ const RADII: { value: BlockRadius; label: string }[] = [
   { value: 'md', label: 'Rounded' },
   { value: 'pill', label: 'Pill' },
 ]
-const BG_SWATCHES: BlockBg[] = ['none', 'surface', 'deep', 'accentTint', 'accentSolid', 'custom']
+const BG_SWATCHES: BlockBg[] = ['none', 'surface', 'deep', 'accentTint', 'accentSolid', 'custom', 'gradient']
 const TEXT_SWATCHES: BlockTextColor[] = ['default', 'accent', 'muted', 'custom']
 const ALIGNS: BlockAlign[] = ['left', 'center', 'right']
 const LINK_TYPES: { value: ButtonLinkType; label: string }[] = [
   { value: 'custom', label: 'Custom URL' },
   { value: 'zip', label: 'ZIP archive' },
   { value: 'gallery', label: 'Back to gallery' },
+]
+const HEADING_LEVELS: HeadingLevel[] = [1, 2, 3, 4, 5, 6]
+const TEXT_SIZES: { value: TextSizePreset; label: string }[] = [
+  { value: 'small', label: 'Small' },
+  { value: 'normal', label: 'Normal' },
+  { value: 'medium', label: 'Medium' },
+  { value: 'large', label: 'Large' },
+  { value: 'huge', label: 'Huge' },
+]
+const BORDER_STYLES: { value: BorderStyle; label: string }[] = [
+  { value: 'none', label: 'None' },
+  { value: 'solid', label: 'Solid' },
+  { value: 'dashed', label: 'Dashed' },
+  { value: 'dotted', label: 'Dotted' },
+]
+const KEN_BURNS_STYLES: { value: KenBurns; label: string }[] = [
+  { value: 'none', label: 'None' },
+  { value: 'zoom-in', label: 'Zoom in' },
+  { value: 'slide-left', label: 'Slide left' },
+  { value: 'slide-right', label: 'Slide right' },
+  { value: 'slide-up', label: 'Slide up' },
+  { value: 'slide-down', label: 'Slide down' },
 ]
 
 function Field({ label, children }: { label: string; children: React.ReactNode }) {
@@ -52,7 +79,7 @@ function Segmented<T extends string>({
   onChange: (v: T) => void
 }) {
   return (
-    <div className="flex overflow-hidden rounded-lg border border-zinc-300 dark:border-zinc-700">
+    <div className="flex flex-wrap overflow-hidden rounded-lg border border-zinc-300 dark:border-zinc-700">
       {options.map((opt) => (
         <button
           key={opt.value}
@@ -75,6 +102,197 @@ function Segmented<T extends string>({
 const inputClass =
   'h-8 rounded-lg border border-zinc-300 bg-white px-2 text-sm text-zinc-900 focus:border-zinc-500 focus:outline-none dark:border-zinc-700 dark:bg-zinc-900 dark:text-zinc-100'
 
+function bgSwatchStyle(key: BlockBg): React.CSSProperties {
+  if (key === 'custom' || key === 'gradient') {
+    return { background: 'conic-gradient(red,yellow,lime,cyan,blue,magenta,red)' }
+  }
+  if (key === 'none') {
+    return { background: 'repeating-linear-gradient(45deg,#eee,#eee 4px,#fff 4px,#fff 8px)' }
+  }
+  return { background: `var(--sc-${key === 'accentTint' ? 'accent-tint' : key === 'accentSolid' ? 'accent' : key})` }
+}
+
+/** The bg/bgCustom/bgGradient* fields are identical on a Block and a
+ *  PageSettings — one small editor covers both. */
+function BackgroundField<T extends { bg: BlockBg; bgCustom?: string; bgCustomAlpha?: number; bgGradientFrom?: string; bgGradientTo?: string; bgGradientAngle?: number }>({
+  value,
+  onChange,
+  swatches = BG_SWATCHES,
+}: {
+  value: T
+  onChange: (patch: Partial<T>) => void
+  swatches?: BlockBg[]
+}) {
+  return (
+    <>
+      <Field label="Background">
+        <div className="flex flex-wrap gap-1.5">
+          {swatches.map((key) => (
+            <button
+              key={key}
+              type="button"
+              title={key}
+              onClick={() => onChange({ bg: key } as Partial<T>)}
+              className="h-6 w-6 rounded-full border-2"
+              style={{
+                borderColor: (value.bg ?? 'none') === key ? 'var(--sc-accent, #6366f1)' : 'transparent',
+                ...bgSwatchStyle(key),
+              }}
+            />
+          ))}
+        </div>
+      </Field>
+      {value.bg === 'custom' && (
+        <div className="flex flex-col gap-1">
+          <input
+            type="color"
+            value={value.bgCustom ?? '#1a1a1a'}
+            onChange={(e) => onChange({ bg: 'custom', bgCustom: e.target.value } as Partial<T>)}
+            className="h-8 w-full cursor-pointer rounded"
+          />
+          <label className="text-[11px] text-zinc-400">
+            Opacity {value.bgCustomAlpha ?? 100}%
+            <input
+              type="range"
+              min={0}
+              max={100}
+              value={value.bgCustomAlpha ?? 100}
+              onChange={(e) => onChange({ bg: 'custom', bgCustomAlpha: parseInt(e.target.value, 10) } as Partial<T>)}
+              className="w-full"
+            />
+          </label>
+        </div>
+      )}
+      {value.bg === 'gradient' && (
+        <div className="flex flex-col gap-1.5">
+          <div className="flex gap-2">
+            <label className="flex flex-1 flex-col gap-1 text-[11px] text-zinc-400">
+              From
+              <input
+                type="color"
+                value={value.bgGradientFrom ?? '#000000'}
+                onChange={(e) => onChange({ bg: 'gradient', bgGradientFrom: e.target.value } as Partial<T>)}
+                className="h-8 w-full cursor-pointer rounded"
+              />
+            </label>
+            <label className="flex flex-1 flex-col gap-1 text-[11px] text-zinc-400">
+              To
+              <input
+                type="color"
+                value={value.bgGradientTo ?? '#ffffff'}
+                onChange={(e) => onChange({ bg: 'gradient', bgGradientTo: e.target.value } as Partial<T>)}
+                className="h-8 w-full cursor-pointer rounded"
+              />
+            </label>
+          </div>
+          <label className="text-[11px] text-zinc-400">
+            Angle {value.bgGradientAngle ?? 135}°
+            <input
+              type="range"
+              min={0}
+              max={360}
+              value={value.bgGradientAngle ?? 135}
+              onChange={(e) => onChange({ bg: 'gradient', bgGradientAngle: parseInt(e.target.value, 10) } as Partial<T>)}
+              className="w-full"
+            />
+          </label>
+        </div>
+      )}
+    </>
+  )
+}
+
+/** Border style/width/colour — shared by an Image block and a page/slide. */
+function BorderField<T extends { borderStyle?: BorderStyle; borderWidth?: number; borderColor?: string }>({
+  value,
+  onChange,
+}: {
+  value: T
+  onChange: (patch: Partial<T>) => void
+}) {
+  return (
+    <>
+      <Field label="Border">
+        <Segmented
+          options={BORDER_STYLES}
+          value={value.borderStyle ?? 'none'}
+          onChange={(v) => onChange({ borderStyle: v } as Partial<T>)}
+        />
+      </Field>
+      {(value.borderStyle ?? 'none') !== 'none' && (
+        <div className="flex gap-2">
+          <Field label="Width (px)">
+            <input
+              type="number"
+              min={1}
+              max={20}
+              className={inputClass}
+              value={value.borderWidth ?? 1}
+              onChange={(e) => onChange({ borderWidth: clamp(parseInt(e.target.value, 10) || 1, 1, 20) } as Partial<T>)}
+            />
+          </Field>
+          <label className="flex flex-1 flex-col gap-1 text-xs font-medium text-zinc-500">
+            Colour
+            <input
+              type="color"
+              value={value.borderColor ?? '#ffffff'}
+              onChange={(e) => onChange({ borderColor: e.target.value } as Partial<T>)}
+              className="h-8 w-full cursor-pointer rounded"
+            />
+          </label>
+        </div>
+      )}
+    </>
+  )
+}
+
+function PageSettingsPanel() {
+  const currentPageId = useShowcaseStore((s) => s.currentPageId)
+  const page = useShowcaseStore((s) => s.pages.find((p) => p.id === s.currentPageId))
+  const setPageSettings = useShowcaseStore((s) => s.setPageSettings)
+  const autoplay = useShowcaseStore((s) => s.settings.autoplay)
+  const autoplaySeconds = useShowcaseStore((s) => s.settings.autoplaySeconds)
+
+  if (!page) return null
+  const settings = page.settings
+  const patch = (p: Partial<PageSettings>) => setPageSettings(currentPageId, p)
+  const kenBurnsMax = autoplay ? Math.max(2, autoplaySeconds) : 30
+
+  return (
+    <div className="flex flex-col gap-4">
+      <p className="text-sm text-zinc-500">
+        Select a block on the canvas to edit it. Drag to move it; drag a corner to resize.
+        These settings apply to the current page when nothing is selected.
+      </p>
+      <div className="h-px bg-zinc-200 dark:bg-zinc-800" />
+      <span className="text-xs font-semibold uppercase tracking-wide text-zinc-500">
+        This page
+      </span>
+      <BackgroundField value={settings} onChange={patch} />
+      <BorderField value={settings} onChange={patch} />
+      <div className="h-px bg-zinc-200 dark:bg-zinc-800" />
+      <span className="text-xs font-semibold uppercase tracking-wide text-zinc-500">Ken Burns</span>
+      <Field label="Effect">
+        <Segmented options={KEN_BURNS_STYLES} value={settings.kenBurns} onChange={(v) => patch({ kenBurns: v })} />
+      </Field>
+      {settings.kenBurns !== 'none' && (
+        <label className="text-[11px] text-zinc-400">
+          Speed — {settings.kenBurnsSpeed}s
+          <input
+            type="range"
+            min={2}
+            max={kenBurnsMax}
+            value={Math.min(settings.kenBurnsSpeed, kenBurnsMax)}
+            onChange={(e) => patch({ kenBurnsSpeed: parseInt(e.target.value, 10) })}
+            className="w-full"
+          />
+          {autoplay && <span className="mt-0.5 block">Capped to the {autoplaySeconds}s autoplay interval.</span>}
+        </label>
+      )}
+    </div>
+  )
+}
+
 export function SettingsPanel() {
   const photos = usePhotos()
   const { arrangeGroup, addGroupChild } = useBuilder()
@@ -90,13 +308,7 @@ export function SettingsPanel() {
     }
   })
 
-  if (!selectedId || !block) {
-    return (
-      <p className="text-sm text-zinc-500">
-        Select a block on the canvas to edit it. Drag to move it; drag a corner to resize.
-      </p>
-    )
-  }
+  if (!selectedId || !block) return <PageSettingsPanel />
 
   const update = (patch: Partial<Block>) => {
     actions.setProp(selectedId, (props: { block: Block }) => {
@@ -132,11 +344,21 @@ export function SettingsPanel() {
       ? (query.node(parentGroupId).get()?.data.props.block as Block | undefined)
       : undefined
 
-  const isTextLike = block.type === 'title' || block.type === 'text'
+  const isImage = block.type === 'image'
+  const isTitle = block.type === 'title'
+  const isText = block.type === 'text'
   const isButton = block.type === 'button'
   const isGroup = block.type === 'group'
-  const hasAppearance = ['title', 'text', 'button', 'group'].includes(block.type)
-  const hasTextColor = ['title', 'text', 'button'].includes(block.type)
+  const isTextLike = isTitle || isText
+
+  // Headline: level + optional custom size + solid text colour only — no
+  // corners, no background (the title/text/button blocks own colour, a group
+  // owns background — a headline is just text).
+  const showCorners = isText || isButton || isGroup
+  const showBackground = isText || isButton || isGroup
+  const showTextColor = isText || isButton
+  // Title has its own dedicated (text-colour-only) section further down.
+  const hasSharedAppearance = showCorners || showBackground || showTextColor || isGroup
 
   return (
     <div className="flex flex-col gap-4">
@@ -191,7 +413,7 @@ export function SettingsPanel() {
         ))}
       </div>
 
-      {block.type === 'image' && (
+      {isImage && (
         <Field label="Photo">
           <div className="grid max-h-52 grid-cols-4 gap-1.5 overflow-y-auto">
             {photos.map((photo) => (
@@ -229,6 +451,54 @@ export function SettingsPanel() {
               options={ALIGNS.map((a) => ({ value: a, label: a[0].toUpperCase() + a.slice(1) }))}
               value={block.align ?? 'left'}
               onChange={(v) => update({ align: v })}
+            />
+          </Field>
+        </>
+      )}
+
+      {isTitle && (
+        <>
+          <Field label="Level">
+            <Segmented
+              options={HEADING_LEVELS.map((l) => ({ value: String(l), label: `H${l}` }))}
+              value={String(block.level ?? 2)}
+              onChange={(v) => update({ level: Number(v) as HeadingLevel })}
+            />
+          </Field>
+          <Field label="Custom size (px) — overrides the level default">
+            <input
+              type="number"
+              min={8}
+              max={200}
+              className={inputClass}
+              placeholder="Album default"
+              value={block.fontSize ?? ''}
+              onChange={(e) => {
+                const v = e.target.value
+                update({ fontSize: v === '' ? undefined : clamp(parseInt(v, 10) || 16, 8, 200) })
+              }}
+            />
+          </Field>
+        </>
+      )}
+
+      {isText && (
+        <>
+          <Field label="Size">
+            <Segmented options={TEXT_SIZES} value={block.textSize ?? 'normal'} onChange={(v) => update({ textSize: v })} />
+          </Field>
+          <Field label="Custom size (px) — overrides the preset">
+            <input
+              type="number"
+              min={8}
+              max={200}
+              className={inputClass}
+              placeholder="Preset default"
+              value={block.fontSize ?? ''}
+              onChange={(e) => {
+                const v = e.target.value
+                update({ fontSize: v === '' ? undefined : clamp(parseInt(v, 10) || 15, 8, 200) })
+              }}
             />
           </Field>
         </>
@@ -273,57 +543,45 @@ export function SettingsPanel() {
         </>
       )}
 
-      {hasAppearance && (
+      {isImage && (
         <>
           <div className="h-px bg-zinc-200 dark:bg-zinc-800" />
           <span className="text-xs font-semibold uppercase tracking-wide text-zinc-500">Appearance</span>
           <Field label="Corners">
             <Segmented options={RADII} value={block.radius ?? 'none'} onChange={(v) => update({ radius: v })} />
           </Field>
-          <Field label="Background">
-            <div className="flex flex-wrap gap-1.5">
-              {BG_SWATCHES.map((key) => (
-                <button
-                  key={key}
-                  type="button"
-                  title={key}
-                  onClick={() => update({ bg: key })}
-                  className="h-6 w-6 rounded-full border-2"
-                  style={{
-                    borderColor: (block.bg ?? 'none') === key ? 'var(--sc-accent, #6366f1)' : 'transparent',
-                    background:
-                      key === 'custom'
-                        ? 'conic-gradient(red,yellow,lime,cyan,blue,magenta,red)'
-                        : key === 'none'
-                          ? 'repeating-linear-gradient(45deg,#eee,#eee 4px,#fff 4px,#fff 8px)'
-                          : `var(--sc-${key === 'accentTint' ? 'accent-tint' : key === 'accentSolid' ? 'accent' : key})`,
-                  }}
-                />
-              ))}
-            </div>
-          </Field>
-          {block.bg === 'custom' && (
-            <div className="flex flex-col gap-1">
-              <input
-                type="color"
-                value={block.bgCustom ?? '#1a1a1a'}
-                onChange={(e) => update({ bg: 'custom', bgCustom: e.target.value })}
-                className="h-8 w-full cursor-pointer rounded"
-              />
-              <label className="text-[11px] text-zinc-400">
-                Opacity {block.bgCustomAlpha ?? 100}%
-                <input
-                  type="range"
-                  min={0}
-                  max={100}
-                  value={block.bgCustomAlpha ?? 100}
-                  onChange={(e) => update({ bg: 'custom', bgCustomAlpha: parseInt(e.target.value, 10) })}
-                  className="w-full"
-                />
-              </label>
-            </div>
+          <BorderField value={block} onChange={update} />
+        </>
+      )}
+
+      {hasSharedAppearance && !isImage && (
+        <>
+          <div className="h-px bg-zinc-200 dark:bg-zinc-800" />
+          <span className="text-xs font-semibold uppercase tracking-wide text-zinc-500">Appearance</span>
+
+          {showCorners && (
+            <Field label="Corners">
+              <Segmented options={RADII} value={block.radius ?? 'none'} onChange={(v) => update({ radius: v })} />
+            </Field>
           )}
-          {hasTextColor && (
+
+          {showBackground && <BackgroundField value={block} onChange={update} />}
+
+          {isGroup && (
+            <label className="text-[11px] text-zinc-400">
+              Blur (glass effect) — {block.blur ?? 0}px
+              <input
+                type="range"
+                min={0}
+                max={40}
+                value={block.blur ?? 0}
+                onChange={(e) => update({ blur: parseInt(e.target.value, 10) })}
+                className="w-full"
+              />
+            </label>
+          )}
+
+          {showTextColor && (
             <Field label="Text colour">
               <div className="flex flex-wrap gap-1.5">
                 {TEXT_SWATCHES.map((key) => (
@@ -349,7 +607,7 @@ export function SettingsPanel() {
               </div>
             </Field>
           )}
-          {block.textColor === 'custom' && (
+          {showTextColor && block.textColor === 'custom' && (
             <div className="flex flex-col gap-1">
               <input
                 type="color"
@@ -364,11 +622,49 @@ export function SettingsPanel() {
                   min={0}
                   max={100}
                   value={block.textColorCustomAlpha ?? 100}
-                  onChange={(e) => update({ textColor: 'custom', textColorCustomAlpha: parseInt(e.target.value, 10) })}
+                  onChange={(e) => update({ textColorCustomAlpha: parseInt(e.target.value, 10) })}
                   className="w-full"
                 />
               </label>
             </div>
+          )}
+        </>
+      )}
+
+      {isTitle && (
+        <>
+          <div className="h-px bg-zinc-200 dark:bg-zinc-800" />
+          <span className="text-xs font-semibold uppercase tracking-wide text-zinc-500">Text colour</span>
+          <p className="text-[11px] text-zinc-400">Headline text is always solid — no transparency.</p>
+          <div className="flex flex-wrap gap-1.5">
+            {TEXT_SWATCHES.map((key) => (
+              <button
+                key={key}
+                type="button"
+                title={key}
+                onClick={() => update({ textColor: key })}
+                className="h-6 w-6 rounded-full border-2"
+                style={{
+                  borderColor: (block.textColor ?? 'default') === key ? 'var(--sc-accent, #6366f1)' : 'transparent',
+                  background:
+                    key === 'custom'
+                      ? 'conic-gradient(red,yellow,lime,cyan,blue,magenta,red)'
+                      : key === 'accent'
+                        ? 'var(--sc-accent)'
+                        : key === 'muted'
+                          ? 'var(--sc-text-muted)'
+                          : '#e9e9ed',
+                }}
+              />
+            ))}
+          </div>
+          {block.textColor === 'custom' && (
+            <input
+              type="color"
+              value={block.textColorCustom ?? '#e9e9ed'}
+              onChange={(e) => update({ textColor: 'custom', textColorCustom: e.target.value })}
+              className="h-8 w-full cursor-pointer rounded"
+            />
           )}
         </>
       )}
@@ -400,7 +696,7 @@ export function SettingsPanel() {
           <div className="flex flex-wrap gap-2">
             {(['title', 'text', 'button'] as const).map((type) => (
               <button key={type} type="button" onClick={() => addGroupChild(selectedId, type)} className="rounded-lg border border-zinc-300 px-3 py-1.5 text-xs font-medium capitalize hover:bg-zinc-100 dark:border-zinc-700 dark:hover:bg-zinc-800">
-                + {type}
+                + {BLOCK_TYPE_LABELS[type]}
               </button>
             ))}
           </div>

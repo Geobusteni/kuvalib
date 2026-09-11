@@ -207,16 +207,32 @@ erDiagram
         datetime eventDate
         ShowcaseEventType eventType "accent hue"
         ShowcaseBg albumBg
-        ShowcaseAnimation animationStyle "TURN | FADE | ZOOM"
+        ShowcaseAnimation animationStyle "TURN | FADE | ZOOM | ROTATE"
         boolean autoplay
         int autoplaySeconds
         boolean playlistLoop
+        json headingSizes "H1-H6 default px sizes"
+        json textSizes "small..huge default px sizes"
+        string dotColorActive "null = event accent"
+        string dotColorInactive "null = translucent white"
+        string customCss "admin-authored, injected verbatim in the viewer"
     }
     ShowcasePage {
         string id PK
         string showcaseId FK
         int sortOrder
         json blocksJson "the whole block tree, one blob"
+        string bg "the page's own background, like a block's"
+        string bgCustom
+        int bgCustomAlpha
+        string bgGradientFrom
+        string bgGradientTo
+        int bgGradientAngle
+        string borderStyle
+        int borderWidth
+        string borderColor
+        string kenBurns "none | zoom-in | slide-left/right/up/down"
+        int kenBurnsSpeed "seconds"
     }
     ShowcaseTrack {
         string id PK
@@ -248,6 +264,12 @@ gates the gallery. `ShowcasePage.blocksJson` stores the entire block tree (group
 individual block. The shape and geometry live in `lib/showcase-blocks.ts`; that JSON is
 untrusted on the way in and passes through `sanitizeBlocks` before it is stored. A block's
 `photoId` is a plain reference to an existing `Photo.id` — showcase photos are never duplicated.
+
+A page's own appearance (background, border, Ken Burns) is real `ShowcasePage` columns, not part
+of `blocksJson` — see the decisions log. `sanitizePageSettings` guards those columns the same way
+`sanitizeBlocks` guards the block tree. `Showcase.customCss` is admin-authored, capped at 20,000
+characters, and injected into the public viewer via a `<style>` tag with no further
+sanitisation — the same trust boundary as every other admin-entered field in the builder.
 
 Only metadata lives in the database. Files live on disk.
 
@@ -493,8 +515,8 @@ shared, framework-free core.
 | `builder/BlockShell` + `builder/blocks/*` | Craft user components. `react-rnd` does drag/resize in pixels; positions are written back as percentages. Dragging re-parents a leaf by which group box holds its centre; dragging or resizing a group carries its children. |
 | `builder/SettingsPanel`, `PageRail`, `AddBlockMenu`, `AlbumSettingsDialog`, `useBuilder` | The panel reads the selected Craft node; `useBuilder` couples Craft `query`/`actions` with the store (page switching, inserts, the Cover shortcut, arrange, debounced autosave to `PUT .../pages`). |
 | `viewer/ShowcaseViewer` + `useSlideshow` | `idle → out → pre → in` page-turn machine (collapsed under `prefers-reduced-motion`); autoplay + loop; fullscreen as a local boolean (like the lightbox); keyboard. |
-| `viewer/BlockRenderer`, `PageStage`, `ViewerControls`, `ThumbnailRail`, `MusicPlayer`, `ShowcaseDownloadDialog` | Render the flattened block list; per-`animationStyle` transform; controls; `<audio>` playlist; ZIP dialog reusing `POST /api/projects/[id]/download`. |
-| `BlockContent` | The visual inside a block (image/title/text/button) — shared by builder and viewer so they never drift. |
+| `viewer/BlockRenderer`, `PageStage`, `ViewerControls`, `DotIndicator`, `ThumbnailRail`, `MusicPlayer`, `ShowcaseDownloadDialog` | Render the flattened block list; per-`animationStyle` transform plus the page's own Ken Burns keyframe; a floating top-right controls pill; a left-side page-dot column; `<audio>` playlist; ZIP dialog reusing `POST /api/projects/[id]/download`. |
+| `BlockContent` | The visual inside a block (image/headline/text/button) — shared by builder and viewer so they never drift. Resolves a Headline/Text block's font size from its own `fontSize` override, else the album's per-level/per-preset defaults. |
 
 ---
 
@@ -599,3 +621,9 @@ On the server:
 | Server-side migrations run via `npx prisma@<pinned>`, not a bundled CLI | Prisma's CLI pulls a ~250 MB dependency tree (`@prisma/dev`/pglite, studio) that cannot be safely hand-pruned and would dwarf the 185 MB app bundle. `npx` caches it after the first deploy. The deploy-only `prisma.config.ts` is a plain object because `import "prisma/config"` is unresolvable from an npx cache dir |
 | Showcase builder: resize handles are always mounted (shown/hit-tested only when the block is selected) | Gating `enableResizing` on selection meant a mousedown on a handle → Craft's canvas `select` connector fires (a native listener, so react-rnd's synthetic `stopPropagation` can't stop it) → the block deselects → `enableResizing` flips to `false` → the handle unmounts *before* React runs its `onMouseDown`, so the resize never starts. Keeping the handles mounted and toggling only `opacity`/`pointerEvents` removes the race; `onResizeStop` re-selects the block, and `cancel: '.sc-resize-handle'` stops the drag layer from also claiming the gesture |
 | Showcase z-order follows flat node order; no per-block z-index and no bump on selection | An `isActive ? zIndex:5` on the selected block's wrapper lifted background blocks in front of everything when selected. Paint order is the Craft ROOT node order (the viewer keeps a group's children right after the group), so "bring to front" is append and "send to back" is prepend — `actions.move(id, 'ROOT', count \| 0)` |
+| Group re-parenting requires the candidate group to be at least half the dragged block's own area | A block's centre landing inside a smaller group's box was enough to re-parent it — including a full-bleed background Image whose centre could drift into a caption Group placed over it, visually "losing" the image behind the group on the next arrange. The size-ratio guard is applied both where re-parenting happens (`BlockShell.onDragStop`) and, defensively, at arrange time (`useBuilder.arrangeGroup`, which also self-heals any block already mis-parented this way) |
+| A page's own appearance (background, border, Ken Burns) is real `ShowcasePage` columns, not part of `blocksJson` | Unlike the block tree, a page has exactly one appearance — there's nothing to normalise into a list, and keeping it as columns lets `sanitizePageSettings` guard it the same explicit way as every other admin-entered field, rather than growing an ad-hoc key inside the JSON blob (principle 9: models over denormalised JSON) |
+| Ken Burns implemented as plain CSS `@keyframes`, gated only by the existing global `prefers-reduced-motion` rule | `globals.css` already forces `animation-duration:0.01ms !important` on `*` under reduced motion — the Ken Burns keyframes need no JS condition or extra media query of their own to comply; they simply inherit the blanket rule |
+| Showcase stage sized with `min(100%, calc(100vh * 1.6))`, not a fixed pixel width | The same `PageStage` renders full-bleed on the public viewer and inside a narrower builder-preview column. Referencing `100%` of the immediate parent (not `100vw`) lets one CSS expression fill whichever container it's embedded in while still capping at a 16:10-friendly height, with no JS measurement |
+| Headline blocks keep no Background/Corners sections and no text-colour opacity slider | The user asked for headline text to always be solid and for the block to own nothing but its text colour — Text/Button/Group keep their existing background, corners and (for text colour) opacity controls unchanged |
+| Custom CSS textarea has no sanitisation beyond a 20,000-character cap | It is admin-only input rendered on the admin's own public showcase page — the same trust boundary as every other builder field (block text, colours, links). Not attacker-facing the way client-submitted content is |

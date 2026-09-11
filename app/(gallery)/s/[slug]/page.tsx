@@ -4,10 +4,17 @@
 import { notFound } from 'next/navigation'
 import type { Metadata } from 'next'
 import { getProject, incrementVisit, listPhotos } from '@/lib/projects'
-import { getShowcaseById } from '@/lib/showcase'
+import { getShowcaseById, pageSettingsFromRow } from '@/lib/showcase'
 import { verifyGalleryAccess } from '@/lib/gallery-auth'
 import { toShowcasePhoto } from '@/lib/photo-data'
-import { collectPhotoIds, type Block } from '@/lib/showcase-blocks'
+import {
+  collectPhotoIds,
+  HEADING_SIZE_DEFAULTS,
+  TEXT_SIZE_DEFAULTS,
+  type Block,
+  type HeadingLevel,
+  type TextSizePreset,
+} from '@/lib/showcase-blocks'
 import AccessGate from '@/components/gallery/AccessGate'
 import { ShowcaseViewer } from '@/components/showcase/viewer/ShowcaseViewer'
 
@@ -48,6 +55,7 @@ export default async function ShowcasePage({ params }: Props) {
   const pages = showcase.pages.map((p) => ({
     id: p.id,
     blocks: (p.blocksJson ?? []) as unknown as Block[],
+    settings: pageSettingsFromRow(p),
   }))
   const usedPhotoIds = new Set(collectPhotoIds(pages))
 
@@ -66,6 +74,17 @@ export default async function ShowcasePage({ params }: Props) {
         autoplay: showcase.autoplay,
         autoplaySeconds: showcase.autoplaySeconds,
         playlistLoop: showcase.playlistLoop,
+        headingSizes: {
+          ...HEADING_SIZE_DEFAULTS,
+          ...((showcase.headingSizes ?? {}) as Partial<Record<HeadingLevel, number>>),
+        },
+        textSizes: {
+          ...TEXT_SIZE_DEFAULTS,
+          ...((showcase.textSizes ?? {}) as Partial<Record<TextSizePreset, number>>),
+        },
+        dotColorActive: showcase.dotColorActive,
+        dotColorInactive: showcase.dotColorInactive,
+        customCss: showcase.customCss ?? '',
       }}
       trackIds={showcase.tracks.map((t) => t.id)}
       galleryHref={`/g/${project.id}`}

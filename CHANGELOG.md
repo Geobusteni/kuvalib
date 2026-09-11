@@ -10,6 +10,53 @@ adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html). While the
 
 ## [Unreleased]
 
+## [1.6.0] - 2026-09-11
+
+### Added
+
+- **Showcase Group blocks can have a blur (glass effect) behind them**, and
+  their background now supports a two-colour gradient in addition to solid
+  colours, on top of the existing swatches.
+- **Headline blocks (renamed from Title) support all six HTML heading
+  levels (H1–H6)**, plus an optional custom pixel size that overrides the
+  level's default. The default size for each level is set once in Album
+  settings and applies across the whole showcase. Headline text is always a
+  solid colour — no opacity control — since it's meant to stay legible over a
+  photo.
+- **Text blocks have size presets** — small, normal (default), medium, large,
+  huge — with per-preset default sizes set in Album settings, and an optional
+  custom pixel size per block that overrides the preset.
+- **Image blocks have a border setting**: style (solid/dashed/dotted), width,
+  and colour.
+- **The showcase viewer is now full-width**, filling the browser window
+  instead of sitting in a centred content column, so photos get the full
+  available space. The controls moved into a single small floating pill in
+  the top-right corner instead of a full-width bar.
+- **The page counter is now a column of coloured dots on the left edge of the
+  viewer** instead of a numeric "1 / N" — click a dot to jump to that page.
+  Dot colours are configurable in Album settings.
+- **Slideshow pages support a Ken Burns pan/zoom effect** while a page is on
+  screen: zoom in, or slide left/right/up/down, each with its own speed
+  (capped to the page's autoplay interval so it never gets cut off). Set per
+  page in the settings panel.
+- **A page can now have its own background and border**, using the same
+  colour/gradient and border controls as other blocks. A page's content
+  always clips at its own edges.
+- **Added a Rotate page transition**, alongside the existing Turn, Fade and
+  Zoom.
+- **Added a Custom CSS field in Album settings**, injected into the public
+  viewer for styling tweaks the builder doesn't otherwise expose.
+
+### Changed
+
+- **Showcase "Title" blocks are now called "Headline"** throughout the
+  builder and docs, to better reflect that they render as a real HTML
+  heading.
+- Dragging a block only re-parents it into a group that is at least half its
+  own area, fixing a bug where a full-bleed background Image could get pulled
+  behind a smaller caption Group and appear to vanish after arranging the
+  group's children.
+
 ## [1.5.3] - 2026-09-11
 
 ### Fixed

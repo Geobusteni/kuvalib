@@ -10,6 +10,7 @@ import {
   ShowcaseEventType,
 } from '@/lib/generated/prisma/client'
 import { ALBUM_BG_LABELS, EVENT_TYPE_LABELS } from '@/lib/showcase-theme'
+import { HEADING_SIZE_DEFAULTS, TEXT_SIZE_DEFAULTS, type HeadingLevel, type TextSizePreset } from '@/lib/showcase-blocks'
 import { useFocusTrap } from '@/hooks/useFocusTrap'
 import { useShowcaseStore, type AlbumSettings } from '../store'
 
@@ -19,8 +20,11 @@ const ANIMATIONS: { value: ShowcaseAnimation; label: string }[] = [
   { value: 'TURN', label: 'Turn' },
   { value: 'FADE', label: 'Fade' },
   { value: 'ZOOM', label: 'Zoom' },
+  { value: 'ROTATE', label: 'Rotate' },
 ]
 const SECONDS = [3, 5, 8]
+const HEADING_LEVELS: HeadingLevel[] = [1, 2, 3, 4, 5, 6]
+const TEXT_SIZE_PRESETS: TextSizePreset[] = ['small', 'normal', 'medium', 'large', 'huge']
 
 const fieldLabel = 'text-xs font-medium text-zinc-500'
 const input =
@@ -247,6 +251,106 @@ export function AlbumSettingsDialog({ onClose }: { onClose: () => void }) {
             </div>
           </div>
         )}
+
+        <div className="h-px bg-zinc-200 dark:bg-zinc-800" />
+        <span className="text-xs font-semibold uppercase tracking-wide text-zinc-500">Heading sizes</span>
+        <p className="text-[11px] text-zinc-400">
+          Default px size for each Headline level. A block can override its own size.
+        </p>
+        <div className="grid grid-cols-3 gap-2">
+          {HEADING_LEVELS.map((level) => (
+            <label key={level} className="flex flex-col gap-1 text-xs font-medium text-zinc-500">
+              H{level}
+              <input
+                type="number"
+                min={8}
+                max={200}
+                className={input}
+                value={settings.headingSizes[level] ?? HEADING_SIZE_DEFAULTS[level]}
+                onChange={(e) =>
+                  patch({
+                    headingSizes: { ...settings.headingSizes, [level]: parseInt(e.target.value, 10) || HEADING_SIZE_DEFAULTS[level] },
+                  })
+                }
+              />
+            </label>
+          ))}
+        </div>
+
+        <span className="text-xs font-semibold uppercase tracking-wide text-zinc-500">Text sizes</span>
+        <p className="text-[11px] text-zinc-400">
+          Default px size for each Text block preset. A block can override its own size.
+        </p>
+        <div className="grid grid-cols-3 gap-2">
+          {TEXT_SIZE_PRESETS.map((preset) => (
+            <label key={preset} className="flex flex-col gap-1 text-xs font-medium capitalize text-zinc-500">
+              {preset}
+              <input
+                type="number"
+                min={8}
+                max={200}
+                className={input}
+                value={settings.textSizes[preset] ?? TEXT_SIZE_DEFAULTS[preset]}
+                onChange={(e) =>
+                  patch({
+                    textSizes: { ...settings.textSizes, [preset]: parseInt(e.target.value, 10) || TEXT_SIZE_DEFAULTS[preset] },
+                  })
+                }
+              />
+            </label>
+          ))}
+        </div>
+
+        <div className="h-px bg-zinc-200 dark:bg-zinc-800" />
+        <span className="text-xs font-semibold uppercase tracking-wide text-zinc-500">Page dots</span>
+        <div className="flex gap-3">
+          <label className="flex flex-1 flex-col gap-1 text-xs font-medium text-zinc-500">
+            Active
+            <div className="flex gap-1.5">
+              <input
+                type="color"
+                value={settings.dotColorActive ?? '#6366f1'}
+                onChange={(e) => patch({ dotColorActive: e.target.value })}
+                className="h-8 w-full cursor-pointer rounded"
+              />
+              {settings.dotColorActive && (
+                <button type="button" onClick={() => patch({ dotColorActive: null })} className="shrink-0 text-[11px] text-zinc-400 underline">
+                  Reset
+                </button>
+              )}
+            </div>
+          </label>
+          <label className="flex flex-1 flex-col gap-1 text-xs font-medium text-zinc-500">
+            Inactive
+            <div className="flex gap-1.5">
+              <input
+                type="color"
+                value={settings.dotColorInactive ?? '#ffffff'}
+                onChange={(e) => patch({ dotColorInactive: e.target.value })}
+                className="h-8 w-full cursor-pointer rounded"
+              />
+              {settings.dotColorInactive && (
+                <button type="button" onClick={() => patch({ dotColorInactive: null })} className="shrink-0 text-[11px] text-zinc-400 underline">
+                  Reset
+                </button>
+              )}
+            </div>
+          </label>
+        </div>
+        <p className="text-[11px] text-zinc-400">
+          Blank uses the event colour for the active dot and a translucent white for the rest.
+        </p>
+
+        <div className="h-px bg-zinc-200 dark:bg-zinc-800" />
+        <span className="text-xs font-semibold uppercase tracking-wide text-zinc-500">Custom CSS</span>
+        <p className="text-[11px] text-zinc-400">Applied only inside this showcase&rsquo;s public viewer.</p>
+        <textarea
+          className="min-h-24 rounded-lg border border-zinc-300 bg-white p-2 font-mono text-xs dark:border-zinc-700 dark:bg-zinc-900"
+          spellCheck={false}
+          placeholder=".sc-page { }"
+          value={settings.customCss}
+          onChange={(e) => patch({ customCss: e.target.value })}
+        />
 
         <div className="mt-2 flex justify-end gap-2">
           <button type="button" onClick={onClose} className="rounded-lg px-4 py-2 text-sm font-medium hover:bg-zinc-100 dark:hover:bg-zinc-800">

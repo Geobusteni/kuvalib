@@ -3,7 +3,7 @@
 
 'use client'
 
-import { flattenBlocks, type Block } from '@/lib/showcase-blocks'
+import { flattenBlocks, type Block, type HeadingLevel, type TextSizePreset } from '@/lib/showcase-blocks'
 import { blockBackgroundCss, blockRadiusCss } from '@/lib/showcase-theme'
 import { BlockContent } from '../BlockContent'
 import type { ShowcasePhoto } from '../photos-context'
@@ -18,11 +18,15 @@ export function BlockRenderer({
   photos,
   galleryHref,
   onZipClick,
+  headingSizes,
+  textSizes,
 }: {
   blocks: Block[]
   photos: ShowcasePhoto[]
   galleryHref?: string
   onZipClick?: () => void
+  headingSizes?: Partial<Record<HeadingLevel, number>>
+  textSizes?: Partial<Record<TextSizePreset, number>>
 }) {
   const flat = flattenBlocks(blocks)
   return (
@@ -45,6 +49,7 @@ export function BlockRenderer({
               boxSizing: 'border-box',
               borderRadius: blockRadiusCss(block.radius),
               background: isGroup ? blockBackgroundCss(block) : undefined,
+              backdropFilter: isGroup && block.blur ? `blur(${block.blur}px)` : undefined,
               overflow: isGroup ? 'hidden' : undefined,
             }}
           >
@@ -54,6 +59,8 @@ export function BlockRenderer({
                 photo={photo}
                 galleryHref={galleryHref}
                 onZipClick={onZipClick}
+                headingSizes={headingSizes}
+                textSizes={textSizes}
               />
             )}
           </div>

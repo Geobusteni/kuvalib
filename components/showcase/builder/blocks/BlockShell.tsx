@@ -139,12 +139,19 @@ export function BlockShell({
         dragStart.current = null
 
         if (isGroup) return
-        // Re-parent a leaf block into whichever group box now holds its centre.
+        // Re-parent a leaf block into whichever group box now holds its centre —
+        // but never into a group less than half this block's own area. Without
+        // that guard, a full-bleed Cover photo (the largest thing on the page,
+        // and behind everything) gets scooped up by any small overlay group its
+        // centre happens to drift into, and "Arrange children" then resizes the
+        // photo itself to fit the stack.
         const cx = nx + block.w / 2
         const cy = ny + block.h / 2
+        const ownArea = block.w * block.h
         const target = siblings().find((s) => {
           if (s.block.type !== 'group' || s.id === id) return false
           const b = s.block
+          if (b.w * b.h * 2 < ownArea) return false
           return cx >= b.x && cx <= b.x + b.w && cy >= b.y && cy <= b.y + b.h
         })
         const nextParent = target ? target.id : null
@@ -207,6 +214,7 @@ export function BlockShell({
           outlineOffset: '-1px',
           borderRadius: blockRadiusCss(block.radius),
           background: isGroup ? blockBackgroundCss(block) : undefined,
+          backdropFilter: isGroup && block.blur ? `blur(${block.blur}px)` : undefined,
           overflow: isGroup ? 'hidden' : undefined,
           ...contentStyle,
         }}

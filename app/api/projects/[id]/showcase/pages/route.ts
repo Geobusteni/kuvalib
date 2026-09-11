@@ -4,7 +4,7 @@
 import { NextRequest } from 'next/server'
 import { requireAdmin } from '@/lib/auth'
 import { getShowcaseByProject, replacePages } from '@/lib/showcase'
-import { sanitizeBlocks } from '@/lib/showcase-blocks'
+import { sanitizeBlocks, sanitizePageSettings } from '@/lib/showcase-blocks'
 
 type Ctx = { params: Promise<{ id: string }> }
 
@@ -29,6 +29,7 @@ export async function PUT(request: NextRequest, ctx: Ctx) {
 
   const pages = (body.pages as unknown[]).map((page) => ({
     blocks: sanitizeBlocks((page as { blocks?: unknown })?.blocks),
+    settings: sanitizePageSettings((page as { settings?: unknown })?.settings),
   }))
 
   await replacePages(showcase.id, pages)

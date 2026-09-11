@@ -8,6 +8,7 @@ import type { ReactNode } from 'react'
 import type { Block } from '@/lib/showcase-blocks'
 import { BlockContent } from '../../BlockContent'
 import { usePhoto } from '../../photos-context'
+import { useShowcaseStore } from '../../store'
 import { BlockShell } from './BlockShell'
 
 /**
@@ -62,9 +63,10 @@ ImageBlock.craft = { displayName: 'ImageBlock', rules: { canDrag: () => true } }
 
 export const TitleBlock: UserComponent = () => {
   const block = useBlock()
+  const headingSizes = useShowcaseStore((s) => s.settings.headingSizes)
   return (
     <BlockShell>
-      <BlockContent block={block} editable />
+      <BlockContent block={block} editable headingSizes={headingSizes} />
     </BlockShell>
   )
 }
@@ -72,9 +74,10 @@ TitleBlock.craft = { displayName: 'TitleBlock', rules: { canDrag: () => true } }
 
 export const TextBlock: UserComponent = () => {
   const block = useBlock()
+  const textSizes = useShowcaseStore((s) => s.settings.textSizes)
   return (
     <BlockShell>
-      <BlockContent block={block} editable />
+      <BlockContent block={block} editable textSizes={textSizes} />
     </BlockShell>
   )
 }

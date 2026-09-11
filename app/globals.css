@@ -46,6 +46,31 @@ body {
   }
 }
 
+/* Showcase viewer: Ken Burns per-slide effects (components/showcase/viewer/PageStage.tsx).
+   All scaled to 112% so panning never reveals an edge. Reduced-motion strips
+   these to a single near-instant frame via the global rule above — the app
+   never depends on them finishing. */
+@keyframes sc-kb-zoom-in {
+  from { transform: scale(1); }
+  to { transform: scale(1.15); }
+}
+@keyframes sc-kb-slide-left {
+  from { transform: scale(1.12) translateX(2%); }
+  to { transform: scale(1.12) translateX(-2%); }
+}
+@keyframes sc-kb-slide-right {
+  from { transform: scale(1.12) translateX(-2%); }
+  to { transform: scale(1.12) translateX(2%); }
+}
+@keyframes sc-kb-slide-up {
+  from { transform: scale(1.12) translateY(2%); }
+  to { transform: scale(1.12) translateY(-2%); }
+}
+@keyframes sc-kb-slide-down {
+  from { transform: scale(1.12) translateY(-2%); }
+  to { transform: scale(1.12) translateY(2%); }
+}
+
 /* Screen reader only utility */
 .sr-only {
   position: absolute;

@@ -5,7 +5,7 @@
 
 import { Editor } from '@craftjs/core'
 import { useEffect, useState } from 'react'
-import type { Block } from '@/lib/showcase-blocks'
+import type { Block, PageSettings } from '@/lib/showcase-blocks'
 import { blocksToSerialized } from '../craft-bridge'
 import { PhotosProvider, type ShowcasePhoto } from '../photos-context'
 import { useShowcaseStore, type AlbumSettings } from '../store'
@@ -22,7 +22,7 @@ export interface ShowcaseBuilderProps {
   projectId: string
   showcaseId: string
   settings: AlbumSettings
-  pages: { id: string; blocks: Block[] }[]
+  pages: { id: string; blocks: Block[]; settings: PageSettings }[]
   tracks: { id: string; originalName: string; size: number }[]
   photos: ShowcasePhoto[]
   galleryHref: string
@@ -44,6 +44,7 @@ export function ShowcaseBuilder(props: ShowcaseBuilderProps) {
       pages: props.pages.map((p) => ({
         id: p.id,
         snapshot: JSON.stringify(blocksToSerialized(p.blocks)),
+        settings: p.settings,
       })),
       tracks: props.tracks,
     })

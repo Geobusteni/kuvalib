@@ -4,9 +4,9 @@
 'use client'
 
 import { useCallback, useEffect, useRef, useState, useSyncExternalStore } from 'react'
-import type { Block } from '@/lib/showcase-blocks'
+import type { Block, HeadingLevel, PageSettings, TextSizePreset } from '@/lib/showcase-blocks'
 import { collectPhotoIds } from '@/lib/showcase-blocks'
-import { showcaseThemeVars } from '@/lib/showcase-theme'
+import { DEFAULT_DOT_COLORS, showcaseThemeVars } from '@/lib/showcase-theme'
 import {
   exitFullscreen,
   isFullscreenActive,
@@ -23,6 +23,7 @@ import type { ShowcasePhoto } from '../photos-context'
 import { PageStage } from './PageStage'
 import { ViewerControls } from './ViewerControls'
 import { ThumbnailRail } from './ThumbnailRail'
+import { DotIndicator } from './DotIndicator'
 import { MusicPlayer } from './MusicPlayer'
 import { ShowcaseDownloadDialog } from './ShowcaseDownloadDialog'
 import { useSlideshow } from './useSlideshow'
@@ -35,11 +36,16 @@ export interface ShowcaseViewerSettings {
   autoplay: boolean
   autoplaySeconds: number
   playlistLoop: boolean
+  headingSizes: Partial<Record<HeadingLevel, number>>
+  textSizes: Partial<Record<TextSizePreset, number>>
+  dotColorActive: string | null
+  dotColorInactive: string | null
+  customCss: string
 }
 
 export interface ShowcaseViewerProps {
   projectId: string
-  pages: { id: string; blocks: Block[] }[]
+  pages: { id: string; blocks: Block[]; settings: PageSettings }[]
   photos: ShowcasePhoto[]
   settings: ShowcaseViewerSettings
   trackIds: string[]
@@ -173,7 +179,7 @@ export function ShowcaseViewer({
   return (
     <div
       ref={stageRef}
-      className="relative flex min-h-screen flex-col items-center justify-center overflow-hidden bg-black px-6"
+      className="relative flex min-h-screen w-full flex-col items-center justify-center overflow-hidden bg-black"
       style={{
         ...showcaseThemeVars(settings.eventType, settings.albumBg),
         backgroundImage:
@@ -183,8 +189,14 @@ export function ShowcaseViewer({
         if (isFs) setControlsVisible((v) => !v)
       }}
     >
+      {/* Admin-authored, same trust level as the rest of the builder. */}
+      {settings.customCss && <style dangerouslySetInnerHTML={{ __html: settings.customCss }} />}
+
+      <div aria-live="polite" className="sr-only">
+        Page {current + 1} of {total}
+      </div>
+
       <ViewerControls
-        pageLabel={`${current + 1} / ${total}`}
         hasMusic={trackIds.length > 0}
         musicOn={musicOn}
         onToggleMusic={() => setMusicOn((v) => !v)}
@@ -200,16 +212,32 @@ export function ShowcaseViewer({
         visible={controlsVisible}
       />
 
-      <div className="relative" onClick={(e) => e.stopPropagation()}>
-        <PageStage
-          blocks={page?.blocks ?? []}
-          photos={photos}
-          animationStyle={settings.animationStyle}
-          phase={phase}
-          dir={dir}
-          galleryHref={galleryHref}
-          onZipClick={downloadEnabled ? () => setDownloadOpen(true) : undefined}
+      {total > 1 && (
+        <DotIndicator
+          total={total}
+          current={current}
+          onSelect={goTo}
+          activeColor={settings.dotColorActive ?? DEFAULT_DOT_COLORS.active}
+          inactiveColor={settings.dotColorInactive ?? DEFAULT_DOT_COLORS.inactive}
         />
+      )}
+
+      <div className="relative w-full px-2 sm:px-4" onClick={(e) => e.stopPropagation()}>
+        {page && (
+          <PageStage
+            pageId={page.id}
+            blocks={page.blocks}
+            photos={photos}
+            settings={page.settings}
+            animationStyle={settings.animationStyle}
+            phase={phase}
+            dir={dir}
+            galleryHref={galleryHref}
+            onZipClick={downloadEnabled ? () => setDownloadOpen(true) : undefined}
+            headingSizes={settings.headingSizes}
+            textSizes={settings.textSizes}
+          />
+        )}
         {total > 1 && (
           <>
             <button
@@ -238,6 +266,8 @@ export function ShowcaseViewer({
           photos={photos}
           current={current}
           onSelect={(i) => { goTo(i); setThumbsOpen(false) }}
+          headingSizes={settings.headingSizes}
+          textSizes={settings.textSizes}
         />
       )}
 
@@ -261,7 +291,7 @@ export function ShowcaseViewer({
       {toast && (
         <div
           role="status"
-          className="pointer-events-none absolute right-3 top-14 z-20 rounded-lg bg-white px-3 py-1.5 text-xs font-medium text-zinc-900 shadow-lg"
+          className="pointer-events-none absolute right-2 top-14 z-20 rounded-lg bg-white px-3 py-1.5 text-xs font-medium text-zinc-900 shadow-lg sm:right-3 sm:top-16"
         >
           {toast}
         </div>

@@ -3,7 +3,7 @@
 
 'use client'
 
-import type { Block } from '@/lib/showcase-blocks'
+import type { Block, HeadingLevel, TextSizePreset } from '@/lib/showcase-blocks'
 import type { ShowcasePhoto } from '../photos-context'
 import { BlockRenderer } from './BlockRenderer'
 
@@ -18,11 +18,15 @@ export function ThumbnailRail({
   photos,
   current,
   onSelect,
+  headingSizes,
+  textSizes,
 }: {
   pages: { id: string; blocks: Block[] }[]
   photos: ShowcasePhoto[]
   current: number
   onSelect: (index: number) => void
+  headingSizes?: Partial<Record<HeadingLevel, number>>
+  textSizes?: Partial<Record<TextSizePreset, number>>
 }) {
   const scale = THUMB_W / PREVIEW_W
 
@@ -69,7 +73,12 @@ export function ThumbnailRail({
               pointerEvents: 'none',
             }}
           >
-            <BlockRenderer blocks={page.blocks} photos={photos} />
+            <BlockRenderer
+              blocks={page.blocks}
+              photos={photos}
+              headingSizes={headingSizes}
+              textSizes={textSizes}
+            />
           </div>
           <span
             className="absolute bottom-0.5 right-1 text-[10px] font-semibold tabular-nums"

@@ -7,7 +7,13 @@ import type {
   ShowcaseBg,
   ShowcaseEventType,
 } from './generated/prisma/client'
-import { buildCoverComposite, type Block } from './showcase-blocks'
+import {
+  buildCoverComposite,
+  type Block,
+  type HeadingLevel,
+  type PageSettings,
+  type TextSizePreset,
+} from './showcase-blocks'
 
 export type { ShowcaseAnimation, ShowcaseBg, ShowcaseEventType }
 
@@ -20,10 +26,46 @@ export interface ShowcaseSettingsData {
   autoplay?: boolean
   autoplaySeconds?: number
   playlistLoop?: boolean
+  headingSizes?: Partial<Record<HeadingLevel, number>>
+  textSizes?: Partial<Record<TextSizePreset, number>>
+  dotColorActive?: string | null
+  dotColorInactive?: string | null
+  customCss?: string | null
 }
 
 const pagesOrdered = { orderBy: { sortOrder: 'asc' } } as const
 const tracksOrdered = { orderBy: { sortOrder: 'asc' } } as const
+
+/** A ShowcasePage row's appearance columns → the PageSettings shape the
+ *  builder and viewer share. Used by both the builder page and the public
+ *  viewer route, which each fetch pages through Prisma directly. */
+export function pageSettingsFromRow(row: {
+  bg: string
+  bgCustom: string | null
+  bgCustomAlpha: number | null
+  bgGradientFrom: string | null
+  bgGradientTo: string | null
+  bgGradientAngle: number | null
+  borderStyle: string
+  borderWidth: number
+  borderColor: string | null
+  kenBurns: string
+  kenBurnsSpeed: number
+}): PageSettings {
+  return {
+    bg: row.bg as PageSettings['bg'],
+    bgCustom: row.bgCustom ?? undefined,
+    bgCustomAlpha: row.bgCustomAlpha ?? undefined,
+    bgGradientFrom: row.bgGradientFrom ?? undefined,
+    bgGradientTo: row.bgGradientTo ?? undefined,
+    bgGradientAngle: row.bgGradientAngle ?? undefined,
+    borderStyle: row.borderStyle as PageSettings['borderStyle'],
+    borderWidth: row.borderWidth,
+    borderColor: row.borderColor ?? undefined,
+    kenBurns: row.kenBurns as PageSettings['kenBurns'],
+    kenBurnsSpeed: row.kenBurnsSpeed,
+  }
+}
 
 export async function getShowcaseByProject(projectId: string) {
   return prisma.showcase.findUnique({
@@ -76,10 +118,11 @@ export async function deleteShowcase(id: string) {
 /**
  * Replaces the whole page list in one transaction. A page's block tree is
  * authored and saved as a unit, so there is no per-page or per-block update path.
+ * A page's own appearance (background/border/Ken Burns) travels alongside it.
  */
 export async function replacePages(
   showcaseId: string,
-  pages: { blocks: Block[] }[],
+  pages: { blocks: Block[]; settings: PageSettings }[],
 ) {
   return prisma.$transaction([
     prisma.showcasePage.deleteMany({ where: { showcaseId } }),
@@ -89,6 +132,7 @@ export async function replacePages(
           showcaseId,
           sortOrder: index,
           blocksJson: page.blocks as unknown as object,
+          ...page.settings,
         },
       }),
     ),

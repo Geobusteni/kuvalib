@@ -44,6 +44,7 @@ enum ShowcaseAnimation {
   TURN
   FADE
   ZOOM
+  ROTATE
 }
 
 model User {
@@ -126,6 +127,23 @@ model Showcase {
   autoplaySeconds Int     @default(5)
   playlistLoop    Boolean @default(true)
 
+  /// Default px size per heading level (h1–h6), overridable per Headline block.
+  /// {h1,h2,h3,h4,h5,h6: number}; see HEADING_SIZE_DEFAULTS in showcase-blocks.ts.
+  headingSizes Json?
+  /// Default px size per Text block preset (small/normal/medium/large/huge),
+  /// overridable per block. See TEXT_SIZE_DEFAULTS in showcase-blocks.ts.
+  textSizes Json?
+
+  /// Viewer page-dot indicator. Null falls back to the accent / a translucent
+  /// white — see DEFAULT_DOT_COLORS in showcase-theme.ts.
+  dotColorActive   String?
+  dotColorInactive String?
+
+  /// Raw CSS appended inside the viewer only. Admin-authored (same trust level
+  /// as the rest of the builder) — never rendered anywhere client-facing input
+  /// reaches.
+  customCss String? @db.Text
+
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 
@@ -133,9 +151,11 @@ model Showcase {
   tracks ShowcaseTrack[]
 }
 
-/// One slide. The whole block tree is stored as a single JSON blob rather than
-/// normalised into a row-per-block table — a page is authored and saved as a
-/// unit, and nothing queries an individual block.
+/// One slide. The block tree is a single JSON blob (see ShowcasePage.blocksJson
+/// doc below) but the slide's own appearance — background, border, Ken Burns —
+/// is real columns: unlike a block tree there is exactly one of each per page,
+/// so there is nothing to gain from JSON here (see AGENTS.md: model growth as
+/// columns/relations, not denormalised JSON).
 model ShowcasePage {
   id         String   @id @default(cuid())
   showcaseId String
@@ -146,6 +166,24 @@ model ShowcasePage {
   /// Block[] — see lib/showcase-blocks.ts for the shape. Coordinates are
   /// percentages of the page frame, canvas-absolute even for grouped blocks.
   blocksJson Json
+
+  /// Slide background — same BlockBg union as a block's `bg` (see
+  /// showcase-blocks.ts), stored as a plain string for the same reason a
+  /// block's is: new values shouldn't need a migration.
+  bg              String  @default("none")
+  bgCustom        String?
+  bgCustomAlpha   Int?
+  bgGradientFrom  String?
+  bgGradientTo    String?
+  bgGradientAngle Int?
+
+  borderStyle String  @default("none")
+  borderWidth Int     @default(0)
+  borderColor String?
+
+  /// 'none' | 'zoom-in' | 'slide-left' | 'slide-up' | 'slide-down' | 'slide-right'
+  kenBurns      String @default("none")
+  kenBurnsSpeed Int    @default(8)
 
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt

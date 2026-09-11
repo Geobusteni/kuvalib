@@ -5,7 +5,8 @@
 
 import type { CSSProperties } from 'react'
 import type { ShowcaseAnimation } from '@/lib/generated/prisma/client'
-import type { Block } from '@/lib/showcase-blocks'
+import type { Block, HeadingLevel, PageSettings, TextSizePreset } from '@/lib/showcase-blocks'
+import { blockBackgroundCss, blockBorderCss } from '@/lib/showcase-theme'
 import type { AnimDir, AnimPhase } from './useSlideshow'
 import { BlockRenderer } from './BlockRenderer'
 import type { ShowcasePhoto } from '../photos-context'
@@ -26,6 +27,13 @@ function pageTransform(
       ? { transform: 'scale(0.94)', opacity: 0, transition: 'transform 220ms ease, opacity 220ms ease' }
       : { transform: 'scale(1.05)', opacity: 0, transition: 'none' }
   }
+  if (style === 'ROTATE') {
+    const outT = dir === 'next' ? 'rotate(-8deg) scale(0.92)' : 'rotate(8deg) scale(0.92)'
+    const preT = dir === 'next' ? 'rotate(8deg) scale(0.92)' : 'rotate(-8deg) scale(0.92)'
+    return phase === 'out'
+      ? { transform: outT, opacity: 0, transition: 'transform 260ms ease, opacity 260ms ease' }
+      : { transform: preT, opacity: 0, transition: 'none' }
+  }
   // TURN
   const outT = dir === 'next' ? 'rotateY(-18deg) translateX(-30px)' : 'rotateY(18deg) translateX(30px)'
   const preT = dir === 'next' ? 'rotateY(18deg) translateX(30px)' : 'rotateY(-18deg) translateX(-30px)'
@@ -34,38 +42,81 @@ function pageTransform(
     : { transform: preT, opacity: 0, transition: 'none' }
 }
 
+const KEN_BURNS_ANIMATION: Record<PageSettings['kenBurns'], string | undefined> = {
+  none: undefined,
+  'zoom-in': 'sc-kb-zoom-in',
+  'slide-left': 'sc-kb-slide-left',
+  'slide-right': 'sc-kb-slide-right',
+  'slide-up': 'sc-kb-slide-up',
+  'slide-down': 'sc-kb-slide-down',
+}
+
 export function PageStage({
+  pageId,
   blocks,
   photos,
+  settings,
   animationStyle,
   phase,
   dir,
   galleryHref,
   onZipClick,
+  headingSizes,
+  textSizes,
 }: {
+  pageId: string
   blocks: Block[]
   photos: ShowcasePhoto[]
+  settings: PageSettings
   animationStyle: ShowcaseAnimation
   phase: AnimPhase
   dir: AnimDir
   galleryHref?: string
   onZipClick?: () => void
+  headingSizes?: Partial<Record<HeadingLevel, number>>
+  textSizes?: Partial<Record<TextSizePreset, number>>
 }) {
+  const kenBurnsAnimation = KEN_BURNS_ANIMATION[settings.kenBurns]
+
   return (
-    <div style={{ position: 'relative', width: 'min(960px, 92vw)', aspectRatio: '16 / 10', perspective: 2000 }}>
+    <div style={{ position: 'relative', width: 'min(100%, calc(100vh * 1.6))', aspectRatio: '16 / 10', perspective: 2000 }}>
       <div
         style={{
           position: 'absolute',
           inset: 0,
-          background: 'var(--sc-album-bg)',
+          background: settings.bg === 'none' ? 'var(--sc-album-bg)' : blockBackgroundCss(settings),
+          border: blockBorderCss(settings),
           borderRadius: '0.75rem',
           boxShadow: '0 24px 60px -12px rgba(0,0,0,0.5)',
+          // Always clipped — a slide's content never spills past its own frame,
+          // Ken Burns included.
           overflow: 'hidden',
+          boxSizing: 'border-box',
           transformStyle: 'preserve-3d',
           ...pageTransform(animationStyle, phase, dir),
         }}
       >
-        <BlockRenderer blocks={blocks} photos={photos} galleryHref={galleryHref} onZipClick={onZipClick} />
+        <div
+          key={pageId}
+          style={{
+            position: 'absolute',
+            inset: 0,
+            overflow: 'hidden',
+            animationName: kenBurnsAnimation,
+            animationDuration: kenBurnsAnimation ? `${settings.kenBurnsSpeed}s` : undefined,
+            animationTimingFunction: 'ease-in-out',
+            animationFillMode: 'forwards',
+          }}
+        >
+          <BlockRenderer
+            blocks={blocks}
+            photos={photos}
+            galleryHref={galleryHref}
+            onZipClick={onZipClick}
+            headingSizes={headingSizes}
+            textSizes={textSizes}
+          />
+        </div>
       </div>
     </div>
   )

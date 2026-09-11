@@ -35,10 +35,11 @@ adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html). While the
 - **The page counter is now a column of coloured dots on the left edge of the
   viewer** instead of a numeric "1 / N" — click a dot to jump to that page.
   Dot colours are configurable in Album settings.
-- **Slideshow pages support a Ken Burns pan/zoom effect** while a page is on
+- **Image blocks support a Ken Burns pan/zoom effect** while their page is on
   screen: zoom in, or slide left/right/up/down, each with its own speed
   (capped to the page's autoplay interval so it never gets cut off). Set per
-  page in the settings panel.
+  image block in the settings panel; only the photo pans/zooms, its border
+  and corners stay put.
 - **A page can now have its own background and border**, using the same
   colour/gradient and border controls as other blocks. A page's content
   always clips at its own edges.

@@ -49,8 +49,6 @@ export function pageSettingsFromRow(row: {
   borderStyle: string
   borderWidth: number
   borderColor: string | null
-  kenBurns: string
-  kenBurnsSpeed: number
 }): PageSettings {
   return {
     bg: row.bg as PageSettings['bg'],
@@ -62,8 +60,6 @@ export function pageSettingsFromRow(row: {
     borderStyle: row.borderStyle as PageSettings['borderStyle'],
     borderWidth: row.borderWidth,
     borderColor: row.borderColor ?? undefined,
-    kenBurns: row.kenBurns as PageSettings['kenBurns'],
-    kenBurnsSpeed: row.kenBurnsSpeed,
   }
 }
 
@@ -118,7 +114,7 @@ export async function deleteShowcase(id: string) {
 /**
  * Replaces the whole page list in one transaction. A page's block tree is
  * authored and saved as a unit, so there is no per-page or per-block update path.
- * A page's own appearance (background/border/Ken Burns) travels alongside it.
+ * A page's own appearance (background/border) travels alongside it.
  */
 export async function replacePages(
   showcaseId: string,

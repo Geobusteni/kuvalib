@@ -46,7 +46,7 @@ body {
   }
 }
 
-/* Showcase viewer: Ken Burns per-slide effects (components/showcase/viewer/PageStage.tsx).
+/* Showcase: Ken Burns effects on Image blocks (components/showcase/BlockContent.tsx).
    All scaled to 112% so panning never reveals an edge. Reduced-motion strips
    these to a single near-instant frame via the global rule above — the app
    never depends on them finishing. */

@@ -89,6 +89,11 @@ title-and-button pair.
   slider. **Headline text is always solid** — same swatches, no opacity, so it stays legible over
   a photo.
 - **Border** (Image blocks) — style (solid / dashed / dotted), width, and colour.
+- **Ken Burns** (Image blocks) — a slow pan/zoom while the image is on screen: none, zoom in, or
+  slide left/right/up/down. **Speed** is a range in seconds, capped to the page's autoplay
+  interval when autoplay is on (so the effect never gets cut off mid-motion). The border and
+  corners stay put — only the photo inside pans/zooms, clipped to the block's own box. Disabled
+  entirely under `prefers-reduced-motion`.
 - **Size** — Headline: pick a level (H1–H6); the pixel size for each level comes from Album
   settings, or set a custom size on the block to override it. Text: pick a preset (small /
   normal / medium / large / huge), same override. Long text wraps inside the block and is
@@ -103,10 +108,6 @@ page's** own appearance instead of a block's:
 
 - **Background** and **Border** — same controls as a Group/Image, applied to the whole page
   behind its blocks.
-- **Ken Burns** — a slow pan/zoom on the page while it's on screen: none, zoom in, or slide
-  left/right/up/down. **Speed** is a range in seconds, capped to the page's autoplay interval
-  when autoplay is on (so the effect never gets cut off mid-motion). Disabled entirely under
-  `prefers-reduced-motion`.
 - A page's content always clips at its own edges — nothing bleeds past the page frame.
 
 ### Button links

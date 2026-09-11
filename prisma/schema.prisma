@@ -181,10 +181,6 @@ model ShowcasePage {
   borderWidth Int     @default(0)
   borderColor String?
 
-  /// 'none' | 'zoom-in' | 'slide-left' | 'slide-up' | 'slide-down' | 'slide-right'
-  kenBurns      String @default("none")
-  kenBurnsSpeed Int    @default(8)
-
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 

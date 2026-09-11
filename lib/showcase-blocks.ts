@@ -21,7 +21,7 @@ export type ButtonLinkType = 'custom' | 'zip' | 'gallery'
 export type BorderStyle = 'none' | 'solid' | 'dashed' | 'dotted'
 export type HeadingLevel = 1 | 2 | 3 | 4 | 5 | 6
 export type TextSizePreset = 'small' | 'normal' | 'medium' | 'large' | 'huge'
-/** Page-level (viewer only) — see PageSettings. */
+/** Image blocks only — a slow pan/zoom while the image is on screen. */
 export type KenBurns = 'none' | 'zoom-in' | 'slide-left' | 'slide-up' | 'slide-down' | 'slide-right'
 
 export interface Block {
@@ -52,6 +52,11 @@ export interface Block {
   borderStyle?: BorderStyle
   borderWidth?: number
   borderColor?: string
+  /** image only — a slow pan/zoom while this image is on screen. */
+  kenBurns?: KenBurns
+  /** Seconds the effect takes to complete. Capped in the UI to the album's
+   *  autoplay interval, so it never gets cut off mid-motion. */
+  kenBurnsSpeed?: number
   /** title / text */
   text?: string
   align?: BlockAlign
@@ -71,8 +76,8 @@ export interface Block {
   children?: Block[]
 }
 
-/** A slide's own appearance — background, border, Ken Burns. Real Prisma
- *  columns on ShowcasePage (see schema.prisma), not part of the block tree. */
+/** A slide's own appearance — background, border. Real Prisma columns on
+ *  ShowcasePage (see schema.prisma), not part of the block tree. */
 export interface PageSettings {
   bg: BlockBg
   bgCustom?: string
@@ -83,18 +88,12 @@ export interface PageSettings {
   borderStyle: BorderStyle
   borderWidth: number
   borderColor?: string
-  kenBurns: KenBurns
-  /** Seconds the effect takes to complete. Capped in the UI to the album's
-   *  autoplay interval, so it never gets cut off mid-motion. */
-  kenBurnsSpeed: number
 }
 
 export const DEFAULT_PAGE_SETTINGS: PageSettings = {
   bg: 'none',
   borderStyle: 'none',
   borderWidth: 0,
-  kenBurns: 'none',
-  kenBurnsSpeed: 8,
 }
 
 /** Album-wide default px size per heading level, overridable per Headline block. */
@@ -155,7 +154,7 @@ export function makeBlock(type: BlockType, opts: MakeBlockOpts = {}): Block {
       return {
         ...base,
         x: opts.x ?? 8, y: opts.y ?? 8, w: opts.w ?? 38, h: opts.h ?? 38, radius: 'md', bg: 'none',
-        borderStyle: 'none', borderWidth: 0,
+        borderStyle: 'none', borderWidth: 0, kenBurns: 'none', kenBurnsSpeed: 8,
       }
     case 'title':
       return {
@@ -492,6 +491,8 @@ export function sanitizeBlock(raw: unknown, depth = 0): Block | null {
     block.borderStyle = pick(r.borderStyle, BORDER_STYLES, 'none')
     block.borderWidth = num(r.borderWidth, 0, 0, 20)
     block.borderColor = hexColor(r.borderColor) ?? '#ffffff'
+    block.kenBurns = pick(r.kenBurns, KEN_BURNS_STYLES, 'none')
+    block.kenBurnsSpeed = num(r.kenBurnsSpeed, 8, 2, 60)
   }
   if (type === 'title' || type === 'text') {
     block.text = str(r.text, 4000)
@@ -528,8 +529,6 @@ export function sanitizePageSettings(raw: unknown): PageSettings {
     bg: pick(r.bg, BGS, 'none'),
     borderStyle: pick(r.borderStyle, BORDER_STYLES, 'none'),
     borderWidth: num(r.borderWidth, 0, 0, 20),
-    kenBurns: pick(r.kenBurns, KEN_BURNS_STYLES, 'none'),
-    kenBurnsSpeed: num(r.kenBurnsSpeed, 8, 2, 60),
   }
   const bgCustom = hexColor(r.bgCustom)
   if (bgCustom) settings.bgCustom = bgCustom

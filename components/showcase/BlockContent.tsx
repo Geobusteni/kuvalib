@@ -5,7 +5,14 @@
 
 import type { CSSProperties } from 'react'
 import { safeExternalHref, type Block, type HeadingLevel, type TextSizePreset } from '@/lib/showcase-blocks'
-import { blockBackgroundCss, blockBorderCss, blockFontSizeCss, blockRadiusCss, blockTextColorCss } from '@/lib/showcase-theme'
+import {
+  KEN_BURNS_KEYFRAMES,
+  blockBackgroundCss,
+  blockBorderCss,
+  blockFontSizeCss,
+  blockRadiusCss,
+  blockTextColorCss,
+} from '@/lib/showcase-theme'
 import type { ShowcasePhoto } from './photos-context'
 
 /**
@@ -42,24 +49,39 @@ export function BlockContent({
     const radius = blockRadiusCss(block.radius)
     const border = blockBorderCss(block)
     if (photo) {
+      // The border/radius/clip live on this static wrapper; only the <img>
+      // inside pans/zooms, so the frame never moves with the Ken Burns effect.
+      const kenBurnsAnimation = KEN_BURNS_KEYFRAMES[block.kenBurns ?? 'none']
       return (
-        // eslint-disable-next-line @next/next/no-img-element -- showcase art direction needs object-fit, not the Image layout box
-        <img
-          src={photo.thumbLg}
-          alt=""
-          draggable={false}
+        <div
           style={{
             width: '100%',
             height: '100%',
-            objectFit: 'cover',
             borderRadius: radius,
             border,
             boxSizing: 'border-box',
-            display: 'block',
-            pointerEvents: 'none',
-            userSelect: 'none',
+            overflow: 'hidden',
           }}
-        />
+        >
+          {/* eslint-disable-next-line @next/next/no-img-element -- showcase art direction needs object-fit, not the Image layout box */}
+          <img
+            src={photo.thumbLg}
+            alt=""
+            draggable={false}
+            style={{
+              width: '100%',
+              height: '100%',
+              objectFit: 'cover',
+              display: 'block',
+              pointerEvents: 'none',
+              userSelect: 'none',
+              animationName: kenBurnsAnimation,
+              animationDuration: kenBurnsAnimation ? `${block.kenBurnsSpeed ?? 8}s` : undefined,
+              animationTimingFunction: 'ease-in-out',
+              animationFillMode: 'forwards',
+            }}
+          />
+        </div>
       )
     }
     return (

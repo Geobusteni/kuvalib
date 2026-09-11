@@ -17,6 +17,7 @@ import {
   type BlockRadius,
   type BorderStyle,
   type HeadingLevel,
+  type KenBurns,
   type PageSettings,
   type TextSizePreset,
 } from './showcase-blocks'
@@ -141,4 +142,14 @@ export function blockFontSizeCss(
 export const DEFAULT_DOT_COLORS = {
   active: 'var(--sc-accent)',
   inactive: 'rgba(255,255,255,0.35)',
+}
+
+/** Image-block Ken Burns effect → the `@keyframes` name in globals.css. */
+export const KEN_BURNS_KEYFRAMES: Record<KenBurns, string | undefined> = {
+  none: undefined,
+  'zoom-in': 'sc-kb-zoom-in',
+  'slide-left': 'sc-kb-slide-left',
+  'slide-right': 'sc-kb-slide-right',
+  'slide-up': 'sc-kb-slide-up',
+  'slide-down': 'sc-kb-slide-down',
 }

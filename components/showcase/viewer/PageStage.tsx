@@ -42,15 +42,6 @@ function pageTransform(
     : { transform: preT, opacity: 0, transition: 'none' }
 }
 
-const KEN_BURNS_ANIMATION: Record<PageSettings['kenBurns'], string | undefined> = {
-  none: undefined,
-  'zoom-in': 'sc-kb-zoom-in',
-  'slide-left': 'sc-kb-slide-left',
-  'slide-right': 'sc-kb-slide-right',
-  'slide-up': 'sc-kb-slide-up',
-  'slide-down': 'sc-kb-slide-down',
-}
-
 export function PageStage({
   pageId,
   blocks,
@@ -76,8 +67,6 @@ export function PageStage({
   headingSizes?: Partial<Record<HeadingLevel, number>>
   textSizes?: Partial<Record<TextSizePreset, number>>
 }) {
-  const kenBurnsAnimation = KEN_BURNS_ANIMATION[settings.kenBurns]
-
   return (
     <div style={{ position: 'relative', width: 'min(100%, calc(100vh * 1.6))', aspectRatio: '16 / 10', perspective: 2000 }}>
       <div
@@ -88,35 +77,22 @@ export function PageStage({
           border: blockBorderCss(settings),
           borderRadius: '0.75rem',
           boxShadow: '0 24px 60px -12px rgba(0,0,0,0.5)',
-          // Always clipped — a slide's content never spills past its own frame,
-          // Ken Burns included.
+          // Always clipped — a slide's content never spills past its own frame.
           overflow: 'hidden',
           boxSizing: 'border-box',
           transformStyle: 'preserve-3d',
           ...pageTransform(animationStyle, phase, dir),
         }}
       >
-        <div
+        <BlockRenderer
           key={pageId}
-          style={{
-            position: 'absolute',
-            inset: 0,
-            overflow: 'hidden',
-            animationName: kenBurnsAnimation,
-            animationDuration: kenBurnsAnimation ? `${settings.kenBurnsSpeed}s` : undefined,
-            animationTimingFunction: 'ease-in-out',
-            animationFillMode: 'forwards',
-          }}
-        >
-          <BlockRenderer
-            blocks={blocks}
-            photos={photos}
-            galleryHref={galleryHref}
-            onZipClick={onZipClick}
-            headingSizes={headingSizes}
-            textSizes={textSizes}
-          />
-        </div>
+          blocks={blocks}
+          photos={photos}
+          galleryHref={galleryHref}
+          onZipClick={onZipClick}
+          headingSizes={headingSizes}
+          textSizes={textSizes}
+        />
       </div>
     </div>
   )

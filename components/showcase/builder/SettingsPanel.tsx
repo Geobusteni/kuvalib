@@ -250,13 +250,10 @@ function PageSettingsPanel() {
   const currentPageId = useShowcaseStore((s) => s.currentPageId)
   const page = useShowcaseStore((s) => s.pages.find((p) => p.id === s.currentPageId))
   const setPageSettings = useShowcaseStore((s) => s.setPageSettings)
-  const autoplay = useShowcaseStore((s) => s.settings.autoplay)
-  const autoplaySeconds = useShowcaseStore((s) => s.settings.autoplaySeconds)
 
   if (!page) return null
   const settings = page.settings
   const patch = (p: Partial<PageSettings>) => setPageSettings(currentPageId, p)
-  const kenBurnsMax = autoplay ? Math.max(2, autoplaySeconds) : 30
 
   return (
     <div className="flex flex-col gap-4">
@@ -270,25 +267,6 @@ function PageSettingsPanel() {
       </span>
       <BackgroundField value={settings} onChange={patch} />
       <BorderField value={settings} onChange={patch} />
-      <div className="h-px bg-zinc-200 dark:bg-zinc-800" />
-      <span className="text-xs font-semibold uppercase tracking-wide text-zinc-500">Ken Burns</span>
-      <Field label="Effect">
-        <Segmented options={KEN_BURNS_STYLES} value={settings.kenBurns} onChange={(v) => patch({ kenBurns: v })} />
-      </Field>
-      {settings.kenBurns !== 'none' && (
-        <label className="text-[11px] text-zinc-400">
-          Speed — {settings.kenBurnsSpeed}s
-          <input
-            type="range"
-            min={2}
-            max={kenBurnsMax}
-            value={Math.min(settings.kenBurnsSpeed, kenBurnsMax)}
-            onChange={(e) => patch({ kenBurnsSpeed: parseInt(e.target.value, 10) })}
-            className="w-full"
-          />
-          {autoplay && <span className="mt-0.5 block">Capped to the {autoplaySeconds}s autoplay interval.</span>}
-        </label>
-      )}
     </div>
   )
 }
@@ -297,6 +275,8 @@ export function SettingsPanel() {
   const photos = usePhotos()
   const { arrangeGroup, addGroupChild } = useBuilder()
   const markDirty = useShowcaseStore((s) => s.markDirty)
+  const autoplay = useShowcaseStore((s) => s.settings.autoplay)
+  const autoplaySeconds = useShowcaseStore((s) => s.settings.autoplaySeconds)
 
   const { selectedId, block, parentGroupId, actions, query } = useEditor((state) => {
     const id = Array.from(state.events.selected)[0] ?? null
@@ -551,6 +531,30 @@ export function SettingsPanel() {
             <Segmented options={RADII} value={block.radius ?? 'none'} onChange={(v) => update({ radius: v })} />
           </Field>
           <BorderField value={block} onChange={update} />
+
+          <div className="h-px bg-zinc-200 dark:bg-zinc-800" />
+          <span className="text-xs font-semibold uppercase tracking-wide text-zinc-500">Ken Burns</span>
+          <Field label="Effect">
+            <Segmented
+              options={KEN_BURNS_STYLES}
+              value={block.kenBurns ?? 'none'}
+              onChange={(v) => update({ kenBurns: v })}
+            />
+          </Field>
+          {(block.kenBurns ?? 'none') !== 'none' && (
+            <label className="text-[11px] text-zinc-400">
+              Speed — {block.kenBurnsSpeed ?? 8}s
+              <input
+                type="range"
+                min={2}
+                max={autoplay ? Math.max(2, autoplaySeconds) : 30}
+                value={Math.min(block.kenBurnsSpeed ?? 8, autoplay ? Math.max(2, autoplaySeconds) : 30)}
+                onChange={(e) => update({ kenBurnsSpeed: parseInt(e.target.value, 10) })}
+                className="w-full"
+              />
+              {autoplay && <span className="mt-0.5 block">Capped to the {autoplaySeconds}s autoplay interval.</span>}
+            </label>
+          )}
         </>
       )}
 

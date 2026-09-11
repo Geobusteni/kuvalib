@@ -24,13 +24,21 @@ photos.
 ## The builder
 
 Three columns: the **page rail** on the left, the **canvas** in the middle, the **settings
-panel** on the right.
+panel** on the right. The top bar also has a **Copy link** button, next to Album settings, for
+grabbing the showcase's public link without leaving the builder.
 
 The canvas is a 16:10 frame. A block's position and size are stored as **percentages** of the
 frame, so a layout you build on a laptop scales correctly on a phone or a projector.
 
 Changes **autosave**. There is also an explicit **Save** button, and a status line that reads
 *Saving… / Unsaved changes / Saved*.
+
+### Blocks list
+
+Above the settings panel, a **Blocks** list shows the current page's blocks as a flat, clickable
+list — an alternative to hunting for a block on the canvas. Its order always matches stacking
+order: the first row is the block furthest back, the last row is the frontmost one, and a
+group's children are indented under it, in that same back-to-front order.
 
 ### Pages
 
@@ -99,6 +107,11 @@ title-and-button pair.
   normal / medium / large / huge), same override. Long text wraps inside the block and is
   clipped if it still overflows — it never spills outside the block's box.
 
+Every colour swatch shows the colour it would actually apply — the "custom" and "gradient"
+options preview the block's own configured colour, not a placeholder — and a **Reset** link
+appears next to a swatch row once it's been changed from its default, to clear it back in one
+click.
+
 The **accent** colour comes from the album's event type (see below).
 
 ### Page settings
@@ -135,7 +148,7 @@ The **Album settings** dialog (button in the top bar):
 | **Heading sizes** | The default pixel size for each Headline level, H1–H6. A block can still override it with a custom size. |
 | **Text sizes** | The default pixel size for each Text preset (small / normal / medium / large / huge). A block can still override it. |
 | **Page dots** | Active and inactive colours for the page-position dots in the viewer. Leave blank to use the event colour / a translucent white. |
-| **Custom CSS** | A free-form stylesheet injected into the public viewer, for tweaks the settings panel doesn't cover. Admin-authored — treat it like any other content you control. |
+| **Custom CSS** | A free-form stylesheet injected into the public viewer, for tweaks the settings panel doesn't cover. Admin-authored — treat it like any other content you control. The info icon next to the heading opens a reference of the stable class names available to target (`.sc-viewer`, `.sc-stage`, `.sc-page`, `.sc-block` and its per-type variants, `.sc-controls`, `.sc-dots`, `.sc-thumbnails`). |
 | **Music playlist** | See below. |
 
 ### Music

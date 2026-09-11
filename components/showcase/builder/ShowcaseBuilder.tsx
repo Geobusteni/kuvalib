@@ -6,6 +6,7 @@
 import { Editor } from '@craftjs/core'
 import { useEffect, useState } from 'react'
 import type { Block, PageSettings } from '@/lib/showcase-blocks'
+import { showcaseThemeVars } from '@/lib/showcase-theme'
 import { blocksToSerialized } from '../craft-bridge'
 import { PhotosProvider, type ShowcasePhoto } from '../photos-context'
 import { useShowcaseStore, type AlbumSettings } from '../store'
@@ -13,6 +14,7 @@ import { showcaseResolver } from './blocks'
 import { BuilderProvider, useBuilder } from './useBuilder'
 import { Canvas } from './Canvas'
 import { PageRail } from './PageRail'
+import { BlockTree } from './BlockTree'
 import { SettingsPanel } from './SettingsPanel'
 import { AddBlockMenu } from './AddBlockMenu'
 import { AlbumSettingsDialog } from './AlbumSettingsDialog'
@@ -91,6 +93,15 @@ function BuilderShell({
   const lastSavedAt = useShowcaseStore((s) => s.lastSavedAt)
   const { save, getDeck } = useBuilder()
   const [settingsOpen, setSettingsOpen] = useState(false)
+  const [linkCopied, setLinkCopied] = useState(false)
+
+  const copyLink = () => {
+    const absolute = typeof window !== 'undefined' ? new URL(shareUrl, window.location.origin).href : shareUrl
+    navigator.clipboard?.writeText(absolute).then(() => {
+      setLinkCopied(true)
+      setTimeout(() => setLinkCopied(false), 2000)
+    })
+  }
 
   return (
     <PhotosProvider photos={photos}>
@@ -105,6 +116,13 @@ function BuilderShell({
             className="rounded-lg border border-zinc-300 px-3 py-1.5 text-sm font-medium hover:bg-zinc-100 dark:border-zinc-700 dark:hover:bg-zinc-800"
           >
             Album settings
+          </button>
+          <button
+            type="button"
+            onClick={copyLink}
+            className="rounded-lg border border-zinc-300 px-3 py-1.5 text-sm font-medium hover:bg-zinc-100 dark:border-zinc-700 dark:hover:bg-zinc-800"
+          >
+            {linkCopied ? 'Link copied' : 'Copy link'}
           </button>
         </div>
         <div className="flex items-center gap-3">
@@ -140,14 +158,25 @@ function BuilderShell({
       </div>
 
       {view === 'build' ? (
-        <div className="mt-4 grid grid-cols-[96px_minmax(0,1fr)_260px] gap-4">
+        // The theme vars (--sc-accent, --sc-surface, …) are scoped here, not just
+        // on Canvas below, so swatches in BlockTree/SettingsPanel that reference
+        // them (to preview the album's actual accent/surface colours) resolve too.
+        <div
+          className="mt-4 grid grid-cols-[96px_minmax(0,1fr)_260px] gap-4"
+          style={showcaseThemeVars(settings.eventType, settings.albumBg)}
+        >
           <PageRail />
           <div className="flex flex-col gap-3">
             <AddBlockMenu />
             <Canvas />
           </div>
-          <div className="rounded-xl border border-zinc-200 p-3 dark:border-zinc-800">
-            <SettingsPanel />
+          <div className="flex flex-col gap-3">
+            <div className="max-h-56 overflow-y-auto rounded-xl border border-zinc-200 p-3 dark:border-zinc-800">
+              <BlockTree />
+            </div>
+            <div className="rounded-xl border border-zinc-200 p-3 dark:border-zinc-800">
+              <SettingsPanel />
+            </div>
           </div>
         </div>
       ) : (

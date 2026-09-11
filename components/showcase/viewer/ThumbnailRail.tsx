@@ -32,7 +32,7 @@ export function ThumbnailRail({
 
   return (
     <div
-      className="absolute inset-x-0 bottom-0 z-10 flex gap-2 overflow-x-auto px-4 py-3"
+      className="sc-thumbnails absolute inset-x-0 bottom-0 z-10 flex gap-2 overflow-x-auto px-4 py-3"
       style={{ background: 'linear-gradient(to top, rgba(0,0,0,0.6), transparent)' }}
     >
       {pages.map((page, i) => (
@@ -52,7 +52,7 @@ export function ThumbnailRail({
           }}
           aria-label={`Go to page ${i + 1}`}
           aria-current={i === current ? 'true' : undefined}
-          className="relative shrink-0 cursor-pointer overflow-hidden rounded-md border-2 focus:outline-none focus-visible:ring-2 focus-visible:ring-white/70"
+          className={`sc-thumbnail relative shrink-0 cursor-pointer overflow-hidden rounded-md border-2 focus:outline-none focus-visible:ring-2 focus-visible:ring-white/70${i === current ? ' sc-thumbnail-active' : ''}`}
           style={{
             width: THUMB_W,
             height: THUMB_W * (PREVIEW_H / PREVIEW_W),

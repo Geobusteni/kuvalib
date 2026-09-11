@@ -54,7 +54,7 @@ export function ViewerControls({
 }) {
   return (
     <div
-      className="pointer-events-auto absolute right-2 top-2 z-10 flex items-center gap-0.5 rounded-full bg-black/40 p-1 backdrop-blur-sm transition-opacity duration-300 sm:right-3 sm:top-3"
+      className="sc-controls pointer-events-auto absolute right-2 top-2 z-10 flex items-center gap-0.5 rounded-full bg-black/40 p-1 backdrop-blur-sm transition-opacity duration-300 sm:right-3 sm:top-3"
       style={{ opacity: visible ? 1 : 0 }}
     >
       {backHref && (

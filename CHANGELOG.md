@@ -10,6 +10,46 @@ adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html). While the
 
 ## [Unreleased]
 
+## [1.7.0] - 2026-09-11
+
+### Added
+
+- **A Blocks list in the showcase builder** — a flat, click-to-select list of
+  the current page's blocks, ordered to match the stacking order (first row
+  furthest back, last row frontmost), with a group's children indented
+  beneath it.
+- **A "Copy link" button in the builder's toolbar**, next to Album settings,
+  to copy the showcase's public link without leaving the builder.
+- **A Reset link on the Background and Text colour swatch pickers**, next to
+  Album settings' existing Page dots reset, to clear a custom colour back to
+  the default in one click.
+- **A CSS class reference in Album settings' Custom CSS section**, behind an
+  info-icon toggle — lists the stable class names the public viewer renders
+  (`.sc-viewer`, `.sc-stage`, `.sc-page`, `.sc-block` and its per-type
+  variants, `.sc-controls`, `.sc-dots`, `.sc-thumbnails`) so Custom CSS has
+  something to target.
+
+### Changed
+
+- **Ken Burns is now an Image block setting, not a page setting.** Animating
+  the whole page moved text and other blocks along with the background
+  photo, which looked broken rather than cinematic. Set per image block;
+  only the photo pans/zooms, its border and corners stay put.
+- **Colour swatches now preview the colour they'd actually apply** — the
+  "custom" and "gradient" options show the block's own configured colour
+  instead of a generic placeholder.
+
+### Fixed
+
+- **The showcase viewer's page no longer stops short of the full browser
+  width.** It previously kept a fixed 16:10 aspect ratio capped to the
+  viewport height, which left empty space on the sides on most widescreen
+  monitors — a full-bleed Image block now genuinely covers the whole window.
+- **Colour swatches in the builder's settings panel could render invisible**
+  for any colour derived from the album's theme (surface, deep, accent
+  tint/solid, muted text) — the CSS variables they referenced weren't in
+  scope outside the canvas. They're scoped correctly now.
+
 ## [1.6.0] - 2026-09-11
 
 ### Added

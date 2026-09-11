@@ -179,7 +179,7 @@ export function ShowcaseViewer({
   return (
     <div
       ref={stageRef}
-      className="relative flex min-h-screen w-full flex-col items-center justify-center overflow-hidden bg-black"
+      className="sc-viewer relative min-h-screen w-full overflow-hidden bg-black"
       style={{
         ...showcaseThemeVars(settings.eventType, settings.albumBg),
         backgroundImage:
@@ -222,7 +222,7 @@ export function ShowcaseViewer({
         />
       )}
 
-      <div className="relative w-full px-2 sm:px-4" onClick={(e) => e.stopPropagation()}>
+      <div className="absolute inset-0" onClick={(e) => e.stopPropagation()}>
         {page && (
           <PageStage
             pageId={page.id}

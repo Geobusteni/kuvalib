@@ -102,9 +102,30 @@ function Segmented<T extends string>({
 const inputClass =
   'h-8 rounded-lg border border-zinc-300 bg-white px-2 text-sm text-zinc-900 focus:border-zinc-500 focus:outline-none dark:border-zinc-700 dark:bg-zinc-900 dark:text-zinc-100'
 
-function bgSwatchStyle(key: BlockBg): React.CSSProperties {
-  if (key === 'custom' || key === 'gradient') {
-    return { background: 'conic-gradient(red,yellow,lime,cyan,blue,magenta,red)' }
+/** Mirrors bgSwatchStyle for the text-colour swatches — 'custom' previews the
+ *  block's own textColorCustom instead of a generic placeholder. */
+function textSwatchStyle(key: BlockTextColor, custom: string | undefined): React.CSSProperties {
+  if (key === 'custom') return { background: custom || '#e9e9ed' }
+  if (key === 'accent') return { background: 'var(--sc-accent)' }
+  if (key === 'muted') return { background: 'var(--sc-text-muted)' }
+  return { background: '#e9e9ed' }
+}
+
+/** A swatch button shows the actual colour that option currently holds — the
+ *  custom/gradient slots reflect this value's own bgCustom/bgGradient* fields
+ *  rather than a generic placeholder, so the swatch always previews what
+ *  picking it would look like. */
+function bgSwatchStyle(
+  key: BlockBg,
+  value: { bgCustom?: string; bgGradientFrom?: string; bgGradientTo?: string; bgGradientAngle?: number },
+): React.CSSProperties {
+  if (key === 'custom') {
+    return { background: value.bgCustom || '#1a1a1a' }
+  }
+  if (key === 'gradient') {
+    return {
+      background: `linear-gradient(${value.bgGradientAngle ?? 135}deg, ${value.bgGradientFrom || '#000000'}, ${value.bgGradientTo || '#ffffff'})`,
+    }
   }
   if (key === 'none') {
     return { background: 'repeating-linear-gradient(45deg,#eee,#eee 4px,#fff 4px,#fff 8px)' }
@@ -126,20 +147,31 @@ function BackgroundField<T extends { bg: BlockBg; bgCustom?: string; bgCustomAlp
   return (
     <>
       <Field label="Background">
-        <div className="flex flex-wrap gap-1.5">
-          {swatches.map((key) => (
+        <div className="flex items-center justify-between gap-2">
+          <div className="flex flex-wrap gap-1.5">
+            {swatches.map((key) => (
+              <button
+                key={key}
+                type="button"
+                title={key}
+                onClick={() => onChange({ bg: key } as Partial<T>)}
+                className="h-6 w-6 rounded-full border-2"
+                style={{
+                  borderColor: (value.bg ?? 'none') === key ? 'var(--sc-accent, #6366f1)' : 'transparent',
+                  ...bgSwatchStyle(key, value),
+                }}
+              />
+            ))}
+          </div>
+          {value.bg !== 'none' && (
             <button
-              key={key}
               type="button"
-              title={key}
-              onClick={() => onChange({ bg: key } as Partial<T>)}
-              className="h-6 w-6 rounded-full border-2"
-              style={{
-                borderColor: (value.bg ?? 'none') === key ? 'var(--sc-accent, #6366f1)' : 'transparent',
-                ...bgSwatchStyle(key),
-              }}
-            />
-          ))}
+              onClick={() => onChange({ bg: 'none' } as Partial<T>)}
+              className="shrink-0 text-[11px] text-zinc-400 underline"
+            >
+              Reset
+            </button>
+          )}
         </div>
       </Field>
       {value.bg === 'custom' && (
@@ -587,27 +619,31 @@ export function SettingsPanel() {
 
           {showTextColor && (
             <Field label="Text colour">
-              <div className="flex flex-wrap gap-1.5">
-                {TEXT_SWATCHES.map((key) => (
+              <div className="flex items-center justify-between gap-2">
+                <div className="flex flex-wrap gap-1.5">
+                  {TEXT_SWATCHES.map((key) => (
+                    <button
+                      key={key}
+                      type="button"
+                      title={key}
+                      onClick={() => update({ textColor: key })}
+                      className="h-6 w-6 rounded-full border-2"
+                      style={{
+                        borderColor: (block.textColor ?? 'default') === key ? 'var(--sc-accent, #6366f1)' : 'transparent',
+                        ...textSwatchStyle(key, block.textColorCustom),
+                      }}
+                    />
+                  ))}
+                </div>
+                {(block.textColor ?? 'default') !== 'default' && (
                   <button
-                    key={key}
                     type="button"
-                    title={key}
-                    onClick={() => update({ textColor: key })}
-                    className="h-6 w-6 rounded-full border-2"
-                    style={{
-                      borderColor: (block.textColor ?? 'default') === key ? 'var(--sc-accent, #6366f1)' : 'transparent',
-                      background:
-                        key === 'custom'
-                          ? 'conic-gradient(red,yellow,lime,cyan,blue,magenta,red)'
-                          : key === 'accent'
-                            ? 'var(--sc-accent)'
-                            : key === 'muted'
-                              ? 'var(--sc-text-muted)'
-                              : '#e9e9ed',
-                    }}
-                  />
-                ))}
+                    onClick={() => update({ textColor: 'default' })}
+                    className="shrink-0 text-[11px] text-zinc-400 underline"
+                  >
+                    Reset
+                  </button>
+                )}
               </div>
             </Field>
           )}
@@ -640,27 +676,31 @@ export function SettingsPanel() {
           <div className="h-px bg-zinc-200 dark:bg-zinc-800" />
           <span className="text-xs font-semibold uppercase tracking-wide text-zinc-500">Text colour</span>
           <p className="text-[11px] text-zinc-400">Headline text is always solid — no transparency.</p>
-          <div className="flex flex-wrap gap-1.5">
-            {TEXT_SWATCHES.map((key) => (
+          <div className="flex items-center justify-between gap-2">
+            <div className="flex flex-wrap gap-1.5">
+              {TEXT_SWATCHES.map((key) => (
+                <button
+                  key={key}
+                  type="button"
+                  title={key}
+                  onClick={() => update({ textColor: key })}
+                  className="h-6 w-6 rounded-full border-2"
+                  style={{
+                    borderColor: (block.textColor ?? 'default') === key ? 'var(--sc-accent, #6366f1)' : 'transparent',
+                    ...textSwatchStyle(key, block.textColorCustom),
+                  }}
+                />
+              ))}
+            </div>
+            {(block.textColor ?? 'default') !== 'default' && (
               <button
-                key={key}
                 type="button"
-                title={key}
-                onClick={() => update({ textColor: key })}
-                className="h-6 w-6 rounded-full border-2"
-                style={{
-                  borderColor: (block.textColor ?? 'default') === key ? 'var(--sc-accent, #6366f1)' : 'transparent',
-                  background:
-                    key === 'custom'
-                      ? 'conic-gradient(red,yellow,lime,cyan,blue,magenta,red)'
-                      : key === 'accent'
-                        ? 'var(--sc-accent)'
-                        : key === 'muted'
-                          ? 'var(--sc-text-muted)'
-                          : '#e9e9ed',
-                }}
-              />
-            ))}
+                onClick={() => update({ textColor: 'default' })}
+                className="shrink-0 text-[11px] text-zinc-400 underline"
+              >
+                Reset
+              </button>
+            )}
           </div>
           {block.textColor === 'custom' && (
             <input

@@ -40,6 +40,7 @@ export function BlockRenderer({
         return (
           <div
             key={block.id}
+            className={`sc-block sc-block-${block.type}`}
             style={{
               position: 'absolute',
               left: `${block.x}%`,

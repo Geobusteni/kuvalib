@@ -26,6 +26,19 @@ const SECONDS = [3, 5, 8]
 const HEADING_LEVELS: HeadingLevel[] = [1, 2, 3, 4, 5, 6]
 const TEXT_SIZE_PRESETS: TextSizePreset[] = ['small', 'normal', 'medium', 'large', 'huge']
 
+/** The stable class names the public viewer renders (components/showcase/viewer/*),
+ *  for admins writing Custom CSS. Keep in sync with where each is applied. */
+const CSS_CLASS_LEGEND: { selector: string; description: string }[] = [
+  { selector: '.sc-viewer', description: "The whole viewer — full-bleed background behind everything." },
+  { selector: '.sc-stage', description: 'Positioning wrapper around the current page (holds the 3D perspective for the Turn transition).' },
+  { selector: '.sc-page', description: 'The page itself — background, border, and where the page transition animates.' },
+  { selector: '.sc-block', description: 'Every block’s wrapper. Combine with a type below to target just one kind.' },
+  { selector: '.sc-block-image / -title / -text / -button / -group', description: 'One block type’s wrapper.' },
+  { selector: '.sc-controls', description: 'The floating top-right controls pill.' },
+  { selector: '.sc-dots', description: 'The left-side page-dot column. `.sc-dot` is one dot, `.sc-dot-active` the current page’s.' },
+  { selector: '.sc-thumbnails', description: 'The bottom thumbnail strip. `.sc-thumbnail` is one preview, `.sc-thumbnail-active` the current page’s.' },
+]
+
 const fieldLabel = 'text-xs font-medium text-zinc-500'
 const input =
   'h-9 w-full rounded-lg border border-zinc-300 bg-white px-2 text-sm dark:border-zinc-700 dark:bg-zinc-900'
@@ -43,6 +56,7 @@ export function AlbumSettingsDialog({ onClose }: { onClose: () => void }) {
   const [saving, setSaving] = useState(false)
   const [trackBusy, setTrackBusy] = useState(false)
   const [trackError, setTrackError] = useState<string | null>(null)
+  const [legendOpen, setLegendOpen] = useState(false)
   const fileRef = useRef<HTMLInputElement>(null)
 
   useEffect(() => {
@@ -342,8 +356,37 @@ export function AlbumSettingsDialog({ onClose }: { onClose: () => void }) {
         </p>
 
         <div className="h-px bg-zinc-200 dark:bg-zinc-800" />
-        <span className="text-xs font-semibold uppercase tracking-wide text-zinc-500">Custom CSS</span>
+        <div className="flex items-center gap-1.5">
+          <span className="text-xs font-semibold uppercase tracking-wide text-zinc-500">Custom CSS</span>
+          <button
+            type="button"
+            onClick={() => setLegendOpen((v) => !v)}
+            aria-expanded={legendOpen}
+            aria-controls="sc-css-legend"
+            aria-label={legendOpen ? 'Hide the CSS class reference' : 'Show the CSS class reference'}
+            className="flex h-5 w-5 items-center justify-center rounded-full text-zinc-400 hover:bg-zinc-100 hover:text-zinc-700 dark:hover:bg-zinc-800 dark:hover:text-zinc-200"
+          >
+            <svg width="14" height="14" viewBox="0 0 20 20" fill="none" stroke="currentColor" strokeWidth="1.6">
+              <circle cx="10" cy="10" r="7.5" />
+              <path d="M10 9v5" strokeLinecap="round" />
+              <circle cx="10" cy="6.5" r="0.75" fill="currentColor" stroke="none" />
+            </svg>
+          </button>
+        </div>
         <p className="text-[11px] text-zinc-400">Applied only inside this showcase&rsquo;s public viewer.</p>
+        {legendOpen && (
+          <div id="sc-css-legend" className="flex flex-col gap-2 rounded-lg border border-zinc-200 bg-zinc-50 p-2.5 dark:border-zinc-800 dark:bg-zinc-950">
+            <p className="text-[11px] text-zinc-500">The classes available to target in the public viewer:</p>
+            <dl className="flex flex-col gap-1.5">
+              {CSS_CLASS_LEGEND.map((row) => (
+                <div key={row.selector} className="flex flex-col gap-0.5">
+                  <dt className="font-mono text-[11px] text-zinc-700 dark:text-zinc-300">{row.selector}</dt>
+                  <dd className="text-[11px] text-zinc-500">{row.description}</dd>
+                </div>
+              ))}
+            </dl>
+          </div>
+        )}
         <textarea
           className="min-h-24 rounded-lg border border-zinc-300 bg-white p-2 font-mono text-xs dark:border-zinc-700 dark:bg-zinc-900"
           spellCheck={false}

@@ -68,15 +68,19 @@ export function PageStage({
   textSizes?: Partial<Record<TextSizePreset, number>>
 }) {
   return (
-    <div style={{ position: 'relative', width: 'min(100%, calc(100vh * 1.6))', aspectRatio: '16 / 10', perspective: 2000 }}>
+    // Edge-to-edge: the page fills 100% of the viewer, not a fixed-aspect
+    // letterboxed card — a full-bleed Image block then genuinely covers the
+    // whole browser window instead of whatever the 16:10 ratio left over.
+    // `perspective` has to live on this outer, untransformed wrapper — it has
+    // no effect set on the same element that's being transformed below.
+    <div className="sc-stage" style={{ position: 'absolute', inset: 0, perspective: 2000 }}>
       <div
+        className="sc-page"
         style={{
           position: 'absolute',
           inset: 0,
           background: settings.bg === 'none' ? 'var(--sc-album-bg)' : blockBackgroundCss(settings),
           border: blockBorderCss(settings),
-          borderRadius: '0.75rem',
-          boxShadow: '0 24px 60px -12px rgba(0,0,0,0.5)',
           // Always clipped — a slide's content never spills past its own frame.
           overflow: 'hidden',
           boxSizing: 'border-box',

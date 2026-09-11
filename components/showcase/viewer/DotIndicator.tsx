@@ -20,7 +20,7 @@ export function DotIndicator({
   inactiveColor: string
 }) {
   return (
-    <div className="pointer-events-auto absolute left-1 top-1/2 z-10 flex -translate-y-1/2 flex-col sm:left-2">
+    <div className="sc-dots pointer-events-auto absolute left-1 top-1/2 z-10 flex -translate-y-1/2 flex-col sm:left-2">
       {Array.from({ length: total }, (_, i) => {
         const active = i === current
         return (
@@ -33,7 +33,7 @@ export function DotIndicator({
             className="flex h-11 w-11 items-center justify-center focus:outline-none focus-visible:ring-2 focus-visible:ring-white/70"
           >
             <span
-              className="block rounded-full transition-all duration-200"
+              className={`sc-dot block rounded-full transition-all duration-200${active ? ' sc-dot-active' : ''}`}
               style={{
                 width: active ? 10 : 7,
                 height: active ? 10 : 7,

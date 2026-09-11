@@ -259,6 +259,24 @@ gone; `.rollback/` holds the one that's running.
 
 The passwordless sudoers rule is missing — re-run `./scripts/install-service.sh`.
 
+**`update-from-github.sh` prints "Process manager: manual" even though the
+service is installed and running**
+
+Fixed in 1.5.3 — the detection now queries `systemctl` about that one unit
+directly instead of parsing `list-unit-files`. Pull the latest build and
+redeploy. Before that fix this made the script `pkill` the systemd-managed
+process and start a second, unmanaged one — systemd's `Restart=always` then
+raced it for port 3000, so two processes could briefly serve from an
+inconsistent build (missing/500ing `_next/static` assets). If you hit this:
+
+```bash
+ps aux | grep "node server.js" | grep -v grep   # more than one? stop both
+sudo systemctl stop kuvalib
+pkill -TERM -f "node server.js"
+sudo systemctl start kuvalib
+curl -sI http://127.0.0.1:3000/_next/static/chunks/<a-hash-from-the-page>.js
+```
+
 **502 Bad Gateway**
 
 ```bash

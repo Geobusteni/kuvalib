@@ -178,9 +178,15 @@ echo "✅ Staged build validated."
 # Process-manager helpers
 # ---------------------------------------------------------------------------
 detect_runner() {
-  if command -v systemctl >/dev/null && systemctl list-unit-files 2>/dev/null | grep -q '^kuvalib\.service'; then
+  # `systemctl show -p LoadState --value` asks about exactly this one unit and
+  # doesn't depend on parsing `list-unit-files`'s table (which, depending on
+  # the systemd version/policy, can come back empty or reformatted for a
+  # non-root caller even though the unit is installed and running — which is
+  # exactly what made this "manual" on a box where kuvalib.service was up).
+  if command -v systemctl >/dev/null 2>&1 \
+     && [ "$(systemctl show -p LoadState --value kuvalib.service 2>/dev/null)" = "loaded" ]; then
     echo systemd
-  elif command -v pm2 >/dev/null && pm2 describe kuvalib >/dev/null 2>&1; then
+  elif command -v pm2 >/dev/null 2>&1 && pm2 describe kuvalib >/dev/null 2>&1; then
     echo pm2
   else
     echo manual

@@ -13,7 +13,8 @@ cd "$(dirname "$0")/.." || exit 1
 
 PORT="${PORT:-3000}"
 
-if command -v systemctl >/dev/null && systemctl list-unit-files 2>/dev/null | grep -q '^kuvalib\.service'; then
+if command -v systemctl >/dev/null 2>&1 \
+   && [ "$(systemctl show -p LoadState --value kuvalib.service 2>/dev/null)" = "loaded" ]; then
   echo "🔄 Restarting kuvalib.service…"
   sudo systemctl restart kuvalib
   sleep 2

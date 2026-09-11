@@ -10,6 +10,27 @@ adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html). While the
 
 ## [Unreleased]
 
+## [1.5.3] - 2026-09-11
+
+### Fixed
+
+- **`scripts/kuvalib.service`: `StartLimitIntervalSec` was in the wrong
+  section.** It was under `[Service]`, where systemd silently ignores it
+  (`Unknown key name 'StartLimitIntervalSec' in section 'Service'` in
+  `journalctl`) — so the "never give up restarting" protection was never
+  actually active. It's under `[Unit]` now, where it belongs. **Action:**
+  re-run `./scripts/install-service.sh` to reinstall the corrected unit.
+- **`update-from-github.sh` (and `restart-app.sh`) could fail to detect an
+  installed, running systemd service** and fall back to treating the app as
+  unmanaged ("manual"). On at least one box this made the update script
+  `pkill` the systemd-managed process directly instead of using
+  `systemctl stop` — systemd's `Restart=always` then raced the script's own
+  manual restart to rebind the port, leaving two Node processes contending for
+  it mid-deploy and serving from an inconsistent build. Detection now asks
+  systemd about that one unit directly (`systemctl show -p LoadState --value
+  kuvalib.service`) instead of grepping `list-unit-files`'s table, which is
+  the more reliable check.
+
 ## [1.5.2] - 2026-09-10
 
 ### Fixed

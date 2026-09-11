@@ -12,6 +12,10 @@ Description=Kuvalib Photography Delivery Application
 Documentation=https://github.com/Geobusteni/kuvalib
 After=network-online.target mariadb.service mysql.service
 Wants=network-online.target
+# Disables the "start-limit hit, giving up" state — belongs in [Unit], not
+# [Service] (systemd silently ignores it there). Paired with Restart=always
+# below so the service is never left dead by a burst of fast restarts.
+StartLimitIntervalSec=0
 
 [Service]
 Type=simple
@@ -30,11 +34,9 @@ Environment=HOSTNAME=127.0.0.1
 ExecStart=__NODE_BIN__ server.js
 
 # Restart on *any* exit — crash, OOM kill, unhandled rejection, manual kill,
-# `systemctl kill`. StartLimitIntervalSec=0 disables the "start-limit hit,
-# giving up" state, so the service is never left dead by a burst of restarts.
+# `systemctl kill`.
 Restart=always
 RestartSec=3
-StartLimitIntervalSec=0
 
 # update-from-github.sh sends SIGTERM and waits for a clean exit before swapping
 # in the new build. Give in-flight downloads/uploads time to finish.

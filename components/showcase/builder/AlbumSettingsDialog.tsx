@@ -317,43 +317,55 @@ export function AlbumSettingsDialog({ onClose }: { onClose: () => void }) {
 
         <div className="h-px bg-zinc-200 dark:bg-zinc-800" />
         <span className="text-xs font-semibold uppercase tracking-wide text-zinc-500">Page dots</span>
-        <div className="flex gap-3">
-          <label className="flex flex-1 flex-col gap-1 text-xs font-medium text-zinc-500">
-            Active
-            <div className="flex gap-1.5">
-              <input
-                type="color"
-                value={settings.dotColorActive ?? '#6366f1'}
-                onChange={(e) => patch({ dotColorActive: e.target.value })}
-                className="h-8 w-full cursor-pointer rounded"
-              />
-              {settings.dotColorActive && (
-                <button type="button" onClick={() => patch({ dotColorActive: null })} className="shrink-0 text-[11px] text-zinc-400 underline">
-                  Reset
-                </button>
-              )}
+        <label className="flex items-center gap-2 text-sm">
+          <input
+            type="checkbox"
+            checked={settings.dotsEnabled}
+            onChange={(e) => patch({ dotsEnabled: e.target.checked })}
+          />
+          Show the page-position dots (top left) in the viewer
+        </label>
+        {settings.dotsEnabled && (
+          <>
+            <div className="flex gap-3">
+              <label className="flex flex-1 flex-col gap-1 text-xs font-medium text-zinc-500">
+                Active
+                <div className="flex gap-1.5">
+                  <input
+                    type="color"
+                    value={settings.dotColorActive ?? '#6366f1'}
+                    onChange={(e) => patch({ dotColorActive: e.target.value })}
+                    className="h-8 w-full cursor-pointer rounded"
+                  />
+                  {settings.dotColorActive && (
+                    <button type="button" onClick={() => patch({ dotColorActive: null })} className="shrink-0 text-[11px] text-zinc-400 underline">
+                      Reset
+                    </button>
+                  )}
+                </div>
+              </label>
+              <label className="flex flex-1 flex-col gap-1 text-xs font-medium text-zinc-500">
+                Inactive
+                <div className="flex gap-1.5">
+                  <input
+                    type="color"
+                    value={settings.dotColorInactive ?? '#ffffff'}
+                    onChange={(e) => patch({ dotColorInactive: e.target.value })}
+                    className="h-8 w-full cursor-pointer rounded"
+                  />
+                  {settings.dotColorInactive && (
+                    <button type="button" onClick={() => patch({ dotColorInactive: null })} className="shrink-0 text-[11px] text-zinc-400 underline">
+                      Reset
+                    </button>
+                  )}
+                </div>
+              </label>
             </div>
-          </label>
-          <label className="flex flex-1 flex-col gap-1 text-xs font-medium text-zinc-500">
-            Inactive
-            <div className="flex gap-1.5">
-              <input
-                type="color"
-                value={settings.dotColorInactive ?? '#ffffff'}
-                onChange={(e) => patch({ dotColorInactive: e.target.value })}
-                className="h-8 w-full cursor-pointer rounded"
-              />
-              {settings.dotColorInactive && (
-                <button type="button" onClick={() => patch({ dotColorInactive: null })} className="shrink-0 text-[11px] text-zinc-400 underline">
-                  Reset
-                </button>
-              )}
-            </div>
-          </label>
-        </div>
-        <p className="text-[11px] text-zinc-400">
-          Blank uses the event colour for the active dot and a translucent white for the rest.
-        </p>
+            <p className="text-[11px] text-zinc-400">
+              Blank uses the event colour for the active dot and a translucent white for the rest.
+            </p>
+          </>
+        )}
 
         <div className="h-px bg-zinc-200 dark:bg-zinc-800" />
         <div className="flex items-center gap-1.5">

@@ -38,6 +38,7 @@ export interface ShowcaseViewerSettings {
   playlistLoop: boolean
   headingSizes: Partial<Record<HeadingLevel, number>>
   textSizes: Partial<Record<TextSizePreset, number>>
+  dotsEnabled: boolean
   dotColorActive: string | null
   dotColorInactive: string | null
   customCss: string
@@ -212,7 +213,7 @@ export function ShowcaseViewer({
         visible={controlsVisible}
       />
 
-      {total > 1 && (
+      {settings.dotsEnabled && total > 1 && (
         <DotIndicator
           total={total}
           current={current}

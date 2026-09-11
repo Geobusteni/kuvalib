@@ -136,6 +136,7 @@ model Showcase {
 
   /// Viewer page-dot indicator. Null falls back to the accent / a translucent
   /// white — see DEFAULT_DOT_COLORS in showcase-theme.ts.
+  dotsEnabled      Boolean @default(true)
   dotColorActive   String?
   dotColorInactive String?
 

@@ -213,6 +213,7 @@ erDiagram
         boolean playlistLoop
         json headingSizes "H1-H6 default px sizes"
         json textSizes "small..huge default px sizes"
+        boolean dotsEnabled "default true"
         string dotColorActive "null = event accent"
         string dotColorInactive "null = translucent white"
         string customCss "admin-authored, injected verbatim in the viewer"
@@ -631,3 +632,4 @@ On the server:
 | Custom CSS textarea has no sanitisation beyond a 20,000-character cap | It is admin-only input rendered on the admin's own public showcase page — the same trust boundary as every other builder field (block text, colours, links). Not attacker-facing the way client-submitted content is |
 | `BlockTree` reads the same Craft ROOT node order the canvas paints from, rather than keeping its own ordering | Guarantees the list can never disagree with actual stacking order — "first row is furthest back" falls out of the existing `moveWithinBand`/paint-order contract for free, instead of needing a second source of truth to keep in sync |
 | The viewer's rendered DOM carries a small set of stable class names (`sc-viewer`, `sc-stage`, `sc-page`, `sc-block`(-type), `sc-controls`, `sc-dots`(-active), `sc-thumbnails`(-active)) | Custom CSS had nothing to select — every element was unstyled-by-class, inline-style-only. These are a deliberate, documented public contract (surfaced in Album settings' Custom CSS info panel) and must not be renamed or removed without updating that reference text alongside it |
+| Page-dot indicator moved to top-left (was vertically centred left) and gained a `Showcase.dotsEnabled` toggle | Centred-left visually collided with mid-page content on shorter pages; top-left keeps it clear of everything and mirrors `ViewerControls`' top-right placement. Some albums don't want a page-position indicator at all (e.g. a single continuous story rather than discrete "pages"), hence the toggle — defaults to `true` so existing showcases are unaffected |

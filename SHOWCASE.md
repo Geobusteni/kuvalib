@@ -147,7 +147,7 @@ The **Album settings** dialog (button in the top bar):
 | **Autoplay** + **seconds per page** | Advance automatically and loop. |
 | **Heading sizes** | The default pixel size for each Headline level, H1–H6. A block can still override it with a custom size. |
 | **Text sizes** | The default pixel size for each Text preset (small / normal / medium / large / huge). A block can still override it. |
-| **Page dots** | Active and inactive colours for the page-position dots in the viewer. Leave blank to use the event colour / a translucent white. |
+| **Page dots** | A checkbox to show or hide the page-position dots (top left of the viewer) entirely, plus active/inactive colours when shown. Leave the colours blank to use the event colour / a translucent white. |
 | **Custom CSS** | A free-form stylesheet injected into the public viewer, for tweaks the settings panel doesn't cover. Admin-authored — treat it like any other content you control. The info icon next to the heading opens a reference of the stable class names available to target (`.sc-viewer`, `.sc-stage`, `.sc-page`, `.sc-block` and its per-type variants, `.sc-controls`, `.sc-dots`, `.sc-thumbnails`). |
 | **Music playlist** | See below. |
 
@@ -209,10 +209,10 @@ full-width bar:
 - **Copy link**
 - **Download** — the showcase's photos as a ZIP of originals (when downloads are enabled)
 
-A column of **dots** on the left edge shows the page position — the current page's dot is
-larger; click any dot to jump to that page. Colours come from the Album settings' **Page dots**
-setting. A screen-reader-only "Page N of Total" announcement keeps the page count accessible
-without a visible numeric counter.
+A column of **dots** in the top-left corner shows the page position — the current page's dot is
+larger; click any dot to jump to that page. Shown or hidden, and coloured, by the Album settings'
+**Page dots** setting. A screen-reader-only "Page N of Total" announcement keeps the page count
+accessible regardless of whether the dots are shown.
 
 **Arrows** on the sides move between pages. In fullscreen the controls hide after a few seconds
 and return when the visitor moves the mouse or presses a key.

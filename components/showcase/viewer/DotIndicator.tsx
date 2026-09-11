@@ -3,9 +3,9 @@
 
 'use client'
 
-/** Left-side page indicator — replaces a numeric "1 / 3" counter with dots the
+/** Top-left page indicator — replaces a numeric "1 / 3" counter with dots the
  *  album can colour to match the event. Each dot is a full 44×44 touch target
- *  around a small visual mark. */
+ *  around a small visual mark. Optional: Album settings can hide it entirely. */
 export function DotIndicator({
   total,
   current,
@@ -20,7 +20,7 @@ export function DotIndicator({
   inactiveColor: string
 }) {
   return (
-    <div className="sc-dots pointer-events-auto absolute left-1 top-1/2 z-10 flex -translate-y-1/2 flex-col sm:left-2">
+    <div className="sc-dots pointer-events-auto absolute left-1 top-2 z-10 flex flex-col sm:left-2 sm:top-3">
       {Array.from({ length: total }, (_, i) => {
         const active = i === current
         return (

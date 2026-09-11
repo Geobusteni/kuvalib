@@ -10,6 +10,19 @@ adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html). While the
 
 ## [Unreleased]
 
+## [1.7.1] - 2026-09-11
+
+### Changed
+
+- **The page-position dots moved from centre-left to top-left** of the
+  showcase viewer.
+
+### Added
+
+- **A show/hide toggle for the page-position dots**, in Album settings'
+  Page dots section — on by default (unchanged behaviour), so existing
+  showcases keep their dots until you turn them off.
+
 ## [1.7.0] - 2026-09-11
 
 ### Added

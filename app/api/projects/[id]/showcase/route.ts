@@ -68,6 +68,7 @@ export async function PUT(request: NextRequest, ctx: Ctx) {
   }
   if ('headingSizes' in body) data.headingSizes = sanitizeHeadingSizes(body.headingSizes)
   if ('textSizes' in body) data.textSizes = sanitizeTextSizes(body.textSizes)
+  if (typeof body.dotsEnabled === 'boolean') data.dotsEnabled = body.dotsEnabled
   if ('dotColorActive' in body) data.dotColorActive = hexColor(body.dotColorActive) ?? null
   if ('dotColorInactive' in body) data.dotColorInactive = hexColor(body.dotColorInactive) ?? null
   if ('customCss' in body) {

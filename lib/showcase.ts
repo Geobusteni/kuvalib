@@ -28,6 +28,7 @@ export interface ShowcaseSettingsData {
   playlistLoop?: boolean
   headingSizes?: Partial<Record<HeadingLevel, number>>
   textSizes?: Partial<Record<TextSizePreset, number>>
+  dotsEnabled?: boolean
   dotColorActive?: string | null
   dotColorInactive?: string | null
   customCss?: string | null

@@ -123,7 +123,7 @@ model Showcase {
   albumBg        ShowcaseBg        @default(NEUTRAL)
   animationStyle ShowcaseAnimation @default(TURN)
 
-  autoplay        Boolean @default(false)
+  autoplay        Boolean @default(true)
   autoplaySeconds Int     @default(5)
   playlistLoop    Boolean @default(true)
 
@@ -133,6 +133,12 @@ model Showcase {
   /// Default px size per Text block preset (small/normal/medium/large/huge),
   /// overridable per block. See TEXT_SIZE_DEFAULTS in showcase-blocks.ts.
   textSizes Json?
+
+  /// The admin's own palette — an array of hex strings offered as quick-pick
+  /// swatches everywhere a custom colour is chosen in the builder. Null falls
+  /// back to DEFAULT_COLOR_PRESETS in showcase-blocks.ts. Builder-only: never
+  /// read by the public viewer.
+  colorPresets Json?
 
   /// Viewer page-dot indicator. Null falls back to the accent / a translucent
   /// white — see DEFAULT_DOT_COLORS in showcase-theme.ts.
@@ -153,9 +159,9 @@ model Showcase {
 }
 
 /// One slide. The block tree is a single JSON blob (see ShowcasePage.blocksJson
-/// doc below) but the slide's own appearance — background, border, Ken Burns —
-/// is real columns: unlike a block tree there is exactly one of each per page,
-/// so there is nothing to gain from JSON here (see AGENTS.md: model growth as
+/// doc below) but the slide's own appearance — background, border — is real
+/// columns: unlike a block tree there is exactly one of each per page, so
+/// there is nothing to gain from JSON here (see AGENTS.md: model growth as
 /// columns/relations, not denormalised JSON).
 model ShowcasePage {
   id         String   @id @default(cuid())

@@ -5,7 +5,10 @@
 
 /** Top-left page indicator — replaces a numeric "1 / 3" counter with dots the
  *  album can colour to match the event. Each dot is a full 44×44 touch target
- *  around a small visual mark. Optional: Album settings can hide it entirely. */
+ *  around a small visual mark, laid out in a horizontal row with a fixed gap
+ *  (not `justify-between`, which would stretch to fill the row and read as
+ *  misaligned with the controls pill above). Optional: Album settings can
+ *  hide it entirely. */
 export function DotIndicator({
   total,
   current,
@@ -20,7 +23,7 @@ export function DotIndicator({
   inactiveColor: string
 }) {
   return (
-    <div className="sc-dots pointer-events-auto absolute left-1 top-2 z-10 flex flex-col sm:left-2 sm:top-3">
+    <div className="sc-dots pointer-events-auto absolute left-1 top-2 z-10 flex flex-row items-center gap-0.5 sm:left-2 sm:top-3">
       {Array.from({ length: total }, (_, i) => {
         const active = i === current
         return (

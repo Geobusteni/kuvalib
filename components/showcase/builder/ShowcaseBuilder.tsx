@@ -94,6 +94,7 @@ function BuilderShell({
   const { save, getDeck } = useBuilder()
   const [settingsOpen, setSettingsOpen] = useState(false)
   const [linkCopied, setLinkCopied] = useState(false)
+  const [blocksOpen, setBlocksOpen] = useState(true)
 
   const copyLink = () => {
     const absolute = typeof window !== 'undefined' ? new URL(shareUrl, window.location.origin).href : shareUrl
@@ -167,13 +168,30 @@ function BuilderShell({
         >
           <PageRail />
           <div className="flex flex-col gap-3">
-            <AddBlockMenu />
+            <div className="flex items-center gap-2">
+              <AddBlockMenu />
+              <button
+                type="button"
+                onClick={() => setBlocksOpen((v) => !v)}
+                aria-pressed={blocksOpen}
+                aria-controls="sc-block-tree"
+                className={`h-9 rounded-lg border px-3 text-sm font-medium focus:outline-none focus-visible:ring-2 focus-visible:ring-zinc-500 ${
+                  blocksOpen
+                    ? 'border-zinc-900 bg-zinc-900 text-white dark:border-zinc-100 dark:bg-zinc-100 dark:text-zinc-900'
+                    : 'border-zinc-300 hover:bg-zinc-100 dark:border-zinc-700 dark:hover:bg-zinc-800'
+                }`}
+              >
+                Blocks
+              </button>
+            </div>
             <Canvas />
           </div>
           <div className="flex flex-col gap-3">
-            <div className="max-h-56 overflow-y-auto rounded-xl border border-zinc-200 p-3 dark:border-zinc-800">
-              <BlockTree />
-            </div>
+            {blocksOpen && (
+              <div id="sc-block-tree" className="max-h-56 overflow-y-auto rounded-xl border border-zinc-200 p-3 dark:border-zinc-800">
+                <BlockTree />
+              </div>
+            )}
             <div className="rounded-xl border border-zinc-200 p-3 dark:border-zinc-800">
               <SettingsPanel />
             </div>

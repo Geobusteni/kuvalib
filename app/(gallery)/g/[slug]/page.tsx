@@ -42,6 +42,12 @@ export default async function GalleryPage({ params }: Props) {
 
   const [photos, showcase] = await Promise.all([listPhotos(slug), getShowcaseByProject(slug)])
 
+  // Once a showcase exists, the polished presentation is the primary
+  // experience — the raw gallery drops like/dislike/comment to stay out of
+  // its way. The admin's feedbackEnabled setting itself is untouched, so
+  // feedback reappears automatically if the showcase is deleted.
+  const feedbackEnabled = project.feedbackEnabled && !showcase
+
   return (
     <div className="min-h-screen bg-black">
       <Gallery
@@ -49,7 +55,7 @@ export default async function GalleryPage({ params }: Props) {
         title={project.title}
         projectId={slug}
         hasArchive={project.zipEnabled && !!project.archiveName}
-        feedbackEnabled={project.feedbackEnabled}
+        feedbackEnabled={feedbackEnabled}
         feedbackResetAt={project.feedbackResetAt.toISOString()}
         showcaseHref={showcase ? `/s/${showcase.id}` : null}
       />

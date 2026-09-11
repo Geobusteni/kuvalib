@@ -7,7 +7,14 @@ import prisma from '@/lib/prisma'
 import { getProject, listPhotos } from '@/lib/projects'
 import { getShowcaseByProject, pageSettingsFromRow } from '@/lib/showcase'
 import { toShowcasePhoto } from '@/lib/photo-data'
-import { HEADING_SIZE_DEFAULTS, TEXT_SIZE_DEFAULTS, type Block, type HeadingLevel, type TextSizePreset } from '@/lib/showcase-blocks'
+import {
+  DEFAULT_COLOR_PRESETS,
+  HEADING_SIZE_DEFAULTS,
+  TEXT_SIZE_DEFAULTS,
+  type Block,
+  type HeadingLevel,
+  type TextSizePreset,
+} from '@/lib/showcase-blocks'
 import { ShowcaseBuilder } from '@/components/showcase/builder/ShowcaseBuilder'
 
 type Props = { params: Promise<{ id: string }> }
@@ -58,6 +65,7 @@ export default async function ShowcaseBuilderPage({ params }: Props) {
           ...TEXT_SIZE_DEFAULTS,
           ...((showcase.textSizes ?? {}) as Partial<Record<TextSizePreset, number>>),
         },
+        colorPresets: (showcase.colorPresets as string[] | null) ?? DEFAULT_COLOR_PRESETS,
         dotsEnabled: showcase.dotsEnabled,
         dotColorActive: showcase.dotColorActive,
         dotColorInactive: showcase.dotColorInactive,

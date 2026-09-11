@@ -23,6 +23,7 @@ import {
 import { useShowcaseStore } from '../store'
 import { usePhotos } from '../photos-context'
 import { useBuilder } from './useBuilder'
+import { PresetSwatchRow } from './PresetSwatchRow'
 
 const RADII: { value: BlockRadius; label: string }[] = [
   { value: 'none', label: 'Square' },
@@ -144,6 +145,7 @@ function BackgroundField<T extends { bg: BlockBg; bgCustom?: string; bgCustomAlp
   onChange: (patch: Partial<T>) => void
   swatches?: BlockBg[]
 }) {
+  const colorPresets = useShowcaseStore((s) => s.settings.colorPresets)
   return (
     <>
       <Field label="Background">
@@ -182,6 +184,7 @@ function BackgroundField<T extends { bg: BlockBg; bgCustom?: string; bgCustomAlp
             onChange={(e) => onChange({ bg: 'custom', bgCustom: e.target.value } as Partial<T>)}
             className="h-8 w-full cursor-pointer rounded"
           />
+          <PresetSwatchRow presets={colorPresets} onPick={(hex) => onChange({ bg: 'custom', bgCustom: hex } as Partial<T>)} />
           <label className="text-[11px] text-zinc-400">
             Opacity {value.bgCustomAlpha ?? 100}%
             <input
@@ -206,6 +209,7 @@ function BackgroundField<T extends { bg: BlockBg; bgCustom?: string; bgCustomAlp
                 onChange={(e) => onChange({ bg: 'gradient', bgGradientFrom: e.target.value } as Partial<T>)}
                 className="h-8 w-full cursor-pointer rounded"
               />
+              <PresetSwatchRow presets={colorPresets} onPick={(hex) => onChange({ bg: 'gradient', bgGradientFrom: hex } as Partial<T>)} />
             </label>
             <label className="flex flex-1 flex-col gap-1 text-[11px] text-zinc-400">
               To
@@ -215,6 +219,7 @@ function BackgroundField<T extends { bg: BlockBg; bgCustom?: string; bgCustomAlp
                 onChange={(e) => onChange({ bg: 'gradient', bgGradientTo: e.target.value } as Partial<T>)}
                 className="h-8 w-full cursor-pointer rounded"
               />
+              <PresetSwatchRow presets={colorPresets} onPick={(hex) => onChange({ bg: 'gradient', bgGradientTo: hex } as Partial<T>)} />
             </label>
           </div>
           <label className="text-[11px] text-zinc-400">
@@ -242,6 +247,7 @@ function BorderField<T extends { borderStyle?: BorderStyle; borderWidth?: number
   value: T
   onChange: (patch: Partial<T>) => void
 }) {
+  const colorPresets = useShowcaseStore((s) => s.settings.colorPresets)
   return (
     <>
       <Field label="Border">
@@ -271,6 +277,7 @@ function BorderField<T extends { borderStyle?: BorderStyle; borderWidth?: number
               onChange={(e) => onChange({ borderColor: e.target.value } as Partial<T>)}
               className="h-8 w-full cursor-pointer rounded"
             />
+            <PresetSwatchRow presets={colorPresets} onPick={(hex) => onChange({ borderColor: hex } as Partial<T>)} />
           </label>
         </div>
       )}
@@ -309,6 +316,7 @@ export function SettingsPanel() {
   const markDirty = useShowcaseStore((s) => s.markDirty)
   const autoplay = useShowcaseStore((s) => s.settings.autoplay)
   const autoplaySeconds = useShowcaseStore((s) => s.settings.autoplaySeconds)
+  const colorPresets = useShowcaseStore((s) => s.settings.colorPresets)
 
   const { selectedId, block, parentGroupId, actions, query } = useEditor((state) => {
     const id = Array.from(state.events.selected)[0] ?? null
@@ -552,6 +560,7 @@ export function SettingsPanel() {
               onChange={(v) => update({ style: v })}
             />
           </Field>
+          <BorderField value={block} onChange={update} />
         </>
       )}
 
@@ -655,6 +664,7 @@ export function SettingsPanel() {
                 onChange={(e) => update({ textColor: 'custom', textColorCustom: e.target.value })}
                 className="h-8 w-full cursor-pointer rounded"
               />
+              <PresetSwatchRow presets={colorPresets} onPick={(hex) => update({ textColor: 'custom', textColorCustom: hex })} />
               <label className="text-[11px] text-zinc-400">
                 Opacity {block.textColorCustomAlpha ?? 100}%
                 <input
@@ -703,12 +713,15 @@ export function SettingsPanel() {
             )}
           </div>
           {block.textColor === 'custom' && (
-            <input
-              type="color"
-              value={block.textColorCustom ?? '#e9e9ed'}
-              onChange={(e) => update({ textColor: 'custom', textColorCustom: e.target.value })}
-              className="h-8 w-full cursor-pointer rounded"
-            />
+            <div className="flex flex-col gap-1">
+              <input
+                type="color"
+                value={block.textColorCustom ?? '#e9e9ed'}
+                onChange={(e) => update({ textColor: 'custom', textColorCustom: e.target.value })}
+                className="h-8 w-full cursor-pointer rounded"
+              />
+              <PresetSwatchRow presets={colorPresets} onPick={(hex) => update({ textColor: 'custom', textColorCustom: hex })} />
+            </div>
           )}
         </>
       )}

@@ -3,6 +3,7 @@
 
 'use client'
 
+import { useEditor } from '@craftjs/core'
 import { useShowcaseStore } from '../store'
 import { useBuilder } from './useBuilder'
 
@@ -10,6 +11,15 @@ export function PageRail() {
   const pages = useShowcaseStore((s) => s.pages)
   const currentPageId = useShowcaseStore((s) => s.currentPageId)
   const { switchPage, addPage, deletePage } = useBuilder()
+  const { actions } = useEditor()
+
+  // Clicking a page always shows that page's own settings — including a
+  // re-click on the already-active page while a block is selected, which
+  // switchPage alone wouldn't touch since the page id doesn't change.
+  const selectPage = (id: string) => {
+    actions.selectNode()
+    switchPage(id)
+  }
 
   return (
     <div className="flex flex-col gap-2">
@@ -21,7 +31,7 @@ export function PageRail() {
             <li key={page.id} className="flex items-center gap-1">
               <button
                 type="button"
-                onClick={() => switchPage(page.id)}
+                onClick={() => selectPage(page.id)}
                 aria-current={active ? 'true' : undefined}
                 className={`flex aspect-[16/10] flex-1 items-center justify-center rounded-md border text-xs font-medium transition-colors ${
                   active

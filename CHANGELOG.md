@@ -10,6 +10,42 @@ adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html). While the
 
 ## [Unreleased]
 
+## [1.8.0] - 2026-09-11
+
+### Added
+
+- **Button blocks can have a border**, same as Image blocks: style
+  (solid/dashed/dotted), width, and colour.
+- **Color presets in Album settings** — your own palette (up to 12
+  colours), offered as one-click swatches under every custom-colour picker
+  in the builder, so you rarely need to reopen the native colour picker.
+- **A "Blocks" toggle button next to "+ Add block"** shows or hides the
+  blocks list, instead of it always taking up space.
+- **The gallery hides its like/dislike/comment buttons once a project has a
+  showcase** — the showcase becomes the primary presentation, and feedback
+  controls would just clutter it. The project's own feedback toggle is
+  untouched, so feedback reappears automatically if the showcase is
+  deleted.
+
+### Changed
+
+- **The page-position dots are now laid out horizontally** (were vertical)
+  with a fixed gap between them, still anchored top-left.
+- **Autoplay is checked by default** for a new showcase.
+- **Colour swatches now always resolve to a real colour** in the builder's
+  settings panel — background swatches for surface/deep/accent/muted tones
+  previously rendered invisible there due to a CSS-variable scoping bug.
+- **Clicking a page in the page rail always shows that page's own
+  settings**, even re-clicking the page you're already on while a block is
+  selected — previously that click did nothing.
+
+### Fixed
+
+- **A React "setState during render" warning (and, rarely, a blank page
+  list on first load) from the Blocks tree view** — its Craft.js selector
+  was rebuilding a fresh array on every store notification instead of
+  reading per-row data outside the selector.
+
 ## [1.7.1] - 2026-09-11
 
 ### Changed

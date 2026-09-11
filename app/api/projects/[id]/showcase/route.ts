@@ -11,7 +11,7 @@ import {
   updateShowcaseSettings,
   type ShowcaseSettingsData,
 } from '@/lib/showcase'
-import { hexColor, sanitizeHeadingSizes, sanitizeTextSizes } from '@/lib/showcase-blocks'
+import { hexColor, sanitizeColorPresets, sanitizeHeadingSizes, sanitizeTextSizes } from '@/lib/showcase-blocks'
 import { deleteAudioFile } from '@/lib/storage'
 import {
   ShowcaseAnimation,
@@ -68,6 +68,7 @@ export async function PUT(request: NextRequest, ctx: Ctx) {
   }
   if ('headingSizes' in body) data.headingSizes = sanitizeHeadingSizes(body.headingSizes)
   if ('textSizes' in body) data.textSizes = sanitizeTextSizes(body.textSizes)
+  if ('colorPresets' in body) data.colorPresets = sanitizeColorPresets(body.colorPresets)
   if (typeof body.dotsEnabled === 'boolean') data.dotsEnabled = body.dotsEnabled
   if ('dotColorActive' in body) data.dotColorActive = hexColor(body.dotColorActive) ?? null
   if ('dotColorInactive' in body) data.dotColorInactive = hexColor(body.dotColorInactive) ?? null

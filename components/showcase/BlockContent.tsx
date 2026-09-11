@@ -144,6 +144,10 @@ export function BlockContent({
   if (block.type === 'button') {
     const primary = block.style !== 'secondary'
     const hasBg = block.bg !== 'none'
+    // An explicit border wins; otherwise fall back to the old implicit look
+    // (secondary gets a subtle outline, primary none) so existing buttons
+    // don't change.
+    const explicitBorder = blockBorderCss(block)
     const style: CSSProperties = {
       width: '100%',
       height: '100%',
@@ -167,7 +171,7 @@ export function BlockContent({
         : primary
           ? 'var(--sc-accent-contrast)'
           : 'var(--sc-text)',
-      border: primary ? 'none' : '1px solid var(--sc-text-muted)',
+      border: explicitBorder !== 'none' ? explicitBorder : primary ? 'none' : '1px solid var(--sc-text-muted)',
       overflow: 'hidden',
     }
     const label = block.label || 'Button'

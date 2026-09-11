@@ -10,6 +10,7 @@ import type {
   ShowcaseEventType,
 } from '@/lib/generated/prisma/client'
 import {
+  DEFAULT_COLOR_PRESETS,
   DEFAULT_PAGE_SETTINGS,
   HEADING_SIZE_DEFAULTS,
   TEXT_SIZE_DEFAULTS,
@@ -23,8 +24,8 @@ import { emptyCanvas } from './craft-bridge'
  * Album-level state that lives outside Craft.js's per-frame editor. The active
  * page's block tree is owned by Craft; every other page is kept here as a
  * serialized snapshot string and swapped into the editor on page change. Each
- * page's own appearance (background/border/Ken Burns) is plain state here too —
- * Craft only ever sees the block tree.
+ * page's own appearance (background/border) is plain state here too — Craft
+ * only ever sees the block tree.
  */
 
 export interface AlbumSettings {
@@ -38,6 +39,7 @@ export interface AlbumSettings {
   playlistLoop: boolean
   headingSizes: Partial<Record<HeadingLevel, number>>
   textSizes: Partial<Record<TextSizePreset, number>>
+  colorPresets: string[]
   dotsEnabled: boolean
   dotColorActive: string | null
   dotColorInactive: string | null
@@ -110,11 +112,12 @@ export const useShowcaseStore = create<ShowcaseStore>((set, get) => ({
     eventType: 'GENERIC',
     albumBg: 'NEUTRAL',
     animationStyle: 'TURN',
-    autoplay: false,
+    autoplay: true,
     autoplaySeconds: 5,
     playlistLoop: true,
     headingSizes: { ...HEADING_SIZE_DEFAULTS },
     textSizes: { ...TEXT_SIZE_DEFAULTS },
+    colorPresets: [...DEFAULT_COLOR_PRESETS],
     dotsEnabled: true,
     dotColorActive: null,
     dotColorInactive: null,

@@ -49,6 +49,7 @@ export interface Block {
   textColorCustomAlpha?: number
   /** image */
   photoId?: string
+  /** image / button */
   borderStyle?: BorderStyle
   borderWidth?: number
   borderColor?: string
@@ -176,6 +177,7 @@ export function makeBlock(type: BlockType, opts: MakeBlockOpts = {}): Block {
         label: 'View gallery', style: 'primary', linkType: 'custom', link: '',
         x: opts.x ?? 8, y: opts.y ?? 78, w: opts.w ?? 24, h: opts.h ?? 9,
         textColor: 'default', bg: 'none', radius: 'md',
+        borderStyle: 'none', borderWidth: 0,
       }
     case 'group':
       return {
@@ -510,6 +512,9 @@ export function sanitizeBlock(raw: unknown, depth = 0): Block | null {
     block.style = pick(r.style, BUTTON_STYLES, 'primary')
     block.linkType = pick(r.linkType, LINK_TYPES, 'custom')
     block.link = str(r.link, 2000)
+    block.borderStyle = pick(r.borderStyle, BORDER_STYLES, 'none')
+    block.borderWidth = num(r.borderWidth, 0, 0, 20)
+    block.borderColor = hexColor(r.borderColor) ?? '#ffffff'
   }
   if (type === 'group') {
     const kids = Array.isArray(r.children) ? r.children : []
@@ -613,6 +618,29 @@ export function sanitizeTextSizes(raw: unknown): Partial<Record<TextSizePreset, 
   for (const preset of ['small', 'normal', 'medium', 'large', 'huge'] as TextSizePreset[]) {
     const v = r[preset]
     if (Number.isFinite(v)) out[preset] = clamp(v as number, 8, 200)
+  }
+  return out
+}
+
+// ─── Colour presets ─────────────────────────────────────────────────────────
+
+/** Shown until the admin defines their own palette in Album settings. */
+export const DEFAULT_COLOR_PRESETS: string[] = [
+  '#ffffff', '#000000', '#f43f5e', '#f59e0b', '#22c55e', '#3b82f6', '#8b5cf6', '#ec4899',
+]
+
+const MAX_COLOR_PRESETS = 12
+
+/** An admin-defined palette of quick-pick swatches, offered everywhere a
+ *  custom colour is chosen in the builder. Builder-only — never read by the
+ *  public viewer, so no cap on how "wrong" a value can be beyond the shape. */
+export function sanitizeColorPresets(raw: unknown): string[] {
+  if (!Array.isArray(raw)) return []
+  const out: string[] = []
+  for (const v of raw) {
+    const hex = hexColor(v)
+    if (hex && !out.includes(hex)) out.push(hex)
+    if (out.length >= MAX_COLOR_PRESETS) break
   }
   return out
 }

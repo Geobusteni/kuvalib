@@ -19,6 +19,11 @@ to the client), and a **Delete** control.
 Deleting a showcase removes its pages and music files. It does not touch the gallery or the
 photos.
 
+While a showcase exists, the project's gallery hides its like/dislike/comment buttons — the
+showcase becomes the primary, polished way clients experience the work, and feedback controls
+would just clutter it. The project's own feedback toggle is untouched; feedback reappears
+automatically if the showcase is deleted.
+
 ---
 
 ## The builder
@@ -35,14 +40,15 @@ Changes **autosave**. There is also an explicit **Save** button, and a status li
 
 ### Blocks list
 
-Above the settings panel, a **Blocks** list shows the current page's blocks as a flat, clickable
-list — an alternative to hunting for a block on the canvas. Its order always matches stacking
-order: the first row is the block furthest back, the last row is the frontmost one, and a
-group's children are indented under it, in that same back-to-front order.
+The **Blocks** button next to **+ Add block** toggles a list of the current page's blocks as a
+flat, clickable list — an alternative to hunting for a block on the canvas. Its order always
+matches stacking order: the first row is the block furthest back, the last row is the frontmost
+one, and a group's children are indented under it, in that same back-to-front order.
 
 ### Pages
 
-- The page rail lists every page. Click one to edit it.
+- The page rail lists every page. Click one to edit it — including the page you're already on,
+  which deselects any selected block and shows that page's own settings.
 - **+ Add page** appends a blank page.
 - The trash icon next to a page deletes it (you cannot delete the last page).
 
@@ -96,7 +102,7 @@ title-and-button pair.
 - **Text colour** — Text and Button: default, accent, muted, or a custom colour with an opacity
   slider. **Headline text is always solid** — same swatches, no opacity, so it stays legible over
   a photo.
-- **Border** (Image blocks) — style (solid / dashed / dotted), width, and colour.
+- **Border** (Image and Button blocks) — style (solid / dashed / dotted), width, and colour.
 - **Ken Burns** (Image blocks) — a slow pan/zoom while the image is on screen: none, zoom in, or
   slide left/right/up/down. **Speed** is a range in seconds, capped to the page's autoplay
   interval when autoplay is on (so the effect never gets cut off mid-motion). The border and
@@ -110,7 +116,8 @@ title-and-button pair.
 Every colour swatch shows the colour it would actually apply — the "custom" and "gradient"
 options preview the block's own configured colour, not a placeholder — and a **Reset** link
 appears next to a swatch row once it's been changed from its default, to clear it back in one
-click.
+click. Below any custom-colour picker, your **Color presets** (Album settings) appear as
+one-click swatches too, so you rarely need to reopen the native colour picker at all.
 
 The **accent** colour comes from the album's event type (see below).
 
@@ -144,9 +151,10 @@ The **Album settings** dialog (button in the top bar):
 | **Event type** | Wedding / Birthday / Christening / Corporate / Generic — picks the accent hue used across the showcase. |
 | **Album background** | Neutral, Deep, or Accent tint — the colour behind the page. |
 | **Page transition** | Turn, Fade, Zoom, or Rotate — how one page gives way to the next. |
-| **Autoplay** + **seconds per page** | Advance automatically and loop. |
+| **Autoplay** + **seconds per page** | Advance automatically and loop. Checked by default for a new showcase. |
 | **Heading sizes** | The default pixel size for each Headline level, H1–H6. A block can still override it with a custom size. |
 | **Text sizes** | The default pixel size for each Text preset (small / normal / medium / large / huge). A block can still override it. |
+| **Color presets** | Your own palette (up to 12 colours) — offered as one-click swatches below every custom-colour picker throughout the builder, so branding stays consistent without reopening the native colour picker each time. |
 | **Page dots** | A checkbox to show or hide the page-position dots (top left of the viewer) entirely, plus active/inactive colours when shown. Leave the colours blank to use the event colour / a translucent white. |
 | **Custom CSS** | A free-form stylesheet injected into the public viewer, for tweaks the settings panel doesn't cover. Admin-authored — treat it like any other content you control. The info icon next to the heading opens a reference of the stable class names available to target (`.sc-viewer`, `.sc-stage`, `.sc-page`, `.sc-block` and its per-type variants, `.sc-controls`, `.sc-dots`, `.sc-thumbnails`). |
 | **Music playlist** | See below. |
@@ -209,7 +217,7 @@ full-width bar:
 - **Copy link**
 - **Download** — the showcase's photos as a ZIP of originals (when downloads are enabled)
 
-A column of **dots** in the top-left corner shows the page position — the current page's dot is
+A row of **dots** in the top-left corner shows the page position — the current page's dot is
 larger; click any dot to jump to that page. Shown or hidden, and coloured, by the Album settings'
 **Page dots** setting. A screen-reader-only "Page N of Total" announcement keeps the page count
 accessible regardless of whether the dots are shown.

@@ -13,6 +13,7 @@ import { ALBUM_BG_LABELS, EVENT_TYPE_LABELS } from '@/lib/showcase-theme'
 import { HEADING_SIZE_DEFAULTS, TEXT_SIZE_DEFAULTS, type HeadingLevel, type TextSizePreset } from '@/lib/showcase-blocks'
 import { useFocusTrap } from '@/hooks/useFocusTrap'
 import { useShowcaseStore, type AlbumSettings } from '../store'
+import { PresetSwatchRow } from './PresetSwatchRow'
 
 const EVENT_TYPES = Object.keys(EVENT_TYPE_LABELS) as ShowcaseEventType[]
 const BGS = Object.keys(ALBUM_BG_LABELS) as ShowcaseBg[]
@@ -316,6 +317,47 @@ export function AlbumSettingsDialog({ onClose }: { onClose: () => void }) {
         </div>
 
         <div className="h-px bg-zinc-200 dark:bg-zinc-800" />
+        <span className="text-xs font-semibold uppercase tracking-wide text-zinc-500">Color presets</span>
+        <p className="text-[11px] text-zinc-400">
+          Your own palette — offered as quick-pick swatches everywhere a custom colour is chosen
+          in the builder, so you don&rsquo;t have to reopen a colour picker each time.
+        </p>
+        <div className="flex flex-wrap gap-2">
+          {settings.colorPresets.map((hex, i) => (
+            <div key={i} className="relative">
+              <input
+                type="color"
+                value={hex}
+                onChange={(e) => {
+                  const next = [...settings.colorPresets]
+                  next[i] = e.target.value
+                  patch({ colorPresets: next })
+                }}
+                className="h-8 w-8 cursor-pointer rounded"
+              />
+              <button
+                type="button"
+                onClick={() => patch({ colorPresets: settings.colorPresets.filter((_, j) => j !== i) })}
+                aria-label={`Remove preset colour ${hex}`}
+                className="absolute -right-1.5 -top-1.5 flex h-4 w-4 items-center justify-center rounded-full bg-zinc-700 text-[10px] leading-none text-white hover:bg-red-600"
+              >
+                ×
+              </button>
+            </div>
+          ))}
+          {settings.colorPresets.length < 12 && (
+            <button
+              type="button"
+              onClick={() => patch({ colorPresets: [...settings.colorPresets, '#888888'] })}
+              aria-label="Add a preset colour"
+              className="flex h-8 w-8 items-center justify-center rounded border border-dashed border-zinc-400 text-zinc-400 hover:border-zinc-300 hover:text-zinc-300"
+            >
+              +
+            </button>
+          )}
+        </div>
+
+        <div className="h-px bg-zinc-200 dark:bg-zinc-800" />
         <span className="text-xs font-semibold uppercase tracking-wide text-zinc-500">Page dots</span>
         <label className="flex items-center gap-2 text-sm">
           <input
@@ -343,6 +385,7 @@ export function AlbumSettingsDialog({ onClose }: { onClose: () => void }) {
                     </button>
                   )}
                 </div>
+                <PresetSwatchRow presets={settings.colorPresets} onPick={(hex) => patch({ dotColorActive: hex })} />
               </label>
               <label className="flex flex-1 flex-col gap-1 text-xs font-medium text-zinc-500">
                 Inactive
@@ -359,6 +402,7 @@ export function AlbumSettingsDialog({ onClose }: { onClose: () => void }) {
                     </button>
                   )}
                 </div>
+                <PresetSwatchRow presets={settings.colorPresets} onPick={(hex) => patch({ dotColorInactive: hex })} />
               </label>
             </div>
             <p className="text-[11px] text-zinc-400">

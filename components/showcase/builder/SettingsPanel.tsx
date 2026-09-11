@@ -473,6 +473,49 @@ export function SettingsPanel() {
               onChange={(v) => update({ align: v })}
             />
           </Field>
+          <Field label="Style">
+            <div className="flex gap-1.5">
+              <button
+                type="button"
+                onClick={() => update({ bold: !block.bold })}
+                aria-pressed={!!block.bold}
+                aria-label="Bold"
+                className={`flex h-8 w-8 items-center justify-center rounded-lg border font-bold ${
+                  block.bold
+                    ? 'border-zinc-900 bg-zinc-900 text-white dark:border-zinc-100 dark:bg-zinc-100 dark:text-zinc-900'
+                    : 'border-zinc-300 hover:bg-zinc-100 dark:border-zinc-700 dark:hover:bg-zinc-800'
+                }`}
+              >
+                B
+              </button>
+              <button
+                type="button"
+                onClick={() => update({ italic: !block.italic })}
+                aria-pressed={!!block.italic}
+                aria-label="Italic"
+                className={`flex h-8 w-8 items-center justify-center rounded-lg border italic ${
+                  block.italic
+                    ? 'border-zinc-900 bg-zinc-900 text-white dark:border-zinc-100 dark:bg-zinc-100 dark:text-zinc-900'
+                    : 'border-zinc-300 hover:bg-zinc-100 dark:border-zinc-700 dark:hover:bg-zinc-800'
+                }`}
+              >
+                I
+              </button>
+              <button
+                type="button"
+                onClick={() => update({ underline: !block.underline })}
+                aria-pressed={!!block.underline}
+                aria-label="Underline"
+                className={`flex h-8 w-8 items-center justify-center rounded-lg border underline ${
+                  block.underline
+                    ? 'border-zinc-900 bg-zinc-900 text-white dark:border-zinc-100 dark:bg-zinc-100 dark:text-zinc-900'
+                    : 'border-zinc-300 hover:bg-zinc-100 dark:border-zinc-700 dark:hover:bg-zinc-800'
+                }`}
+              >
+                U
+              </button>
+            </div>
+          </Field>
         </>
       )}
 
@@ -613,17 +656,41 @@ export function SettingsPanel() {
           {showBackground && <BackgroundField value={block} onChange={update} />}
 
           {isGroup && (
-            <label className="text-[11px] text-zinc-400">
-              Blur (glass effect) — {block.blur ?? 0}px
-              <input
-                type="range"
-                min={0}
-                max={40}
-                value={block.blur ?? 0}
-                onChange={(e) => update({ blur: parseInt(e.target.value, 10) })}
-                className="w-full"
-              />
-            </label>
+            <>
+              <label className="text-[11px] text-zinc-400">
+                Blur (glass effect) — {block.blur ?? 0}px
+                <input
+                  type="range"
+                  min={0}
+                  max={40}
+                  value={block.blur ?? 0}
+                  onChange={(e) => update({ blur: parseInt(e.target.value, 10) })}
+                  className="w-full"
+                />
+              </label>
+              <label className="text-[11px] text-zinc-400">
+                Shadow — {block.shadow ?? 0}px
+                <input
+                  type="range"
+                  min={0}
+                  max={40}
+                  value={block.shadow ?? 0}
+                  onChange={(e) => update({ shadow: parseInt(e.target.value, 10) })}
+                  className="w-full"
+                />
+              </label>
+              {(block.shadow ?? 0) > 0 && (
+                <div className="flex flex-col gap-1">
+                  <input
+                    type="color"
+                    value={block.shadowColor ?? '#000000'}
+                    onChange={(e) => update({ shadowColor: e.target.value })}
+                    className="h-8 w-full cursor-pointer rounded"
+                  />
+                  <PresetSwatchRow presets={colorPresets} onPick={(hex) => update({ shadowColor: hex })} />
+                </div>
+              )}
+            </>
           )}
 
           {showTextColor && (

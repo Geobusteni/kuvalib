@@ -10,7 +10,7 @@ import {
   ShowcaseEventType,
 } from '@/lib/generated/prisma/client'
 import { ALBUM_BG_LABELS, EVENT_TYPE_LABELS } from '@/lib/showcase-theme'
-import { HEADING_SIZE_DEFAULTS, TEXT_SIZE_DEFAULTS, type HeadingLevel, type TextSizePreset } from '@/lib/showcase-blocks'
+import { GOOGLE_FONTS, HEADING_SIZE_DEFAULTS, TEXT_SIZE_DEFAULTS, type HeadingLevel, type TextSizePreset } from '@/lib/showcase-blocks'
 import { useFocusTrap } from '@/hooks/useFocusTrap'
 import { useShowcaseStore, type AlbumSettings } from '../store'
 import { PresetSwatchRow } from './PresetSwatchRow'
@@ -60,6 +60,12 @@ export function AlbumSettingsDialog({ onClose }: { onClose: () => void }) {
   const [legendOpen, setLegendOpen] = useState(false)
   const fileRef = useRef<HTMLInputElement>(null)
 
+  // Mount-only: focus the dialog and wire Escape once. `onClose` always does
+  // the same thing (closes this dialog) regardless of which render created
+  // it, so a stale closure is safe — and necessary, since re-running this on
+  // every keystroke/toggle (onClose is a fresh function each render of the
+  // parent) used to re-focus the Title field and jerk the dialog's scroll
+  // back to the top on every single settings change.
   useEffect(() => {
     const onKey = (e: KeyboardEvent) => {
       if (e.key === 'Escape') onClose()
@@ -67,7 +73,8 @@ export function AlbumSettingsDialog({ onClose }: { onClose: () => void }) {
     document.addEventListener('keydown', onKey)
     dialogRef.current?.querySelector<HTMLElement>('input, button')?.focus()
     return () => document.removeEventListener('keydown', onKey)
-  }, [onClose])
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [])
 
   const patch = (p: Partial<AlbumSettings>) => setSettings(p)
 
@@ -314,6 +321,40 @@ export function AlbumSettingsDialog({ onClose }: { onClose: () => void }) {
               />
             </label>
           ))}
+        </div>
+
+        <div className="h-px bg-zinc-200 dark:bg-zinc-800" />
+        <span className="text-xs font-semibold uppercase tracking-wide text-zinc-500">Fonts</span>
+        <p className="text-[11px] text-zinc-400">
+          A Google Font for every Headline and every Text block, album-wide.
+        </p>
+        <div className="flex gap-3">
+          <label className="flex flex-1 flex-col gap-1 text-xs font-medium text-zinc-500">
+            Heading font
+            <select
+              className={input}
+              value={settings.headingFont ?? ''}
+              onChange={(e) => patch({ headingFont: e.target.value || null })}
+            >
+              <option value="">Default</option>
+              {GOOGLE_FONTS.map((f) => (
+                <option key={f.name} value={f.name}>{f.name}</option>
+              ))}
+            </select>
+          </label>
+          <label className="flex flex-1 flex-col gap-1 text-xs font-medium text-zinc-500">
+            Text font
+            <select
+              className={input}
+              value={settings.textFont ?? ''}
+              onChange={(e) => patch({ textFont: e.target.value || null })}
+            >
+              <option value="">Default</option>
+              {GOOGLE_FONTS.map((f) => (
+                <option key={f.name} value={f.name}>{f.name}</option>
+              ))}
+            </select>
+          </label>
         </div>
 
         <div className="h-px bg-zinc-200 dark:bg-zinc-800" />

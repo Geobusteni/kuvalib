@@ -42,6 +42,9 @@ export interface Block {
   bgGradientAngle?: number
   /** group only — backdrop-filter blur in px, for a glass effect over a photo. */
   blur?: number
+  /** group only — drop shadow intensity (0 = none) and colour. */
+  shadow?: number
+  shadowColor?: string
   /** Not present on image blocks. */
   textColor?: BlockTextColor
   textColorCustom?: string
@@ -68,6 +71,10 @@ export interface Block {
   textSize?: TextSizePreset
   /** title / text — px override; wins over the level/preset default. */
   fontSize?: number
+  /** title / text — style toggles, independent of each other. */
+  bold?: boolean
+  italic?: boolean
+  underline?: boolean
   /** button */
   label?: string
   style?: ButtonStyle
@@ -486,6 +493,8 @@ export function sanitizeBlock(raw: unknown, depth = 0): Block | null {
 
   if (type === 'group') {
     if (Number.isFinite(r.blur)) block.blur = num(r.blur, 0, 0, 40)
+    if (Number.isFinite(r.shadow)) block.shadow = num(r.shadow, 0, 0, 40)
+    block.shadowColor = hexColor(r.shadowColor) ?? '#000000'
   }
 
   if (type === 'image') {
@@ -500,6 +509,9 @@ export function sanitizeBlock(raw: unknown, depth = 0): Block | null {
     block.text = str(r.text, 4000)
     block.align = pick(r.align, ALIGNS, 'left')
     if (Number.isFinite(r.fontSize)) block.fontSize = num(r.fontSize, 16, 8, 200)
+    block.bold = r.bold === true
+    block.italic = r.italic === true
+    block.underline = r.underline === true
   }
   if (type === 'title') {
     block.level = pick(r.level, HEADING_LEVELS, 2)
@@ -643,4 +655,43 @@ export function sanitizeColorPresets(raw: unknown): string[] {
     if (out.length >= MAX_COLOR_PRESETS) break
   }
   return out
+}
+
+// ─── Google Fonts ────────────────────────────────────────────────────────────
+
+/** A curated allowlist, not a free-text field — keeps the Google Fonts
+ *  stylesheet URL (built from these names) predictable and safe, and keeps
+ *  the picker to faces that actually suit a photography showcase. `category`
+ *  picks the CSS fallback stack in showcase-theme.ts. */
+export const GOOGLE_FONTS: { name: string; category: 'sans' | 'serif' | 'display' | 'script' }[] = [
+  { name: 'Inter', category: 'sans' },
+  { name: 'Roboto', category: 'sans' },
+  { name: 'Open Sans', category: 'sans' },
+  { name: 'Lato', category: 'sans' },
+  { name: 'Montserrat', category: 'sans' },
+  { name: 'Poppins', category: 'sans' },
+  { name: 'Raleway', category: 'sans' },
+  { name: 'Nunito', category: 'sans' },
+  { name: 'Work Sans', category: 'sans' },
+  { name: 'Quicksand', category: 'sans' },
+  { name: 'Oswald', category: 'sans' },
+  { name: 'Bebas Neue', category: 'display' },
+  { name: 'Playfair Display', category: 'serif' },
+  { name: 'Merriweather', category: 'serif' },
+  { name: 'Lora', category: 'serif' },
+  { name: 'PT Serif', category: 'serif' },
+  { name: 'Cormorant Garamond', category: 'serif' },
+  { name: 'Crimson Text', category: 'serif' },
+  { name: 'Dancing Script', category: 'script' },
+  { name: 'Great Vibes', category: 'script' },
+  { name: 'Pacifico', category: 'script' },
+  { name: 'Cormorant', category: 'serif' },
+]
+
+const GOOGLE_FONT_NAMES = GOOGLE_FONTS.map((f) => f.name)
+
+/** `undefined` means "use the app's default font" — never write an arbitrary
+ *  string into a `font-family` CSS value. */
+export function sanitizeFontFamily(raw: unknown): string | undefined {
+  return typeof raw === 'string' && GOOGLE_FONT_NAMES.includes(raw) ? raw : undefined
 }

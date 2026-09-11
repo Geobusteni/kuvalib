@@ -38,6 +38,10 @@ frame, so a layout you build on a laptop scales correctly on a phone or a projec
 Changes **autosave**. There is also an explicit **Save** button, and a status line that reads
 *Saving… / Unsaved changes / Saved*.
 
+**Undo / Redo** buttons sit next to Copy link (also `Ctrl`/`Cmd`+`Z` and `Ctrl`/`Cmd`+`Shift`+`Z`).
+They cover the current page's block edits — position, size, style, text, add/delete/re-parent.
+Page add/delete and Album settings aren't part of this history.
+
 ### Blocks list
 
 The **Blocks** button next to **+ Add block** toggles a list of the current page's blocks as a
@@ -90,6 +94,8 @@ title-and-button pair.
 - Dragging a block over a group only re-parents it if the group is at least half that block's
   own area — a small caption group sitting in front of a full-bleed cover image can't
   accidentally swallow the image behind it.
+- **Resizing a child never grows it past the group's own box** — dragging (not resizing) is how
+  a block leaves a group, so a resize handle simply stops at the edge instead.
 
 ### Appearance
 
@@ -99,9 +105,13 @@ title-and-button pair.
   an adjustable angle.
 - **Blur** (Group only) — a backdrop blur behind the group, for a glass-panel effect over a
   photo.
+- **Shadow** (Group only) — a drop shadow behind the group's box, with its own colour. The
+  border/corners stay crisp; only the shadow is soft.
 - **Text colour** — Text and Button: default, accent, muted, or a custom colour with an opacity
   slider. **Headline text is always solid** — same swatches, no opacity, so it stays legible over
   a photo.
+- **Style** (Headline and Text) — bold, italic, underline, any combination, independent of the
+  block's base weight.
 - **Border** (Image and Button blocks) — style (solid / dashed / dotted), width, and colour.
 - **Ken Burns** (Image blocks) — a slow pan/zoom while the image is on screen: none, zoom in, or
   slide left/right/up/down. **Speed** is a range in seconds, capped to the page's autoplay
@@ -112,6 +122,8 @@ title-and-button pair.
   settings, or set a custom size on the block to override it. Text: pick a preset (small /
   normal / medium / large / huge), same override. Long text wraps inside the block and is
   clipped if it still overflows — it never spills outside the block's box.
+- **Font** — every Headline shares one Google Font, every Text block shares another, both set
+  album-wide in Album settings (no per-block override).
 
 Every colour swatch shows the colour it would actually apply — the "custom" and "gradient"
 options preview the block's own configured colour, not a placeholder — and a **Reset** link
@@ -154,6 +166,7 @@ The **Album settings** dialog (button in the top bar):
 | **Autoplay** + **seconds per page** | Advance automatically and loop. Checked by default for a new showcase. |
 | **Heading sizes** | The default pixel size for each Headline level, H1–H6. A block can still override it with a custom size. |
 | **Text sizes** | The default pixel size for each Text preset (small / normal / medium / large / huge). A block can still override it. |
+| **Fonts** | A Google Font for every Headline, and a separate one for every Text block — album-wide, no per-block override. "Default" uses the app's own font. |
 | **Color presets** | Your own palette (up to 12 colours) — offered as one-click swatches below every custom-colour picker throughout the builder, so branding stays consistent without reopening the native colour picker each time. |
 | **Page dots** | A checkbox to show or hide the page-position dots (top left of the viewer) entirely, plus active/inactive colours when shown. Leave the colours blank to use the event colour / a translucent white. |
 | **Custom CSS** | A free-form stylesheet injected into the public viewer, for tweaks the settings panel doesn't cover. Admin-authored — treat it like any other content you control. The info icon next to the heading opens a reference of the stable class names available to target (`.sc-viewer`, `.sc-stage`, `.sc-page`, `.sc-block` and its per-type variants, `.sc-controls`, `.sc-dots`, `.sc-thumbnails`). |

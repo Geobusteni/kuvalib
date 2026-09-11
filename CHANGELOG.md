@@ -10,6 +10,37 @@ adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html). While the
 
 ## [Unreleased]
 
+## [1.9.0] - 2026-09-11
+
+### Added
+
+- **A drop shadow setting for Group blocks**, with its own colour — the
+  border and corners stay crisp; only the shadow softens.
+- **Bold, italic, and underline for Headline and Text blocks**, any
+  combination, independent of the block's base weight.
+- **Google Fonts for headings and text**, in Album settings — one font for
+  every Headline, a separate one for every Text block, album-wide.
+- **Undo / Redo** for the current page's block edits — toolbar buttons plus
+  `Ctrl`/`Cmd`+`Z` and `Ctrl`/`Cmd`+`Shift`+`Z`.
+
+### Changed
+
+- **Resizing a block inside a group now stops at the group's own edge**
+  instead of growing past it. Dragging (not resizing) is still how a block
+  leaves a group.
+
+### Fixed
+
+- **Album settings (and other dialogs) could scroll back to the top on
+  every single change** — checking a box, picking a colour, typing a
+  number. The dialog's focus/keyboard-shortcut setup was accidentally
+  re-running on every change and re-focusing the first field, which
+  scrolled the dialog there. It now runs once, on open.
+- Added a general safeguard (`scrollbar-gutter: stable`) so a page whose
+  height crosses the scroll threshold — the showcase builder, as blocks and
+  panels change — doesn't shift sideways when the scrollbar appears or
+  disappears.
+
 ## [1.8.0] - 2026-09-11
 
 ### Added

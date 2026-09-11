@@ -64,9 +64,10 @@ ImageBlock.craft = { displayName: 'ImageBlock', rules: { canDrag: () => true } }
 export const TitleBlock: UserComponent = () => {
   const block = useBlock()
   const headingSizes = useShowcaseStore((s) => s.settings.headingSizes)
+  const headingFont = useShowcaseStore((s) => s.settings.headingFont)
   return (
     <BlockShell>
-      <BlockContent block={block} editable headingSizes={headingSizes} />
+      <BlockContent block={block} editable headingSizes={headingSizes} headingFont={headingFont} />
     </BlockShell>
   )
 }
@@ -75,9 +76,10 @@ TitleBlock.craft = { displayName: 'TitleBlock', rules: { canDrag: () => true } }
 export const TextBlock: UserComponent = () => {
   const block = useBlock()
   const textSizes = useShowcaseStore((s) => s.settings.textSizes)
+  const textFont = useShowcaseStore((s) => s.settings.textFont)
   return (
     <BlockShell>
-      <BlockContent block={block} editable textSizes={textSizes} />
+      <BlockContent block={block} editable textSizes={textSizes} textFont={textFont} />
     </BlockShell>
   )
 }

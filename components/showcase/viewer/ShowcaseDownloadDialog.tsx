@@ -38,6 +38,8 @@ export function ShowcaseDownloadDialog({
   const trapFocus = useFocusTrap(dialogRef)
   const [phase, setPhase] = useState<'choosing' | 'preparing' | 'error'>('choosing')
 
+  // Mount-only — see AlbumSettingsDialog for why `onClose` (a fresh function
+  // on every parent render) must not be a dependency here.
   useEffect(() => {
     dialogRef.current?.querySelector<HTMLButtonElement>('button')?.focus()
     const onKey = (e: KeyboardEvent) => {
@@ -45,7 +47,8 @@ export function ShowcaseDownloadDialog({
     }
     document.addEventListener('keydown', onKey)
     return () => document.removeEventListener('keydown', onKey)
-  }, [onClose])
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [])
 
   const confirm = async () => {
     setPhase('preparing')

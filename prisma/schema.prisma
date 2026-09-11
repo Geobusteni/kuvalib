@@ -134,6 +134,12 @@ model Showcase {
   /// overridable per block. See TEXT_SIZE_DEFAULTS in showcase-blocks.ts.
   textSizes Json?
 
+  /// Google Font family name for Headline/Text blocks respectively, applied
+  /// album-wide (no per-block override). Null uses the app's default font.
+  /// Validated against the GOOGLE_FONTS allowlist in showcase-blocks.ts.
+  headingFont String?
+  textFont    String?
+
   /// The admin's own palette — an array of hex strings offered as quick-pick
   /// swatches everywhere a custom colour is chosen in the builder. Null falls
   /// back to DEFAULT_COLOR_PRESETS in showcase-blocks.ts. Builder-only: never

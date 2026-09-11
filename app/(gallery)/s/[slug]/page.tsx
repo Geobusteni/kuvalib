@@ -82,6 +82,8 @@ export default async function ShowcasePage({ params }: Props) {
           ...TEXT_SIZE_DEFAULTS,
           ...((showcase.textSizes ?? {}) as Partial<Record<TextSizePreset, number>>),
         },
+        headingFont: showcase.headingFont,
+        textFont: showcase.textFont,
         dotsEnabled: showcase.dotsEnabled,
         dotColorActive: showcase.dotColorActive,
         dotColorInactive: showcase.dotColorInactive,

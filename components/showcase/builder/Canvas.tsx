@@ -5,7 +5,7 @@
 
 import { Frame } from '@craftjs/core'
 import { useShowcaseStore } from '../store'
-import { showcaseThemeVars } from '@/lib/showcase-theme'
+import { googleFontsHref, showcaseThemeVars } from '@/lib/showcase-theme'
 import { FrameSizeProvider } from '../frame-size'
 
 /**
@@ -18,10 +18,14 @@ export function Canvas() {
   const currentPageId = useShowcaseStore((s) => s.currentPageId)
   const eventType = useShowcaseStore((s) => s.settings.eventType)
   const albumBg = useShowcaseStore((s) => s.settings.albumBg)
+  const headingFont = useShowcaseStore((s) => s.settings.headingFont)
+  const textFont = useShowcaseStore((s) => s.settings.textFont)
 
   const page = pages.find((p) => p.id === currentPageId) ?? pages[0]
 
   if (!page) return null
+
+  const fontsHref = googleFontsHref([headingFont, textFont])
 
   return (
     <FrameSizeProvider
@@ -32,6 +36,7 @@ export function Canvas() {
         background: 'var(--sc-album-bg)',
       }}
     >
+      {fontsHref && <link rel="stylesheet" href={fontsHref} />}
       <Frame key={page.id} data={page.snapshot} />
     </FrameSizeProvider>
   )

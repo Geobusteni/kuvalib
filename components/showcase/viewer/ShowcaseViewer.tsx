@@ -6,7 +6,7 @@
 import { useCallback, useEffect, useRef, useState, useSyncExternalStore } from 'react'
 import type { Block, HeadingLevel, PageSettings, TextSizePreset } from '@/lib/showcase-blocks'
 import { collectPhotoIds } from '@/lib/showcase-blocks'
-import { DEFAULT_DOT_COLORS, showcaseThemeVars } from '@/lib/showcase-theme'
+import { DEFAULT_DOT_COLORS, googleFontsHref, showcaseThemeVars } from '@/lib/showcase-theme'
 import {
   exitFullscreen,
   isFullscreenActive,
@@ -38,6 +38,8 @@ export interface ShowcaseViewerSettings {
   playlistLoop: boolean
   headingSizes: Partial<Record<HeadingLevel, number>>
   textSizes: Partial<Record<TextSizePreset, number>>
+  headingFont: string | null
+  textFont: string | null
   dotsEnabled: boolean
   dotColorActive: string | null
   dotColorInactive: string | null
@@ -99,6 +101,7 @@ export function ShowcaseViewer({
   )
   const page = pages[Math.min(current, pages.length - 1)]
   const downloadPhotoIds = collectPhotoIds(pages.map((p) => ({ id: p.id, blocks: p.blocks })))
+  const fontsHref = googleFontsHref([settings.headingFont, settings.textFont])
 
   const flashToast = useCallback((message: string) => {
     setToast(message)
@@ -192,6 +195,7 @@ export function ShowcaseViewer({
     >
       {/* Admin-authored, same trust level as the rest of the builder. */}
       {settings.customCss && <style dangerouslySetInnerHTML={{ __html: settings.customCss }} />}
+      {fontsHref && <link rel="stylesheet" href={fontsHref} />}
 
       <div aria-live="polite" className="sr-only">
         Page {current + 1} of {total}
@@ -237,6 +241,8 @@ export function ShowcaseViewer({
             onZipClick={downloadEnabled ? () => setDownloadOpen(true) : undefined}
             headingSizes={settings.headingSizes}
             textSizes={settings.textSizes}
+            headingFont={settings.headingFont}
+            textFont={settings.textFont}
           />
         )}
         {total > 1 && (
@@ -269,6 +275,8 @@ export function ShowcaseViewer({
           onSelect={(i) => { goTo(i); setThumbsOpen(false) }}
           headingSizes={settings.headingSizes}
           textSizes={settings.textSizes}
+          headingFont={settings.headingFont}
+          textFont={settings.textFont}
         />
       )}
 

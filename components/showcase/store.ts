@@ -39,6 +39,8 @@ export interface AlbumSettings {
   playlistLoop: boolean
   headingSizes: Partial<Record<HeadingLevel, number>>
   textSizes: Partial<Record<TextSizePreset, number>>
+  headingFont: string | null
+  textFont: string | null
   colorPresets: string[]
   dotsEnabled: boolean
   dotColorActive: string | null
@@ -117,6 +119,8 @@ export const useShowcaseStore = create<ShowcaseStore>((set, get) => ({
     playlistLoop: true,
     headingSizes: { ...HEADING_SIZE_DEFAULTS },
     textSizes: { ...TEXT_SIZE_DEFAULTS },
+    headingFont: null,
+    textFont: null,
     colorPresets: [...DEFAULT_COLOR_PRESETS],
     dotsEnabled: true,
     dotColorActive: null,

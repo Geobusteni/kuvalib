@@ -54,6 +54,8 @@ export function PageStage({
   onZipClick,
   headingSizes,
   textSizes,
+  headingFont,
+  textFont,
 }: {
   pageId: string
   blocks: Block[]
@@ -66,6 +68,8 @@ export function PageStage({
   onZipClick?: () => void
   headingSizes?: Partial<Record<HeadingLevel, number>>
   textSizes?: Partial<Record<TextSizePreset, number>>
+  headingFont?: string | null
+  textFont?: string | null
 }) {
   return (
     // Edge-to-edge: the page fills 100% of the viewer, not a fixed-aspect
@@ -96,6 +100,8 @@ export function PageStage({
           onZipClick={onZipClick}
           headingSizes={headingSizes}
           textSizes={textSizes}
+          headingFont={headingFont}
+          textFont={textFont}
         />
       </div>
     </div>

@@ -20,6 +20,8 @@ export function ThumbnailRail({
   onSelect,
   headingSizes,
   textSizes,
+  headingFont,
+  textFont,
 }: {
   pages: { id: string; blocks: Block[] }[]
   photos: ShowcasePhoto[]
@@ -27,6 +29,8 @@ export function ThumbnailRail({
   onSelect: (index: number) => void
   headingSizes?: Partial<Record<HeadingLevel, number>>
   textSizes?: Partial<Record<TextSizePreset, number>>
+  headingFont?: string | null
+  textFont?: string | null
 }) {
   const scale = THUMB_W / PREVIEW_W
 
@@ -78,6 +82,8 @@ export function ThumbnailRail({
               photos={photos}
               headingSizes={headingSizes}
               textSizes={textSizes}
+              headingFont={headingFont}
+              textFont={textFont}
             />
           </div>
           <span

@@ -3,7 +3,7 @@
 
 'use client'
 
-import { Editor } from '@craftjs/core'
+import { Editor, useEditor } from '@craftjs/core'
 import { useEffect, useState } from 'react'
 import type { Block, PageSettings } from '@/lib/showcase-blocks'
 import { showcaseThemeVars } from '@/lib/showcase-theme'
@@ -96,6 +96,28 @@ function BuilderShell({
   const [linkCopied, setLinkCopied] = useState(false)
   const [blocksOpen, setBlocksOpen] = useState(true)
 
+  // Craft.js's own history — only the current page's block edits (position,
+  // size, style, text, add/delete/re-parent) are tracked; page add/delete and
+  // album settings live in the zustand store and are outside its scope.
+  const { canUndo, canRedo, actions: editorActions } = useEditor((state, query) => ({
+    canUndo: query.history.canUndo(),
+    canRedo: query.history.canRedo(),
+  }))
+
+  useEffect(() => {
+    const onKey = (e: KeyboardEvent) => {
+      const target = e.target as HTMLElement
+      if (target.tagName === 'INPUT' || target.tagName === 'TEXTAREA') return
+      const mod = e.metaKey || e.ctrlKey
+      if (!mod || e.key.toLowerCase() !== 'z') return
+      e.preventDefault()
+      if (e.shiftKey) editorActions.history.redo()
+      else editorActions.history.undo()
+    }
+    window.addEventListener('keydown', onKey)
+    return () => window.removeEventListener('keydown', onKey)
+  }, [editorActions])
+
   const copyLink = () => {
     const absolute = typeof window !== 'undefined' ? new URL(shareUrl, window.location.origin).href : shareUrl
     navigator.clipboard?.writeText(absolute).then(() => {
@@ -125,6 +147,28 @@ function BuilderShell({
           >
             {linkCopied ? 'Link copied' : 'Copy link'}
           </button>
+          <div className="flex overflow-hidden rounded-lg border border-zinc-300 dark:border-zinc-700">
+            <button
+              type="button"
+              onClick={() => editorActions.history.undo()}
+              disabled={!canUndo}
+              aria-label="Undo"
+              title="Undo (Ctrl/Cmd+Z)"
+              className="flex h-9 w-9 items-center justify-center hover:bg-zinc-100 disabled:cursor-not-allowed disabled:opacity-30 disabled:hover:bg-transparent dark:hover:bg-zinc-800"
+            >
+              <svg width="16" height="16" viewBox="0 0 20 20" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round"><path d="M7 5 3 9l4 4M3 9h9a5 5 0 0 1 0 10h-1" /></svg>
+            </button>
+            <button
+              type="button"
+              onClick={() => editorActions.history.redo()}
+              disabled={!canRedo}
+              aria-label="Redo"
+              title="Redo (Ctrl/Cmd+Shift+Z)"
+              className="flex h-9 w-9 items-center justify-center border-l border-zinc-300 hover:bg-zinc-100 disabled:cursor-not-allowed disabled:opacity-30 disabled:hover:bg-transparent dark:border-zinc-700 dark:hover:bg-zinc-800"
+            >
+              <svg width="16" height="16" viewBox="0 0 20 20" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round"><path d="M13 5 17 9l-4 4M17 9H8a5 5 0 0 0 0 10h1" /></svg>
+            </button>
+          </div>
         </div>
         <div className="flex items-center gap-3">
           <span className="text-xs text-zinc-400">

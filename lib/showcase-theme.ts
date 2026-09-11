@@ -11,6 +11,7 @@
 import type { CSSProperties } from 'react'
 import type { ShowcaseEventType, ShowcaseBg } from './generated/prisma/client'
 import {
+  GOOGLE_FONTS,
   HEADING_SIZE_DEFAULTS,
   TEXT_SIZE_DEFAULTS,
   type Block,
@@ -136,6 +137,56 @@ export function blockFontSizeCss(
   }
   const preset = block.textSize ?? 'normal'
   return `${textSizes?.[preset] ?? TEXT_SIZE_DEFAULTS[preset]}px`
+}
+
+/** `box-shadow`, or 'none' when there's nothing to draw (group blocks only). */
+export function blockShadowCss(block: Pick<Block, 'shadow' | 'shadowColor'>): string {
+  const size = block.shadow ?? 0
+  if (size <= 0) return 'none'
+  return `0 ${Math.round(size / 2)}px ${size}px ${block.shadowColor || '#000000'}`
+}
+
+/** Bold/italic/underline toggles on a Headline/Text block, independent of
+ *  each other and of the block's base weight (Headline is semibold by
+ *  default; Text is regular — `bold` only pushes past that). */
+export function blockFontStyleCss(
+  block: Pick<Block, 'type' | 'bold' | 'italic' | 'underline'>,
+): Pick<CSSProperties, 'fontWeight' | 'fontStyle' | 'textDecoration'> {
+  const base = block.type === 'title' ? 600 : 400
+  return {
+    fontWeight: block.bold ? 700 : base,
+    fontStyle: block.italic ? 'italic' : 'normal',
+    textDecoration: block.underline ? 'underline' : 'none',
+  }
+}
+
+/** name → category, for building a CSS fallback stack. */
+const GOOGLE_FONT_CATEGORY = new Map(GOOGLE_FONTS.map((f) => [f.name, f.category]))
+const FALLBACK_STACK: Record<'sans' | 'serif' | 'display' | 'script', string> = {
+  sans: 'ui-sans-serif, system-ui, sans-serif',
+  serif: 'ui-serif, Georgia, serif',
+  display: 'ui-sans-serif, system-ui, sans-serif',
+  script: 'cursive',
+}
+
+/** `font-family` value for an album's chosen Google Font, or `undefined` to
+ *  inherit the app's default (no font was chosen). */
+export function googleFontFamilyCss(name: string | undefined): string | undefined {
+  if (!name) return undefined
+  const category = GOOGLE_FONT_CATEGORY.get(name)
+  if (!category) return undefined
+  return `'${name}', ${FALLBACK_STACK[category]}`
+}
+
+/** The `<link>` href that loads every distinct chosen font in one request —
+ *  pass the album's headingFont/textFont (either may be undefined). */
+export function googleFontsHref(names: (string | null | undefined)[]): string | undefined {
+  const distinct = [...new Set(names.filter((n): n is string => !!n && GOOGLE_FONT_CATEGORY.has(n)))]
+  if (distinct.length === 0) return undefined
+  const families = distinct
+    .map((n) => `family=${encodeURIComponent(n).replace(/%20/g, '+')}:wght@400;600;700`)
+    .join('&')
+  return `https://fonts.googleapis.com/css2?${families}&display=swap`
 }
 
 /** Fallbacks for the viewer's page-dot indicator when the album hasn't set one. */

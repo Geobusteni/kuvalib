@@ -7,7 +7,7 @@ import { useEditor, useNode } from '@craftjs/core'
 import { Rnd } from 'react-rnd'
 import { useCallback, useRef, type ReactNode } from 'react'
 import { clamp, type Block } from '@/lib/showcase-blocks'
-import { blockBackgroundCss, blockRadiusCss } from '@/lib/showcase-theme'
+import { blockBackgroundCss, blockRadiusCss, blockShadowCss } from '@/lib/showcase-theme'
 import { useFrameSize, pctToPx, pxToPct } from '../../frame-size'
 
 /**
@@ -162,10 +162,23 @@ export function BlockShell({
         }
       }}
       onResizeStop={(_e, _dir, refEl, _delta, position) => {
-        const nextW = clamp(pxToPct(refEl.offsetWidth, frameW), MIN_PCT, 100)
-        const nextH = clamp(pxToPct(refEl.offsetHeight, frameH), MIN_PCT, 100)
-        const nextX = clamp(pxToPct(position.x, frameW), 0, 100 - nextW)
-        const nextY = clamp(pxToPct(position.y, frameH), 0, 100 - nextH)
+        let nextW = clamp(pxToPct(refEl.offsetWidth, frameW), MIN_PCT, 100)
+        let nextH = clamp(pxToPct(refEl.offsetHeight, frameH), MIN_PCT, 100)
+        let nextX = clamp(pxToPct(position.x, frameW), 0, 100 - nextW)
+        let nextY = clamp(pxToPct(position.y, frameH), 0, 100 - nextH)
+
+        // A group's child can be resized, but never past the group's own box —
+        // dragging (not resizing) is how a block leaves a group, so this is the
+        // one place membership doesn't also mean "free to grow beyond it".
+        if (!isGroup && parentGroupId) {
+          const parent = siblings().find((s) => s.id === parentGroupId)?.block
+          if (parent) {
+            nextW = Math.min(nextW, parent.w)
+            nextH = Math.min(nextH, parent.h)
+            nextX = clamp(nextX, parent.x, parent.x + parent.w - nextW)
+            nextY = clamp(nextY, parent.y, parent.y + parent.h - nextH)
+          }
+        }
 
         if (isGroup) {
           const sx = block.w ? nextW / block.w : 1
@@ -206,6 +219,7 @@ export function BlockShell({
         }}
         className={contentClassName}
         style={{
+          position: 'relative',
           width: '100%',
           height: '100%',
           boxSizing: 'border-box',
@@ -213,12 +227,26 @@ export function BlockShell({
           outline: isActive ? '2px solid var(--sc-accent)' : '1px dashed transparent',
           outlineOffset: '-1px',
           borderRadius: blockRadiusCss(block.radius),
-          background: isGroup ? blockBackgroundCss(block) : undefined,
-          backdropFilter: isGroup && block.blur ? `blur(${block.blur}px)` : undefined,
-          overflow: isGroup ? 'hidden' : undefined,
+          // A shadow renders outside the box, so it lives here, on the
+          // unclipped outer content div — the group's own background/blur
+          // clip on the inner div below instead, or the shadow would be cut
+          // off with them.
+          boxShadow: isGroup ? blockShadowCss(block) : undefined,
           ...contentStyle,
         }}
       >
+        {isGroup && (
+          <div
+            style={{
+              position: 'absolute',
+              inset: 0,
+              borderRadius: 'inherit',
+              overflow: 'hidden',
+              background: blockBackgroundCss(block),
+              backdropFilter: block.blur ? `blur(${block.blur}px)` : undefined,
+            }}
+          />
+        )}
         {children}
       </div>
     </Rnd>

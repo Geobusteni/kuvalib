@@ -10,8 +10,10 @@ import {
   blockBackgroundCss,
   blockBorderCss,
   blockFontSizeCss,
+  blockFontStyleCss,
   blockRadiusCss,
   blockTextColorCss,
+  googleFontFamilyCss,
 } from '@/lib/showcase-theme'
 import type { ShowcasePhoto } from './photos-context'
 
@@ -32,6 +34,9 @@ interface Props {
   /** Album defaults a Headline/Text block's own `fontSize` overrides. */
   headingSizes?: Partial<Record<HeadingLevel, number>>
   textSizes?: Partial<Record<TextSizePreset, number>>
+  /** Album-wide Google Font choice for Headline/Text blocks (no per-block override). */
+  headingFont?: string | null
+  textFont?: string | null
 }
 
 const HEADING_TAGS = ['h1', 'h2', 'h3', 'h4', 'h5', 'h6'] as const
@@ -44,6 +49,8 @@ export function BlockContent({
   onZipClick,
   headingSizes,
   textSizes,
+  headingFont,
+  textFont,
 }: Props) {
   if (block.type === 'image') {
     const radius = blockRadiusCss(block.radius)
@@ -111,6 +118,7 @@ export function BlockContent({
     const isTitle = block.type === 'title'
     const Tag = isTitle ? HEADING_TAGS[(block.level ?? 2) - 1] : 'p'
     const hasBg = block.bg !== 'none'
+    const fontFamily = googleFontFamilyCss(isTitle ? headingFont ?? undefined : textFont ?? undefined)
     return (
       <Tag
         style={{
@@ -122,7 +130,8 @@ export function BlockContent({
           justifyContent: 'center',
           textAlign: block.align ?? 'left',
           fontSize: blockFontSizeCss(block, headingSizes, textSizes),
-          fontWeight: isTitle ? 600 : 400,
+          fontFamily,
+          ...blockFontStyleCss(block),
           lineHeight: 1.35,
           color: blockTextColorCss(block),
           background: hasBg ? blockBackgroundCss(block) : undefined,

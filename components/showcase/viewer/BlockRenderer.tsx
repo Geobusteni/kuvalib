@@ -3,8 +3,9 @@
 
 'use client'
 
+import type { CSSProperties } from 'react'
 import { flattenBlocks, type Block, type HeadingLevel, type TextSizePreset } from '@/lib/showcase-blocks'
-import { blockBackgroundCss, blockRadiusCss } from '@/lib/showcase-theme'
+import { blockBackgroundCss, blockRadiusCss, blockShadowCss } from '@/lib/showcase-theme'
 import { BlockContent } from '../BlockContent'
 import type { ShowcasePhoto } from '../photos-context'
 
@@ -20,6 +21,8 @@ export function BlockRenderer({
   onZipClick,
   headingSizes,
   textSizes,
+  headingFont,
+  textFont,
 }: {
   blocks: Block[]
   photos: ShowcasePhoto[]
@@ -27,6 +30,8 @@ export function BlockRenderer({
   onZipClick?: () => void
   headingSizes?: Partial<Record<HeadingLevel, number>>
   textSizes?: Partial<Record<TextSizePreset, number>>
+  headingFont?: string | null
+  textFont?: string | null
 }) {
   const flat = flattenBlocks(blocks)
   return (
@@ -37,24 +42,32 @@ export function BlockRenderer({
             ? photos.find((p) => p.id === block.photoId)
             : undefined
         const isGroup = block.type === 'group'
+        const outerStyle: CSSProperties = {
+          position: 'absolute',
+          left: `${block.x}%`,
+          top: `${block.y}%`,
+          width: `${block.w}%`,
+          height: `${block.h}%`,
+          boxSizing: 'border-box',
+          borderRadius: blockRadiusCss(block.radius),
+          // A shadow renders outside the box, so it lives on this outer,
+          // unclipped wrapper — the inner one below clips the blur/background.
+          boxShadow: isGroup ? blockShadowCss(block) : undefined,
+        }
         return (
-          <div
-            key={block.id}
-            className={`sc-block sc-block-${block.type}`}
-            style={{
-              position: 'absolute',
-              left: `${block.x}%`,
-              top: `${block.y}%`,
-              width: `${block.w}%`,
-              height: `${block.h}%`,
-              boxSizing: 'border-box',
-              borderRadius: blockRadiusCss(block.radius),
-              background: isGroup ? blockBackgroundCss(block) : undefined,
-              backdropFilter: isGroup && block.blur ? `blur(${block.blur}px)` : undefined,
-              overflow: isGroup ? 'hidden' : undefined,
-            }}
-          >
-            {!isGroup && (
+          <div key={block.id} className={`sc-block sc-block-${block.type}`} style={outerStyle}>
+            {isGroup ? (
+              <div
+                style={{
+                  width: '100%',
+                  height: '100%',
+                  borderRadius: 'inherit',
+                  overflow: 'hidden',
+                  background: blockBackgroundCss(block),
+                  backdropFilter: block.blur ? `blur(${block.blur}px)` : undefined,
+                }}
+              />
+            ) : (
               <BlockContent
                 block={block}
                 photo={photo}
@@ -62,6 +75,8 @@ export function BlockRenderer({
                 onZipClick={onZipClick}
                 headingSizes={headingSizes}
                 textSizes={textSizes}
+                headingFont={headingFont}
+                textFont={textFont}
               />
             )}
           </div>

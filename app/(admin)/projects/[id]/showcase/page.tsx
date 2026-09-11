@@ -65,6 +65,8 @@ export default async function ShowcaseBuilderPage({ params }: Props) {
           ...TEXT_SIZE_DEFAULTS,
           ...((showcase.textSizes ?? {}) as Partial<Record<TextSizePreset, number>>),
         },
+        headingFont: showcase.headingFont,
+        textFont: showcase.textFont,
         colorPresets: (showcase.colorPresets as string[] | null) ?? DEFAULT_COLOR_PRESETS,
         dotsEnabled: showcase.dotsEnabled,
         dotColorActive: showcase.dotColorActive,

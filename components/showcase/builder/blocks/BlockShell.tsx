@@ -21,6 +21,29 @@ import { useFrameSize, pctToPx, pxToPct } from '../../frame-size'
 
 const MIN_PCT = 4
 
+// Magnetic edge snapping: purely a drop-time nudge, never a constraint — you
+// can still drag one block clean over another, it just settles into exact
+// alignment when you release close to a match. Doesn't touch onDrag, so the
+// drag itself stays exactly as fluid as it always was.
+const SNAP_PX = 6
+
+/** Shift `pos` by the smallest delta that lines up its start, centre, or end
+ *  with the nearest candidate within `thresholdPct` — or return `pos`
+ *  unchanged if nothing is close enough. */
+function snapAxis(pos: number, size: number, candidates: number[], thresholdPct: number): number {
+  let bestDelta = 0
+  let bestDist = thresholdPct
+  for (const c of candidates) {
+    for (const d of [c - pos, c - (pos + size / 2), c - (pos + size)]) {
+      if (Math.abs(d) < bestDist) {
+        bestDist = Math.abs(d)
+        bestDelta = d
+      }
+    }
+  }
+  return pos + bestDelta
+}
+
 // react-rnd wraps react-draggable around re-resizable. Without this, a mousedown
 // on a resize handle also starts a drag, and the drag wins — so the block never
 // resizes. Giving the handles a class and passing it as react-draggable's
@@ -133,8 +156,33 @@ export function BlockShell({
         dragStart.current = { x: nx, y: ny }
       }}
       onDragStop={(_e, d) => {
-        const nx = clamp(pxToPct(d.x, frameW), 0, 100 - block.w)
-        const ny = clamp(pxToPct(d.y, frameH), 0, 100 - block.h)
+        const rawX = clamp(pxToPct(d.x, frameW), 0, 100 - block.w)
+        const rawY = clamp(pxToPct(d.y, frameH), 0, 100 - block.h)
+
+        // Snap to the page edges/centre and to other blocks' edges/centres —
+        // whichever of this block's own start/centre/end is closest, within
+        // a few px. This only nudges the final drop position; it never
+        // blocks the drag itself, so dragging over another block still works.
+        const others = siblings().filter((s) => s.id !== id)
+        const xCandidates = [0, 50, 100, ...others.flatMap((s) => [s.block.x, s.block.x + s.block.w / 2, s.block.x + s.block.w])]
+        const yCandidates = [0, 50, 100, ...others.flatMap((s) => [s.block.y, s.block.y + s.block.h / 2, s.block.y + s.block.h])]
+        const nx = clamp(snapAxis(rawX, block.w, xCandidates, pxToPct(SNAP_PX, frameW)), 0, 100 - block.w)
+        const ny = clamp(snapAxis(rawY, block.h, yCandidates, pxToPct(SNAP_PX, frameH)), 0, 100 - block.h)
+
+        if (isGroup) {
+          const snapDx = nx - rawX
+          const snapDy = ny - rawY
+          if (snapDx !== 0 || snapDy !== 0) {
+            for (const sib of siblings()) {
+              if (sib.parentGroupId !== id) continue
+              patchNode(sib.id, {
+                x: clamp(sib.block.x + snapDx, 0, 100),
+                y: clamp(sib.block.y + snapDy, 0, 100),
+              })
+            }
+          }
+        }
+
         patchNode(id, { x: nx, y: ny })
         dragStart.current = null
 

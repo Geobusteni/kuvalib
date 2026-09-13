@@ -103,10 +103,60 @@ function Segmented<T extends string>({
 const inputClass =
   'h-8 rounded-lg border border-zinc-300 bg-white px-2 text-sm text-zinc-900 focus:border-zinc-500 focus:outline-none dark:border-zinc-700 dark:bg-zinc-900 dark:text-zinc-100'
 
+/** A number input that never fights what you're typing: it passes the raw
+ *  value straight through (so typing "1" then "0" isn't clamped to the
+ *  minimum after the first keystroke) and just turns the border red while
+ *  the value is out of range, rather than silently rewriting it. Whatever
+ *  you leave it at is clamped for real when the block is saved. Inline
+ *  style, not a competing Tailwind class, so it reliably wins over the
+ *  base border colour regardless of utility-class cascade order. */
+function NumberField({
+  value,
+  onChange,
+  min,
+  max,
+  placeholder,
+  className = inputClass,
+}: {
+  value: number | undefined
+  onChange: (v: number | undefined) => void
+  min: number
+  max: number
+  placeholder?: string
+  className?: string
+}) {
+  const outOfRange = value !== undefined && (value < min || value > max)
+  return (
+    <input
+      type="number"
+      className={className}
+      style={outOfRange ? { borderColor: '#ef4444' } : undefined}
+      placeholder={placeholder}
+      title={outOfRange ? `Must be between ${min} and ${max} — saved as ${clamp(value, min, max)}` : undefined}
+      value={value ?? ''}
+      onChange={(e) => {
+        const raw = e.target.value
+        if (raw === '') { onChange(undefined); return }
+        const n = parseInt(raw, 10)
+        if (!Number.isNaN(n)) onChange(n)
+      }}
+    />
+  )
+}
+
+// A thin rainbow ring around a solid centre — the "custom" swatch previews
+// its actual configured colour (so you know what you picked) but a plain
+// solid dot alone reads as just another preset, especially when that colour
+// happens to be black. The ring is what says "this one opens a picker."
+const RAINBOW_RING = 'conic-gradient(red,yellow,lime,cyan,blue,magenta,red)'
+function customSwatchBackground(hex: string): string {
+  return `radial-gradient(circle, ${hex} 55%, transparent 58%), ${RAINBOW_RING}`
+}
+
 /** Mirrors bgSwatchStyle for the text-colour swatches — 'custom' previews the
  *  block's own textColorCustom instead of a generic placeholder. */
 function textSwatchStyle(key: BlockTextColor, custom: string | undefined): React.CSSProperties {
-  if (key === 'custom') return { background: custom || '#e9e9ed' }
+  if (key === 'custom') return { background: customSwatchBackground(custom || '#e9e9ed') }
   if (key === 'accent') return { background: 'var(--sc-accent)' }
   if (key === 'muted') return { background: 'var(--sc-text-muted)' }
   return { background: '#e9e9ed' }
@@ -121,7 +171,7 @@ function bgSwatchStyle(
   value: { bgCustom?: string; bgGradientFrom?: string; bgGradientTo?: string; bgGradientAngle?: number },
 ): React.CSSProperties {
   if (key === 'custom') {
-    return { background: value.bgCustom || '#1a1a1a' }
+    return { background: customSwatchBackground(value.bgCustom || '#1a1a1a') }
   }
   if (key === 'gradient') {
     return {
@@ -260,14 +310,23 @@ function BorderField<T extends { borderStyle?: BorderStyle; borderWidth?: number
       {(value.borderStyle ?? 'none') !== 'none' && (
         <div className="flex gap-2">
           <Field label="Width (px)">
-            <input
-              type="number"
-              min={1}
-              max={20}
-              className={inputClass}
-              value={value.borderWidth ?? 1}
-              onChange={(e) => onChange({ borderWidth: clamp(parseInt(e.target.value, 10) || 1, 1, 20) } as Partial<T>)}
-            />
+            <div className="flex items-center gap-2">
+              <input
+                type="range"
+                min={0}
+                max={10}
+                value={Math.min(value.borderWidth ?? 1, 10)}
+                onChange={(e) => onChange({ borderWidth: parseInt(e.target.value, 10) } as Partial<T>)}
+                className="w-16"
+              />
+              <NumberField
+                value={value.borderWidth}
+                onChange={(v) => onChange({ borderWidth: v ?? 0 } as Partial<T>)}
+                min={0}
+                max={20}
+                className={`${inputClass} w-16`}
+              />
+            </div>
           </Field>
           <label className="flex flex-1 flex-col gap-1 text-xs font-medium text-zinc-500">
             Colour
@@ -528,18 +587,13 @@ export function SettingsPanel() {
               onChange={(v) => update({ level: Number(v) as HeadingLevel })}
             />
           </Field>
-          <Field label="Custom size (px) — overrides the level default">
-            <input
-              type="number"
+          <Field label="Custom size (px, 8–200) — overrides the level default">
+            <NumberField
+              value={block.fontSize}
+              onChange={(v) => update({ fontSize: v })}
               min={8}
               max={200}
-              className={inputClass}
               placeholder="Album default"
-              value={block.fontSize ?? ''}
-              onChange={(e) => {
-                const v = e.target.value
-                update({ fontSize: v === '' ? undefined : clamp(parseInt(v, 10) || 16, 8, 200) })
-              }}
             />
           </Field>
         </>
@@ -550,18 +604,13 @@ export function SettingsPanel() {
           <Field label="Size">
             <Segmented options={TEXT_SIZES} value={block.textSize ?? 'normal'} onChange={(v) => update({ textSize: v })} />
           </Field>
-          <Field label="Custom size (px) — overrides the preset">
-            <input
-              type="number"
+          <Field label="Custom size (px, 8–200) — overrides the preset">
+            <NumberField
+              value={block.fontSize}
+              onChange={(v) => update({ fontSize: v })}
               min={8}
               max={200}
-              className={inputClass}
               placeholder="Preset default"
-              value={block.fontSize ?? ''}
-              onChange={(e) => {
-                const v = e.target.value
-                update({ fontSize: v === '' ? undefined : clamp(parseInt(v, 10) || 15, 8, 200) })
-              }}
             />
           </Field>
         </>
@@ -669,7 +718,7 @@ export function SettingsPanel() {
                 />
               </label>
               <label className="text-[11px] text-zinc-400">
-                Shadow — {block.shadow ?? 0}px
+                Shadow blur — {block.shadow ?? 0}px (0 = off)
                 <input
                   type="range"
                   min={0}
@@ -680,15 +729,52 @@ export function SettingsPanel() {
                 />
               </label>
               {(block.shadow ?? 0) > 0 && (
-                <div className="flex flex-col gap-1">
-                  <input
-                    type="color"
-                    value={block.shadowColor ?? '#000000'}
-                    onChange={(e) => update({ shadowColor: e.target.value })}
-                    className="h-8 w-full cursor-pointer rounded"
-                  />
-                  <PresetSwatchRow presets={colorPresets} onPick={(hex) => update({ shadowColor: hex })} />
-                </div>
+                <>
+                  <div className="grid grid-cols-2 gap-2">
+                    <label className="text-[11px] text-zinc-400">
+                      Offset X — {block.shadowOffsetX ?? 0}px
+                      <input
+                        type="range"
+                        min={-40}
+                        max={40}
+                        value={block.shadowOffsetX ?? 0}
+                        onChange={(e) => update({ shadowOffsetX: parseInt(e.target.value, 10) })}
+                        className="w-full"
+                      />
+                    </label>
+                    <label className="text-[11px] text-zinc-400">
+                      Offset Y — {block.shadowOffsetY ?? Math.round((block.shadow ?? 0) / 2)}px
+                      <input
+                        type="range"
+                        min={-40}
+                        max={40}
+                        value={block.shadowOffsetY ?? Math.round((block.shadow ?? 0) / 2)}
+                        onChange={(e) => update({ shadowOffsetY: parseInt(e.target.value, 10) })}
+                        className="w-full"
+                      />
+                    </label>
+                  </div>
+                  <label className="text-[11px] text-zinc-400">
+                    Spread — {block.shadowSpread ?? 0}px
+                    <input
+                      type="range"
+                      min={-20}
+                      max={20}
+                      value={block.shadowSpread ?? 0}
+                      onChange={(e) => update({ shadowSpread: parseInt(e.target.value, 10) })}
+                      className="w-full"
+                    />
+                  </label>
+                  <div className="flex flex-col gap-1">
+                    <input
+                      type="color"
+                      value={block.shadowColor ?? '#000000'}
+                      onChange={(e) => update({ shadowColor: e.target.value })}
+                      className="h-8 w-full cursor-pointer rounded"
+                    />
+                    <PresetSwatchRow presets={colorPresets} onPick={(hex) => update({ shadowColor: hex })} />
+                  </div>
+                </>
               )}
             </>
           )}

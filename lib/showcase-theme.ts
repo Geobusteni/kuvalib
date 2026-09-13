@@ -139,11 +139,22 @@ export function blockFontSizeCss(
   return `${textSizes?.[preset] ?? TEXT_SIZE_DEFAULTS[preset]}px`
 }
 
-/** `box-shadow`, or 'none' when there's nothing to draw (group blocks only). */
-export function blockShadowCss(block: Pick<Block, 'shadow' | 'shadowColor'>): string {
-  const size = block.shadow ?? 0
-  if (size <= 0) return 'none'
-  return `0 ${Math.round(size / 2)}px ${size}px ${block.shadowColor || '#000000'}`
+/** `box-shadow`, or 'none' when there's nothing to draw (group blocks only).
+ *  `shadow` (blur radius) is the on/off switch — 0 means no shadow at all,
+ *  matching the panel's "Shadow — 0px" slider. Offset/spread default to the
+ *  values this function always used before they were separately editable
+ *  (a soft shadow straight down, no spread), so a block saved before these
+ *  existed still renders identically. */
+export function blockShadowCss(
+  block: Pick<Block, 'shadow' | 'shadowColor' | 'shadowOffsetX' | 'shadowOffsetY' | 'shadowSpread'>,
+): string {
+  const blur = block.shadow ?? 0
+  if (blur <= 0) return 'none'
+  const offsetX = block.shadowOffsetX ?? 0
+  const offsetY = block.shadowOffsetY ?? Math.round(blur / 2)
+  const spread = block.shadowSpread ?? 0
+  const color = block.shadowColor || '#000000'
+  return `${offsetX}px ${offsetY}px ${blur}px ${spread}px ${color}`
 }
 
 /** Bold/italic/underline toggles on a Headline/Text block, independent of

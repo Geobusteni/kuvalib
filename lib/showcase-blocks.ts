@@ -42,9 +42,16 @@ export interface Block {
   bgGradientAngle?: number
   /** group only — backdrop-filter blur in px, for a glass effect over a photo. */
   blur?: number
-  /** group only — drop shadow intensity (0 = none) and colour. */
+  /** group only — CSS box-shadow, split into its parts. `shadow` is the blur
+   *  radius and doubles as the on/off switch (0 = none, matching the panel's
+   *  "Shadow — 0px" slider); the rest default sensibly when unset so older
+   *  data (saved before these existed) still renders the same soft shadow it
+   *  always did. See blockShadowCss in showcase-theme.ts. */
   shadow?: number
   shadowColor?: string
+  shadowOffsetX?: number
+  shadowOffsetY?: number
+  shadowSpread?: number
   /** Not present on image blocks. */
   textColor?: BlockTextColor
   textColorCustom?: string
@@ -493,8 +500,11 @@ export function sanitizeBlock(raw: unknown, depth = 0): Block | null {
 
   if (type === 'group') {
     if (Number.isFinite(r.blur)) block.blur = num(r.blur, 0, 0, 40)
-    if (Number.isFinite(r.shadow)) block.shadow = num(r.shadow, 0, 0, 40)
+    if (Number.isFinite(r.shadow)) block.shadow = num(r.shadow, 0, 0, 60)
     block.shadowColor = hexColor(r.shadowColor) ?? '#000000'
+    if (Number.isFinite(r.shadowOffsetX)) block.shadowOffsetX = num(r.shadowOffsetX, 0, -60, 60)
+    if (Number.isFinite(r.shadowOffsetY)) block.shadowOffsetY = num(r.shadowOffsetY, 0, -60, 60)
+    if (Number.isFinite(r.shadowSpread)) block.shadowSpread = num(r.shadowSpread, 0, -20, 40)
   }
 
   if (type === 'image') {

@@ -22,31 +22,27 @@ function Icon({ children, label, onClick, pressed }: {
 }
 
 /** A small floating pill, top-right — not a full-width bar, so the photo
- *  underneath (the whole point of the showcase) stays uninterrupted. */
+ *  underneath (the whole point of the showcase) stays uninterrupted. Music
+ *  has its own separate pill (`MusicControls`) so it's never confused with
+ *  the slideshow's own play/pause here. */
 export function ViewerControls({
-  hasMusic,
-  musicOn,
-  onToggleMusic,
   autoplay,
   onToggleAutoplay,
   onToggleThumbs,
   showFullscreen,
   onToggleFullscreen,
-  onShare,
+  onCopyLink,
   onDownload,
   showDownload,
   backHref,
   visible,
 }: {
-  hasMusic: boolean
-  musicOn: boolean
-  onToggleMusic: () => void
   autoplay: boolean
   onToggleAutoplay: () => void
   onToggleThumbs: () => void
   showFullscreen: boolean
   onToggleFullscreen: () => void
-  onShare: () => void
+  onCopyLink: () => void
   onDownload: () => void
   showDownload: boolean
   backHref?: string
@@ -61,13 +57,6 @@ export function ViewerControls({
         <a href={backHref} className="flex h-10 items-center rounded-full px-3 text-sm text-white/90 hover:bg-white/10">
           ← Edit
         </a>
-      )}
-      {hasMusic && (
-        <Icon label={musicOn ? 'Mute music' : 'Play music'} onClick={onToggleMusic} pressed={musicOn}>
-          <svg width="18" height="18" viewBox="0 0 20 20" fill="none" stroke="currentColor" strokeWidth="1.6" strokeLinecap="round" strokeLinejoin="round">
-            {musicOn ? <path d="M6 4h3v12H6zM11 4h3v12h-3z" /> : <path d="M6 4l10 6-10 6z" />}
-          </svg>
-        </Icon>
       )}
       <Icon label={autoplay ? 'Pause slideshow' : 'Play slideshow'} onClick={onToggleAutoplay} pressed={autoplay}>
         <svg width="18" height="18" viewBox="0 0 20 20" fill="currentColor" stroke="currentColor" strokeWidth="1.6" strokeLinecap="round" strokeLinejoin="round">
@@ -87,10 +76,10 @@ export function ViewerControls({
           </svg>
         </Icon>
       )}
-      <Icon label="Copy showcase link" onClick={onShare}>
+      <Icon label="Copy showcase link" onClick={onCopyLink}>
         <svg width="18" height="18" viewBox="0 0 20 20" fill="none" stroke="currentColor" strokeWidth="1.6" strokeLinecap="round" strokeLinejoin="round">
-          <circle cx="15" cy="4" r="2" /><circle cx="5" cy="10" r="2" /><circle cx="15" cy="16" r="2" />
-          <path d="M13 5 7 9M7 11l6 4" />
+          <rect x="7" y="7" width="9" height="9" rx="1.5" />
+          <path d="M4 12.5V5.5A1.5 1.5 0 0 1 5.5 4H12" />
         </svg>
       </Icon>
       {showDownload && (

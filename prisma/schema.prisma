@@ -126,6 +126,10 @@ model Showcase {
   autoplay        Boolean @default(true)
   autoplaySeconds Int     @default(5)
   playlistLoop    Boolean @default(true)
+  /// Starts the music playlist automatically even when `autoplay` (slides) is
+  /// off. Meaningless when `autoplay` is on — slides autoplaying always
+  /// starts music too, regardless of this flag.
+  musicAutoplay Boolean @default(false)
 
   /// Default px size per heading level (h1–h6), overridable per Headline block.
   /// {h1,h2,h3,h4,h5,h6: number}; see HEADING_SIZE_DEFAULTS in showcase-blocks.ts.

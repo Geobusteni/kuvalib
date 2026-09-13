@@ -71,7 +71,9 @@ one, and a group's children are indented under it, in that same back-to-front or
 
 - **Click** a block to select it — the settings panel fills in.
 - **Drag** a block to move it; **drag a corner handle** (shown only on the selected block) to
-  resize it.
+  resize it. While dragging, a block's edges and centre lightly snap to the page edges/centre and
+  to other blocks' edges/centres once you're close — a magnetic nudge on drop, not a hard
+  constraint, so you can still drag it fully over another block or leave it unaligned.
 - **Bring to front / Send to back** in the panel changes stacking order.
 - The trash icon in the panel deletes the selected block.
 
@@ -105,14 +107,17 @@ title-and-button pair.
   an adjustable angle.
 - **Blur** (Group only) — a backdrop blur behind the group, for a glass-panel effect over a
   photo.
-- **Shadow** (Group only) — a drop shadow behind the group's box, with its own colour. The
-  border/corners stay crisp; only the shadow is soft.
+- **Shadow** (Group only) — a drop shadow behind the group's box: blur, offset X, offset Y,
+  spread, and colour — the same controls as CSS `box-shadow`. Blur is the on/off switch (0 turns
+  it off); the offset/spread fields only appear once it's on. The border/corners stay crisp; only
+  the shadow is soft.
 - **Text colour** — Text and Button: default, accent, muted, or a custom colour with an opacity
   slider. **Headline text is always solid** — same swatches, no opacity, so it stays legible over
   a photo.
 - **Style** (Headline and Text) — bold, italic, underline, any combination, independent of the
   block's base weight.
-- **Border** (Image and Button blocks) — style (solid / dashed / dotted), width, and colour.
+- **Border** (Image and Button blocks) — style (solid / dashed / dotted), a width slider (0–10px,
+  starting at 0) with a number field next to it for typing a wider value directly, and colour.
 - **Ken Burns** (Image blocks) — a slow pan/zoom while the image is on screen: none, zoom in, or
   slide left/right/up/down. **Speed** is a range in seconds, capped to the page's autoplay
   interval when autoplay is on (so the effect never gets cut off mid-motion). The border and
@@ -120,13 +125,18 @@ title-and-button pair.
   entirely under `prefers-reduced-motion`.
 - **Size** — Headline: pick a level (H1–H6); the pixel size for each level comes from Album
   settings, or set a custom size on the block to override it. Text: pick a preset (small /
-  normal / medium / large / huge), same override. Long text wraps inside the block and is
-  clipped if it still overflows — it never spills outside the block's box.
+  normal / medium / large / huge), same override. The custom-size field accepts whatever you
+  type without forcing it back to the valid range as you type — the border turns red and a
+  tooltip explains the allowed range when the typed value is out of bounds; only the saved value
+  is clamped. Long text wraps inside the block and is clipped if it still overflows — it never
+  spills outside the block's box.
 - **Font** — every Headline shares one Google Font, every Text block shares another, both set
   album-wide in Album settings (no per-block override).
 
 Every colour swatch shows the colour it would actually apply — the "custom" and "gradient"
-options preview the block's own configured colour, not a placeholder — and a **Reset** link
+options preview the block's own configured colour, not a placeholder, and carry a small rainbow
+ring so it's clear at a glance that swatch opens a colour picker rather than just selecting black
+— and a **Reset** link
 appears next to a swatch row once it's been changed from its default, to clear it back in one
 click. Below any custom-colour picker, your **Color presets** (Album settings) appear as
 one-click swatches too, so you rarely need to reopen the native colour picker at all.
@@ -178,11 +188,22 @@ Upload background tracks in the Album settings dialog:
 
 - Formats: **MP3, M4A, OGG, WAV**, up to **20 MB** each, up to 12 tracks.
 - **Loop the playlist while viewing** repeats from the first track after the last.
+- **Autoplay music** starts the playlist automatically when the viewer loads. Disabled and shown
+  checked when the slideshow's own **Autoplay** is on, since slides autoplaying always starts the
+  music with them — there's nothing to decide in that case.
 - Tracks are stored with the project's files under `uploads/<project>/audio/` and are removed
   when you delete a track or the showcase.
 
-In the viewer, music never starts on its own (browsers block that) — the visitor turns it on
-with the music button.
+Whether music plays automatically follows the slideshow's own autoplay setting first:
+
+| Slides autoplay | Autoplay music | Result |
+|---|---|---|
+| On | (ignored) | Music starts with the slides. Only a **mute/unmute** button is shown — there's nothing to "play", it's already playing. |
+| Off | On | Music starts on its own. Only a **mute/unmute** button is shown. |
+| Off | Off | Music does **not** start on its own. A separate **play/pause** button is shown instead. |
+
+The music control sits in its own small pill below the main slideshow controls, so it's never
+mistaken for the slideshow's own play/pause button.
 
 ---
 
@@ -209,8 +230,11 @@ https://yourdomain.com/s/<showcase-id>
   Button block set to *Back to gallery*.
 - If the project has expired, the showcase shows an "expired" message, same as the gallery.
 
-Copy the link with **Copy client link** on the project page, or with the share button inside the
-viewer (which floats a "link copied" confirmation under the button).
+Copy the link with **Copy client link** on the project page, or with the copy-link button inside
+the viewer (a "link copied" confirmation floats under the button). If the project is
+password-protected, the confirmation also reminds the visitor to send the password separately,
+without revealing it — pointing them to the admin or whoever shared the link if they don't know
+it.
 
 ---
 
@@ -223,12 +247,14 @@ gets all the available space.
 **Controls** float as one compact pill in the top-right corner, over the photo, instead of a
 full-width bar:
 
-- **Music** toggle (only when there are tracks)
 - **Autoplay** toggle
 - **Thumbnails** — a strip of scaled-down page previews to jump around
 - **Fullscreen** (hidden on browsers without Fullscreen support, e.g. iOS Safari)
-- **Copy link**
+- **Copy link** (a copy icon; see Sharing and access above for the password reminder)
 - **Download** — the showcase's photos as a ZIP of originals (when downloads are enabled)
+
+A separate, smaller pill below it holds the **music** control (only when there are tracks) — see
+Music, above, for when it's mute/unmute vs. play/pause.
 
 A row of **dots** in the top-left corner shows the page position — the current page's dot is
 larger; click any dot to jump to that page. Shown or hidden, and coloured, by the Album settings'

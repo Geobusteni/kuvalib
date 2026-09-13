@@ -69,6 +69,7 @@ export async function PUT(request: NextRequest, ctx: Ctx) {
   if (body.animationStyle in ShowcaseAnimation) data.animationStyle = body.animationStyle
   if (typeof body.autoplay === 'boolean') data.autoplay = body.autoplay
   if (typeof body.playlistLoop === 'boolean') data.playlistLoop = body.playlistLoop
+  if (typeof body.musicAutoplay === 'boolean') data.musicAutoplay = body.musicAutoplay
   if (Number.isFinite(body.autoplaySeconds)) {
     data.autoplaySeconds = Math.min(60, Math.max(2, Math.round(body.autoplaySeconds)))
   }

@@ -10,6 +10,51 @@ adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html). While the
 
 ## [Unreleased]
 
+## [1.10.0] - 2026-09-13
+
+### Added
+
+- **Full CSS box-shadow controls for Group blocks** — offset X, offset Y,
+  and spread, alongside the existing blur and colour.
+- **A rainbow ring on every custom-colour swatch**, so it's clear at a
+  glance that swatch opens a colour picker rather than selecting a flat
+  colour.
+- **Magnetic edge snapping while dragging a block** — a block's edges and
+  centre lightly snap to the page edges/centre and to other blocks' edges
+  on drop, once you're close. It's a nudge, not a constraint: dragging a
+  block fully over another one still works exactly as before.
+- **Autoplay music**, a new Album setting for starting the playlist
+  automatically even when the slideshow itself doesn't autoplay. When the
+  slideshow autoplays, music always starts with it and this setting is
+  shown checked and disabled.
+- **A separate music-controls pill in the viewer**, below the main
+  controls, so it's never confused with the slideshow's own play/pause:
+  mute/unmute when music is already playing, play/pause when it isn't.
+- **A password reminder when copying a showcase link**, for
+  password-protected projects — it tells the visitor to send the password
+  too, and to ask the admin or whoever shared the link if they don't know
+  it. The password itself is never shown.
+
+### Changed
+
+- **The showcase builder is noticeably wider**, breaking out of the admin
+  layout's narrower column to give the canvas and side panels more room.
+- **Border width on Image and Button blocks is now a 0–10px slider** with
+  a number field next to it for typing a larger value directly, starting
+  from 0.
+- **Typing a custom font size no longer snaps mid-keystroke** — a value
+  outside the valid range (8–200px) stays exactly as typed, with the field's
+  border turning red and a tooltip explaining the allowed range, until you
+  move on; only the saved value is clamped.
+- **The showcase viewer's share button is now a copy-link icon**, since
+  that's all it ever did — copy the public link to the clipboard.
+
+### Fixed
+
+- **A page's own background and border weren't visible while editing it**
+  in the showcase builder — only in the live viewer. The builder canvas now
+  applies a page's background/border the same way the viewer does.
+
 ## [1.9.0] - 2026-09-11
 
 ### Added

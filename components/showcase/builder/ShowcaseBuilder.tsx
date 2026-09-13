@@ -30,6 +30,7 @@ export interface ShowcaseBuilderProps {
   galleryHref: string
   shareUrl: string
   downloadEnabled: boolean
+  passwordProtected: boolean
 }
 
 export function ShowcaseBuilder(props: ShowcaseBuilderProps) {
@@ -66,6 +67,7 @@ export function ShowcaseBuilder(props: ShowcaseBuilderProps) {
           galleryHref={props.galleryHref}
           shareUrl={props.shareUrl}
           downloadEnabled={props.downloadEnabled}
+          passwordProtected={props.passwordProtected}
         />
       </BuilderProvider>
     </Editor>
@@ -77,11 +79,13 @@ function BuilderShell({
   galleryHref,
   shareUrl,
   downloadEnabled,
+  passwordProtected,
 }: {
   photos: ShowcasePhoto[]
   galleryHref: string
   shareUrl: string
   downloadEnabled: boolean
+  passwordProtected: boolean
 }) {
   const view = useShowcaseStore((s) => s.view)
   const setView = useShowcaseStore((s) => s.setView)
@@ -128,6 +132,11 @@ function BuilderShell({
 
   return (
     <PhotosProvider photos={photos}>
+      {/* Breaks out of the admin layout's max-w-5xl column — the builder needs
+          real width for the canvas + two side panels, which felt cramped
+          confined to the same column as a settings form. */}
+      <div className="relative left-1/2 right-1/2 -mx-[50vw] w-screen px-4">
+      <div className="mx-auto max-w-[1800px]">
       <div className="flex items-center justify-between gap-3 border-b border-zinc-200 pb-3 dark:border-zinc-800">
         <div className="flex items-center gap-2">
           <a href={`/projects/${projectId}`} className="text-sm text-zinc-500 hover:text-zinc-900 dark:hover:text-zinc-100">
@@ -207,7 +216,7 @@ function BuilderShell({
         // on Canvas below, so swatches in BlockTree/SettingsPanel that reference
         // them (to preview the album's actual accent/surface colours) resolve too.
         <div
-          className="mt-4 grid grid-cols-[96px_minmax(0,1fr)_260px] gap-4"
+          className="mt-4 grid grid-cols-[112px_minmax(0,1fr)_320px] gap-4"
           style={showcaseThemeVars(settings.eventType, settings.albumBg)}
         >
           <PageRail />
@@ -252,12 +261,15 @@ function BuilderShell({
             galleryHref={galleryHref}
             shareUrl={shareUrl}
             downloadEnabled={downloadEnabled}
+            passwordProtected={passwordProtected}
             backHref={undefined}
           />
         </div>
       )}
 
       {settingsOpen && <AlbumSettingsDialog onClose={() => setSettingsOpen(false)} />}
+      </div>
+      </div>
     </PhotosProvider>
   )
 }

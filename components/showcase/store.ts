@@ -37,6 +37,7 @@ export interface AlbumSettings {
   autoplay: boolean
   autoplaySeconds: number
   playlistLoop: boolean
+  musicAutoplay: boolean
   headingSizes: Partial<Record<HeadingLevel, number>>
   textSizes: Partial<Record<TextSizePreset, number>>
   headingFont: string | null
@@ -117,6 +118,7 @@ export const useShowcaseStore = create<ShowcaseStore>((set, get) => ({
     autoplay: true,
     autoplaySeconds: 5,
     playlistLoop: true,
+    musicAutoplay: false,
     headingSizes: { ...HEADING_SIZE_DEFAULTS },
     textSizes: { ...TEXT_SIZE_DEFAULTS },
     headingFont: null,

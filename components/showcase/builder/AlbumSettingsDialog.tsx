@@ -226,6 +226,20 @@ export function AlbumSettingsDialog({ onClose }: { onClose: () => void }) {
           />
           Loop the playlist while viewing
         </label>
+        <label className={`flex items-center gap-2 text-sm ${settings.autoplay ? 'opacity-60' : ''}`}>
+          <input
+            type="checkbox"
+            checked={settings.autoplay || settings.musicAutoplay}
+            disabled={settings.autoplay}
+            onChange={(e) => patch({ musicAutoplay: e.target.checked })}
+          />
+          Autoplay music
+        </label>
+        <p className="text-[11px] text-zinc-400">
+          {settings.autoplay
+            ? 'Slides autoplay, so music always starts with them — this is checked for you.'
+            : 'Starts music automatically (only a mute button is shown). Off, the viewer gets a play button for music instead.'}
+        </p>
 
         <div className="h-px bg-zinc-200 dark:bg-zinc-800" />
         <span className="text-xs font-semibold uppercase tracking-wide text-zinc-500">Slideshow</span>

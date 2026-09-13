@@ -25,6 +25,7 @@ import { ViewerControls } from './ViewerControls'
 import { ThumbnailRail } from './ThumbnailRail'
 import { DotIndicator } from './DotIndicator'
 import { MusicPlayer } from './MusicPlayer'
+import { MusicControls } from './MusicControls'
 import { ShowcaseDownloadDialog } from './ShowcaseDownloadDialog'
 import { useSlideshow } from './useSlideshow'
 
@@ -36,6 +37,7 @@ export interface ShowcaseViewerSettings {
   autoplay: boolean
   autoplaySeconds: number
   playlistLoop: boolean
+  musicAutoplay: boolean
   headingSizes: Partial<Record<HeadingLevel, number>>
   textSizes: Partial<Record<TextSizePreset, number>>
   headingFont: string | null
@@ -55,6 +57,10 @@ export interface ShowcaseViewerProps {
   galleryHref: string
   shareUrl: string
   downloadEnabled: boolean
+  /** Whether this showcase's gallery access requires a password — the
+   *  password itself is never known here, only that one exists, so the
+   *  copy-link toast can remind whoever's sharing it to send that along. */
+  passwordProtected: boolean
   /** Shown only inside the builder preview. */
   backHref?: string
 }
@@ -70,6 +76,7 @@ export function ShowcaseViewer({
   galleryHref,
   shareUrl,
   downloadEnabled,
+  passwordProtected,
   backHref,
 }: ShowcaseViewerProps) {
   const reducedMotion = useReducedMotion()
@@ -83,7 +90,14 @@ export function ShowcaseViewer({
     reducedMotion,
   })
 
-  const [musicOn, setMusicOn] = useState(false)
+  // Music starts on its own whenever the slides do, or when the album's own
+  // "Autoplay music" setting is on — in that mode there's only a mute
+  // toggle. Otherwise it waits for the visitor to press play, via a
+  // dedicated control (MusicControls) kept visually separate from the
+  // slideshow's own play/pause so the two are never confused.
+  const musicAutoStarts = settings.autoplay || settings.musicAutoplay
+  const [musicPlaying, setMusicPlaying] = useState(musicAutoStarts)
+  const [musicMuted, setMusicMuted] = useState(false)
   const [thumbsOpen, setThumbsOpen] = useState(false)
   const [downloadOpen, setDownloadOpen] = useState(false)
   const [isFs, setIsFs] = useState(false)
@@ -103,9 +117,9 @@ export function ShowcaseViewer({
   const downloadPhotoIds = collectPhotoIds(pages.map((p) => ({ id: p.id, blocks: p.blocks })))
   const fontsHref = googleFontsHref([settings.headingFont, settings.textFont])
 
-  const flashToast = useCallback((message: string) => {
+  const flashToast = useCallback((message: string, durationMs = 2200) => {
     setToast(message)
-    setTimeout(() => setToast(null), 2200)
+    setTimeout(() => setToast(null), durationMs)
   }, [])
 
   // Fullscreen: track the browser state; leave fullscreen when the viewer unmounts.
@@ -171,14 +185,23 @@ export function ShowcaseViewer({
     return () => window.removeEventListener('keydown', onKey)
   }, [next, prev, goTo, total, toggleFullscreen, fullscreenSupported, playing, setPlaying, downloadEnabled])
 
-  const share = useCallback(() => {
+  const copyLink = useCallback(() => {
     const absolute =
       typeof window !== 'undefined' ? new URL(shareUrl, window.location.origin).href : shareUrl
     navigator.clipboard?.writeText(absolute).then(
-      () => flashToast('Showcase link copied'),
+      () => {
+        if (passwordProtected) {
+          flashToast(
+            "Link copied — this showcase needs a password too, so send that along. Don't know it? Ask the admin or whoever sent you this link.",
+            5000,
+          )
+        } else {
+          flashToast('Showcase link copied')
+        }
+      },
       () => flashToast('Could not copy the link'),
     )
-  }, [shareUrl, flashToast])
+  }, [shareUrl, passwordProtected, flashToast])
 
   return (
     <div
@@ -202,20 +225,28 @@ export function ShowcaseViewer({
       </div>
 
       <ViewerControls
-        hasMusic={trackIds.length > 0}
-        musicOn={musicOn}
-        onToggleMusic={() => setMusicOn((v) => !v)}
         autoplay={playing}
         onToggleAutoplay={() => setPlaying(!playing)}
         onToggleThumbs={() => setThumbsOpen((v) => !v)}
         showFullscreen={fullscreenSupported}
         onToggleFullscreen={toggleFullscreen}
-        onShare={share}
+        onCopyLink={copyLink}
         onDownload={() => setDownloadOpen(true)}
         showDownload={downloadEnabled}
         backHref={backHref}
         visible={controlsVisible}
       />
+
+      {trackIds.length > 0 && (
+        <MusicControls
+          autoStarted={musicAutoStarts}
+          playing={musicPlaying}
+          onTogglePlaying={() => setMusicPlaying((v) => !v)}
+          muted={musicMuted}
+          onToggleMuted={() => setMusicMuted((v) => !v)}
+          visible={controlsVisible}
+        />
+      )}
 
       {settings.dotsEnabled && total > 1 && (
         <DotIndicator
@@ -284,8 +315,9 @@ export function ShowcaseViewer({
         projectId={projectId}
         trackIds={trackIds}
         loop={settings.playlistLoop}
-        playing={musicOn}
-        onStopped={() => setMusicOn(false)}
+        playing={musicPlaying}
+        muted={musicMuted}
+        onStopped={() => setMusicPlaying(false)}
       />
 
       {downloadOpen && (
@@ -300,7 +332,7 @@ export function ShowcaseViewer({
       {toast && (
         <div
           role="status"
-          className="pointer-events-none absolute right-2 top-14 z-20 rounded-lg bg-white px-3 py-1.5 text-xs font-medium text-zinc-900 shadow-lg sm:right-3 sm:top-16"
+          className="pointer-events-none absolute right-2 top-28 z-20 max-w-64 rounded-lg bg-white px-3 py-1.5 text-left text-xs font-medium leading-snug text-zinc-900 shadow-lg sm:right-3 sm:top-28 sm:max-w-80"
         >
           {toast}
         </div>

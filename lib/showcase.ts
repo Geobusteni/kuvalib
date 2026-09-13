@@ -26,6 +26,7 @@ export interface ShowcaseSettingsData {
   autoplay?: boolean
   autoplaySeconds?: number
   playlistLoop?: boolean
+  musicAutoplay?: boolean
   headingSizes?: Partial<Record<HeadingLevel, number>>
   textSizes?: Partial<Record<TextSizePreset, number>>
   headingFont?: string | null

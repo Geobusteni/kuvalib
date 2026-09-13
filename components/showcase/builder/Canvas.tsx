@@ -5,7 +5,7 @@
 
 import { Frame } from '@craftjs/core'
 import { useShowcaseStore } from '../store'
-import { googleFontsHref, showcaseThemeVars } from '@/lib/showcase-theme'
+import { blockBackgroundCss, blockBorderCss, googleFontsHref, showcaseThemeVars } from '@/lib/showcase-theme'
 import { FrameSizeProvider } from '../frame-size'
 
 /**
@@ -33,7 +33,13 @@ export function Canvas() {
       style={{
         ...showcaseThemeVars(eventType, albumBg),
         aspectRatio: '16 / 10',
-        background: 'var(--sc-album-bg)',
+        // The page's own background/border (set in the panel when nothing is
+        // selected) — previously only rendered in the live preview/public
+        // viewer, never here, so a border added to a page was invisible while
+        // actually editing it.
+        background: page.settings.bg === 'none' ? 'var(--sc-album-bg)' : blockBackgroundCss(page.settings),
+        border: blockBorderCss(page.settings),
+        boxSizing: 'border-box',
       }}
     >
       {fontsHref && <link rel="stylesheet" href={fontsHref} />}

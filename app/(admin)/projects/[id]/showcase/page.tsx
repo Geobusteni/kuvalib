@@ -57,6 +57,7 @@ export default async function ShowcaseBuilderPage({ params }: Props) {
         autoplay: showcase.autoplay,
         autoplaySeconds: showcase.autoplaySeconds,
         playlistLoop: showcase.playlistLoop,
+        musicAutoplay: showcase.musicAutoplay,
         headingSizes: {
           ...HEADING_SIZE_DEFAULTS,
           ...((showcase.headingSizes ?? {}) as Partial<Record<HeadingLevel, number>>),
@@ -83,6 +84,7 @@ export default async function ShowcaseBuilderPage({ params }: Props) {
       galleryHref={`/g/${id}`}
       shareUrl={`/s/${showcase.id}`}
       downloadEnabled={project.dlEnabled}
+      passwordProtected={project.accessType === 'PASSWORD'}
     />
   )
 }

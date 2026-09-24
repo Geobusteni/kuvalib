@@ -23,7 +23,54 @@
   "gallery": {},
   "lightbox": {},
   "showcaseBuilder": {},
-  "showcaseViewer": {},
+  "showcaseViewer": {
+    "metadata": {
+      "fallbackTitle": "Prezentare"
+    },
+    "page": {
+      "expired": "Această prezentare a expirat."
+    },
+    "block": {
+      "pickPhoto": "Alege o fotografie",
+      "defaultButtonLabel": "Buton"
+    },
+    "stage": {
+      "pageStatus": "Pagina {current} din {total}"
+    },
+    "nav": {
+      "previousPage": "Pagina anterioară",
+      "nextPage": "Pagina următoare",
+      "goToPage": "Mergi la pagina {page}"
+    },
+    "controls": {
+      "backToEditor": "← Editează",
+      "pauseSlideshow": "Oprește prezentarea",
+      "playSlideshow": "Pornește prezentarea",
+      "togglePageThumbnails": "Afișează sau ascunde miniaturile paginilor",
+      "toggleFullscreen": "Activează sau dezactivează ecranul complet",
+      "copyLink": "Copiază linkul prezentării",
+      "downloadAlbum": "Descarcă albumul"
+    },
+    "music": {
+      "mute": "Oprește sunetul muzicii",
+      "unmute": "Pornește sunetul muzicii",
+      "pause": "Pune muzica pe pauză",
+      "play": "Redă muzica"
+    },
+    "toast": {
+      "linkCopiedWithPassword": "Linkul a fost copiat — această prezentare necesită și o parolă, așa că trimite-o împreună cu linkul. Nu o știi? Cere-o administratorului sau persoanei care ți-a trimis linkul.",
+      "linkCopied": "Linkul prezentării a fost copiat",
+      "copyFailed": "Linkul nu a putut fi copiat"
+    },
+    "download": {
+      "title": "Descarcă acest album",
+      "preparing": "Se pregătește descărcarea…",
+      "summary": "{count, plural, one {# fotografie} few {# fotografii} other {# de fotografii}} · {title}",
+      "confirm": "Descarcă ZIP (originale)",
+      "cancel": "Anulează",
+      "fallbackName": "album"
+    }
+  },
   "errors": {
     "generic": "A apărut o eroare. Încearcă din nou."
   }

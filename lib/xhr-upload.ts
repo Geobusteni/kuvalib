@@ -48,9 +48,10 @@ export function sendWithProgress(
       resolve({ status: xhr.status, ok: xhr.status >= 200 && xhr.status < 300, data })
     }
 
-    xhr.onerror = () => reject(new Error('Network error during upload'))
-    xhr.ontimeout = () => reject(new Error('Upload timed out'))
-    xhr.onabort = () => reject(new Error('Upload aborted'))
+    // Rejections carry a stable error code as the message; callers translate it.
+    xhr.onerror = () => reject(new Error('archive_network'))
+    xhr.ontimeout = () => reject(new Error('archive_timeout'))
+    xhr.onabort = () => reject(new Error('archive_aborted'))
 
     xhr.send(body)
   })

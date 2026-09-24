@@ -208,6 +208,62 @@
     "archive_not_zip": "The archive must be a ZIP file.",
     "archive_store_failed": "Could not store the archive.",
     "photo_ids_required": "Select at least one photo.",
-    "no_valid_photos": "None of the selected photos are valid."
+    "no_valid_photos": "None of the selected photos are valid.",
+    "archive_not_found": "Not found.",
+    "archive_name_size_required": "A file name and size are required.",
+    "archive_start_failed": "Could not start the upload.",
+    "archive_invalid_size": "The file size is invalid.",
+    "archive_upload_not_found": "This upload was not found. Start it again.",
+    "archive_offset_mismatch": "The upload got out of sync. Try again.",
+    "archive_chunk_too_large": "A chunk was larger than allowed.",
+    "archive_incomplete": "The upload is incomplete.",
+    "archive_empty_chunk": "The uploaded chunk was empty.",
+    "archive_chunk_failed": "Could not store the uploaded chunk.",
+    "archive_resume_failed": "Could not resume the upload.",
+    "archive_upload_failed": "Upload failed.",
+    "archive_connection_failed": "The connection kept failing. Try again.",
+    "archive_network": "Network error during upload.",
+    "archive_timeout": "The upload timed out.",
+    "archive_aborted": "The upload was cancelled.",
+    "download_not_found": "Not found.",
+    "download_no_archive": "No archive is available for this gallery.",
+    "download_unauthorized": "You do not have access to this gallery.",
+    "download_archive_missing": "The archive file is missing.",
+    "download_photo_ids_required": "Select at least one photo.",
+    "download_no_valid_photos": "None of the selected photos could be found."
+  },
+  "upload": {
+    "size": {
+      "kb": "{value} KB",
+      "mb": "{value} MB",
+      "gb": "{value} GB"
+    },
+    "archive": {
+      "title": "Download archive",
+      "description": "Clients only see a “Download ZIP” button when you upload an archive here. Kuvalib never builds a full archive on its own — clients can still zip their own selection.",
+      "replace": "Replace",
+      "remove": "Remove",
+      "upload": "Upload archive",
+      "uploading": "Uploading…",
+      "progress": "Uploading {sent} of {total} ({percent})",
+      "progressLabel": "Archive upload progress"
+    },
+    "zone": {
+      "ariaLabel": "Upload photos. Click to choose files, or drop JPEG images or a ZIP archive here.",
+      "drop": "Drop photos or a ZIP here",
+      "hint": "Original filenames are kept. A ZIP dropped here is unpacked into photos.",
+      "onlyAccepted": "Only JPEG images and ZIP archives are accepted.",
+      "status": "Uploading {current} of {count}: {name}",
+      "statusPercent": "{status} — {percent}",
+      "uploadingLabel": "Uploading",
+      "totalProgress": "Total — {sent} of {total} ({percent})",
+      "totalLabel": "Total",
+      "couldNotUpload": "Could not upload {name}",
+      "conflictTitle": "{count, plural, one {# photo already exists} other {# photos already exist}}",
+      "conflictMore": "{names} and {count} more",
+      "keepBoth": "Keep both",
+      "replaceExisting": "Replace existing",
+      "cancel": "Cancel"
+    }
   }
 }

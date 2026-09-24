@@ -23,7 +23,7 @@ function failure(error: unknown) {
     )
   }
   console.error('[archive] chunk upload failed:', error)
-  return Response.json({ error: 'Could not store the chunk' }, { status: 500 })
+  return Response.json({ error: 'archive_chunk_failed' }, { status: 500 })
 }
 
 async function resolve(ctx: Ctx) {
@@ -35,7 +35,7 @@ async function resolve(ctx: Ctx) {
 
 export async function GET(_req: Request, ctx: Ctx) {
   const target = await resolve(ctx)
-  if (!target) return Response.json({ error: 'Not found' }, { status: 404 })
+  if (!target) return Response.json({ error: 'archive_not_found' }, { status: 404 })
   try {
     return Response.json({ received: await getReceived(target.id, target.uploadId) })
   } catch (error) {
@@ -45,8 +45,8 @@ export async function GET(_req: Request, ctx: Ctx) {
 
 export async function PUT(request: Request, ctx: Ctx) {
   const target = await resolve(ctx)
-  if (!target) return Response.json({ error: 'Not found' }, { status: 404 })
-  if (!request.body) return Response.json({ error: 'Empty chunk' }, { status: 400 })
+  if (!target) return Response.json({ error: 'archive_not_found' }, { status: 404 })
+  if (!request.body) return Response.json({ error: 'archive_empty_chunk' }, { status: 400 })
 
   const offset = Number(new URL(request.url).searchParams.get('offset'))
   try {
@@ -64,7 +64,7 @@ export async function PUT(request: Request, ctx: Ctx) {
 
 export async function DELETE(_req: Request, ctx: Ctx) {
   const target = await resolve(ctx)
-  if (!target) return Response.json({ error: 'Not found' }, { status: 404 })
+  if (!target) return Response.json({ error: 'archive_not_found' }, { status: 404 })
   await abortUpload(target.id, target.uploadId)
   return Response.json({ ok: true })
 }

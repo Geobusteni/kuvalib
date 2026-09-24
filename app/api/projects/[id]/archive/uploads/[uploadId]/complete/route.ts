@@ -11,7 +11,7 @@ export async function POST(_req: Request, ctx: Ctx) {
   await requireAdmin()
   const { id, uploadId } = await ctx.params
   if (!isUploadId(uploadId) || !(await getProject(id))) {
-    return Response.json({ error: 'Not found' }, { status: 404 })
+    return Response.json({ error: 'archive_not_found' }, { status: 404 })
   }
 
   try {
@@ -26,6 +26,6 @@ export async function POST(_req: Request, ctx: Ctx) {
       )
     }
     console.error('[archive] completing upload failed:', error)
-    return Response.json({ error: 'Could not store the archive' }, { status: 500 })
+    return Response.json({ error: 'archive_store_failed' }, { status: 500 })
   }
 }

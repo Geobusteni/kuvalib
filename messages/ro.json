@@ -208,6 +208,62 @@
     "archive_not_zip": "Arhiva trebuie să fie un fișier ZIP.",
     "archive_store_failed": "Arhiva nu a putut fi salvată.",
     "photo_ids_required": "Selectează cel puțin o fotografie.",
-    "no_valid_photos": "Nicio fotografie selectată nu este validă."
+    "no_valid_photos": "Nicio fotografie selectată nu este validă.",
+    "archive_not_found": "Nu a fost găsit.",
+    "archive_name_size_required": "Numele și dimensiunea fișierului sunt obligatorii.",
+    "archive_start_failed": "Încărcarea nu a putut fi pornită.",
+    "archive_invalid_size": "Dimensiunea fișierului nu este validă.",
+    "archive_upload_not_found": "Această încărcare nu a fost găsită. Începe din nou.",
+    "archive_offset_mismatch": "Încărcarea s-a desincronizat. Încearcă din nou.",
+    "archive_chunk_too_large": "O parte a fost mai mare decât este permis.",
+    "archive_incomplete": "Încărcarea este incompletă.",
+    "archive_empty_chunk": "Partea încărcată era goală.",
+    "archive_chunk_failed": "Partea încărcată nu a putut fi salvată.",
+    "archive_resume_failed": "Încărcarea nu a putut fi reluată.",
+    "archive_upload_failed": "Încărcarea a eșuat.",
+    "archive_connection_failed": "Conexiunea a eșuat în mod repetat. Încearcă din nou.",
+    "archive_network": "Eroare de rețea în timpul încărcării.",
+    "archive_timeout": "Încărcarea a expirat.",
+    "archive_aborted": "Încărcarea a fost anulată.",
+    "download_not_found": "Nu a fost găsit.",
+    "download_no_archive": "Nicio arhivă nu este disponibilă pentru această galerie.",
+    "download_unauthorized": "Nu ai acces la această galerie.",
+    "download_archive_missing": "Fișierul arhivă lipsește.",
+    "download_photo_ids_required": "Selectează cel puțin o fotografie.",
+    "download_no_valid_photos": "Niciuna dintre fotografiile selectate nu a fost găsită."
+  },
+  "upload": {
+    "size": {
+      "kb": "{value} KB",
+      "mb": "{value} MB",
+      "gb": "{value} GB"
+    },
+    "archive": {
+      "title": "Arhivă de descărcat",
+      "description": "Clienții văd butonul „Descarcă ZIP” doar dacă încarci aici o arhivă. Kuvalib nu creează niciodată singur o arhivă completă — clienții își pot totuși comprima propria selecție.",
+      "replace": "Înlocuiește",
+      "remove": "Elimină",
+      "upload": "Încarcă arhiva",
+      "uploading": "Se încarcă…",
+      "progress": "Se încarcă {sent} din {total} ({percent})",
+      "progressLabel": "Progresul încărcării arhivei"
+    },
+    "zone": {
+      "ariaLabel": "Încarcă fotografii. Fă clic pentru a alege fișiere sau trage aici imagini JPEG ori o arhivă ZIP.",
+      "drop": "Trage aici fotografii sau o arhivă ZIP",
+      "hint": "Numele originale ale fișierelor sunt păstrate. Un ZIP tras aici este despachetat în fotografii.",
+      "onlyAccepted": "Sunt acceptate doar imagini JPEG și arhive ZIP.",
+      "status": "Se încarcă {current} din {count}: {name}",
+      "statusPercent": "{status} — {percent}",
+      "uploadingLabel": "Se încarcă",
+      "totalProgress": "Total — {sent} din {total} ({percent})",
+      "totalLabel": "Total",
+      "couldNotUpload": "Nu s-a putut încărca {name}",
+      "conflictTitle": "{count, plural, one {# fotografie există deja} few {# fotografii există deja} other {# de fotografii există deja}}",
+      "conflictMore": "{names} și încă {count}",
+      "keepBoth": "Păstrează ambele",
+      "replaceExisting": "Înlocuiește cele existente",
+      "cancel": "Anulează"
+    }
   }
 }

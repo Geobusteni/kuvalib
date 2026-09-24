@@ -13,7 +13,7 @@ export async function DELETE(_req: Request, ctx: Ctx) {
   const { id } = await ctx.params
 
   if (!(await getProject(id))) {
-    return Response.json({ error: 'Not found' }, { status: 404 })
+    return Response.json({ error: 'archive_not_found' }, { status: 404 })
   }
 
   await deleteArchiveFile(id)

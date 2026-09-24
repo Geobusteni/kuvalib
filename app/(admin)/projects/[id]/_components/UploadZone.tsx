@@ -5,9 +5,11 @@
 
 import { useRef, useState } from 'react'
 import { useRouter } from 'next/navigation'
+import { useFormatter, useTranslations } from 'next-intl'
 import { postWithProgress } from '@/lib/xhr-upload'
 import ProgressBar from '@/components/ui/ProgressBar'
-import { formatBytes } from '@/lib/format-bytes'
+import { useFormatBytes } from '@/hooks/useFormatBytes'
+import { useErrorMessage } from '@/hooks/useErrorMessage'
 
 type Strategy = 'overwrite' | 'rename' | 'skip'
 
@@ -18,6 +20,10 @@ interface Conflict {
 
 export default function UploadZone({ projectId }: { projectId: string }) {
   const router = useRouter()
+  const t = useTranslations('upload.zone')
+  const format = useFormatter()
+  const formatBytes = useFormatBytes()
+  const msg = useErrorMessage()
   const inputRef = useRef<HTMLInputElement>(null)
   const [dragging, setDragging] = useState(false)
   const [status, setStatus] = useState<string | null>(null)
@@ -62,7 +68,7 @@ export default function UploadZone({ projectId }: { projectId: string }) {
     )
 
     if (accepted.length === 0) {
-      setError('Only JPEG images and ZIP archives are accepted.')
+      setError(t('onlyAccepted'))
       return
     }
 
@@ -76,8 +82,19 @@ export default function UploadZone({ projectId }: { projectId: string }) {
     setOverall({ sent: 0, total: totalBytes })
 
     for (const [i, file] of accepted.entries()) {
-      setStatus(`Uploading ${i + 1} of ${accepted.length}: ${file.name}`)
-      const { res, data } = await send(file, strategy, completedBytes, totalBytes)
+      setStatus(t('status', { current: i + 1, count: accepted.length, name: file.name }))
+      let result: Awaited<ReturnType<typeof send>>
+      try {
+        result = await send(file, strategy, completedBytes, totalBytes)
+      } catch (e) {
+        setError(msg(e instanceof Error ? e.message : null))
+        setStatus(null)
+        setProgress(null)
+        setOverall(null)
+        router.refresh()
+        return
+      }
+      const { res, data } = result
       completedBytes += file.size
 
       if (res.status === 409) {
@@ -86,7 +103,7 @@ export default function UploadZone({ projectId }: { projectId: string }) {
         continue
       }
       if (!res.ok) {
-        setError(data.error ?? `Could not upload ${file.name}`)
+        setError(data.error ? msg(data.error) : t('couldNotUpload', { name: file.name }))
         setStatus(null)
         setProgress(null)
         setOverall(null)
@@ -114,7 +131,7 @@ export default function UploadZone({ projectId }: { projectId: string }) {
       <div
         role="button"
         tabIndex={0}
-        aria-label="Upload photos. Click to choose files, or drop JPEG images or a ZIP archive here."
+        aria-label={t('ariaLabel')}
         aria-busy={busy}
         onDragOver={(e) => {
           e.preventDefault()
@@ -150,22 +167,28 @@ export default function UploadZone({ projectId }: { projectId: string }) {
         {busy ? (
           <div className="w-full max-w-xs">
             <p aria-live="polite" className="text-sm text-zinc-500">
-              {status}
-              {progress != null ? ` — ${progress}%` : ''}
+              {progress != null
+                ? t('statusPercent', { status, percent: format.number(progress / 100, { style: 'percent' }) })
+                : status}
             </p>
             <div className="mt-2">
-              <ProgressBar value={progress ?? 0} label={status ?? 'Uploading'} />
+              <ProgressBar value={progress ?? 0} label={status ?? t('uploadingLabel')} />
             </div>
             {overall && (
               <div className="mt-3">
                 <p className="text-xs text-zinc-500">
-                  Total — {formatBytes(overall.sent)} of {formatBytes(overall.total)} (
-                  {overall.total > 0 ? Math.round((overall.sent / overall.total) * 100) : 0}%)
+                  {t('totalProgress', {
+                    sent: formatBytes(overall.sent),
+                    total: formatBytes(overall.total),
+                    percent: format.number(overall.total > 0 ? overall.sent / overall.total : 0, {
+                      style: 'percent',
+                    }),
+                  })}
                 </p>
                 <div className="mt-1">
                   <ProgressBar
                     value={overall.total > 0 ? (overall.sent / overall.total) * 100 : 0}
-                    label="Total"
+                    label={t('totalLabel')}
                   />
                 </div>
               </div>
@@ -174,10 +197,10 @@ export default function UploadZone({ projectId }: { projectId: string }) {
         ) : (
           <>
             <p className="text-sm font-medium text-zinc-700 dark:text-zinc-300">
-              Drop photos or a ZIP here
+              {t('drop')}
             </p>
             <p className="text-xs text-zinc-500">
-              Original filenames are kept. A ZIP dropped here is unpacked into photos.
+              {t('hint')}
             </p>
           </>
         )}
@@ -199,30 +222,34 @@ export default function UploadZone({ projectId }: { projectId: string }) {
             id="conflict-heading"
             className="text-sm font-semibold text-amber-900 dark:text-amber-200"
           >
-            {conflict.names.length} photo{conflict.names.length === 1 ? '' : 's'} already exist
+            {t('conflictTitle', { count: conflict.names.length })}
           </h3>
           <p className="mt-1 text-sm text-amber-800 dark:text-amber-300">
-            {conflict.names.slice(0, 5).join(', ')}
-            {conflict.names.length > 5 && ` and ${conflict.names.length - 5} more`}
+            {conflict.names.length > 5
+              ? t('conflictMore', {
+                  names: conflict.names.slice(0, 5).join(', '),
+                  count: conflict.names.length - 5,
+                })
+              : conflict.names.join(', ')}
           </p>
           <div className="mt-3 flex flex-wrap gap-2">
             <button
               onClick={() => upload(conflict.files, 'rename')}
               className="h-9 rounded-lg bg-amber-900 px-4 text-sm font-medium text-white hover:bg-amber-800 focus:outline-none focus-visible:ring-2 focus-visible:ring-amber-600 focus-visible:ring-offset-2 dark:bg-amber-200 dark:text-amber-950"
             >
-              Keep both
+              {t('keepBoth')}
             </button>
             <button
               onClick={() => upload(conflict.files, 'overwrite')}
               className="h-9 rounded-lg border border-amber-400 px-4 text-sm font-medium text-amber-900 hover:bg-amber-100 focus:outline-none focus-visible:ring-2 focus-visible:ring-amber-600 dark:border-amber-700 dark:text-amber-200 dark:hover:bg-amber-900/40"
             >
-              Replace existing
+              {t('replaceExisting')}
             </button>
             <button
               onClick={() => setConflict(null)}
               className="h-9 rounded-lg px-4 text-sm font-medium text-amber-900 hover:bg-amber-100 focus:outline-none focus-visible:ring-2 focus-visible:ring-amber-600 dark:text-amber-200 dark:hover:bg-amber-900/40"
             >
-              Cancel
+              {t('cancel')}
             </button>
           </div>
         </div>

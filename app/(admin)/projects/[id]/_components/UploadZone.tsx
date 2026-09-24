@@ -7,6 +7,7 @@ import { useRef, useState } from 'react'
 import { useRouter } from 'next/navigation'
 import { postWithProgress } from '@/lib/xhr-upload'
 import ProgressBar from '@/components/ui/ProgressBar'
+import { formatBytes } from '@/lib/format-bytes'
 
 type Strategy = 'overwrite' | 'rename' | 'skip'
 
@@ -21,12 +22,13 @@ export default function UploadZone({ projectId }: { projectId: string }) {
   const [dragging, setDragging] = useState(false)
   const [status, setStatus] = useState<string | null>(null)
   const [progress, setProgress] = useState<number | null>(null)
+  const [overall, setOverall] = useState<{ sent: number; total: number } | null>(null)
   const [error, setError] = useState<string | null>(null)
   const [conflict, setConflict] = useState<Conflict | null>(null)
 
   const busy = status !== null
 
-  async function send(file: File, strategy?: Strategy) {
+  async function send(file: File, strategy: Strategy | undefined, completed: number, total: number) {
     const form = new FormData()
     form.append('file', file)
     if (strategy) form.append('strategy', strategy)
@@ -35,12 +37,15 @@ export default function UploadZone({ projectId }: { projectId: string }) {
     const { status, ok, data } = await postWithProgress(
       `/api/projects/${projectId}/upload`,
       form,
-      (pct) => {
+      ({ loaded, total: requestTotal }) => {
+        const fraction = requestTotal > 0 ? Math.min(1, loaded / requestTotal) : 0
+        const pct = Math.round(fraction * 100)
         // Throttle to >=5% deltas so screen readers and re-renders aren't
         // flooded by raw per-byte progress events.
         if (pct - lastReported.current >= 5 || pct === 100) {
           lastReported.current = pct
           setProgress(pct)
+          setOverall({ sent: completed + Math.round(fraction * file.size), total })
         }
       }
     )
@@ -66,10 +71,14 @@ export default function UploadZone({ projectId }: { projectId: string }) {
 
     const pending: File[] = []
     const names: string[] = []
+    const totalBytes = accepted.reduce((sum, f) => sum + f.size, 0)
+    let completedBytes = 0
+    setOverall({ sent: 0, total: totalBytes })
 
     for (const [i, file] of accepted.entries()) {
       setStatus(`Uploading ${i + 1} of ${accepted.length}: ${file.name}`)
-      const { res, data } = await send(file, strategy)
+      const { res, data } = await send(file, strategy, completedBytes, totalBytes)
+      completedBytes += file.size
 
       if (res.status === 409) {
         pending.push(file)
@@ -80,6 +89,7 @@ export default function UploadZone({ projectId }: { projectId: string }) {
         setError(data.error ?? `Could not upload ${file.name}`)
         setStatus(null)
         setProgress(null)
+        setOverall(null)
         router.refresh()
         return
       }
@@ -87,6 +97,7 @@ export default function UploadZone({ projectId }: { projectId: string }) {
 
     setStatus(null)
     setProgress(null)
+    setOverall(null)
     router.refresh()
 
     if (pending.length > 0) setConflict({ files: pending, names })
@@ -145,6 +156,20 @@ export default function UploadZone({ projectId }: { projectId: string }) {
             <div className="mt-2">
               <ProgressBar value={progress ?? 0} label={status ?? 'Uploading'} />
             </div>
+            {overall && (
+              <div className="mt-3">
+                <p className="text-xs text-zinc-500">
+                  Total — {formatBytes(overall.sent)} of {formatBytes(overall.total)} (
+                  {overall.total > 0 ? Math.round((overall.sent / overall.total) * 100) : 0}%)
+                </p>
+                <div className="mt-1">
+                  <ProgressBar
+                    value={overall.total > 0 ? (overall.sent / overall.total) * 100 : 0}
+                    label="Total"
+                  />
+                </div>
+              </div>
+            )}
           </div>
         ) : (
           <>

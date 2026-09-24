@@ -5,6 +5,9 @@
 
 import { useRef, useState } from 'react'
 import { useRouter } from 'next/navigation'
+import ProgressBar from '@/components/ui/ProgressBar'
+import { formatBytes } from '@/lib/format-bytes'
+import { uploadArchive } from '@/lib/chunked-upload'
 
 interface Props {
   projectId: string
@@ -12,31 +15,26 @@ interface Props {
   archiveSize: number | null
 }
 
-function formatSize(bytes: number): string {
-  if (bytes < 1024 * 1024) return `${Math.round(bytes / 1024)} KB`
-  if (bytes < 1024 * 1024 * 1024) return `${(bytes / 1024 / 1024).toFixed(1)} MB`
-  return `${(bytes / 1024 / 1024 / 1024).toFixed(2)} GB`
-}
-
 export default function ArchiveManager({ projectId, archiveName, archiveSize }: Props) {
   const router = useRouter()
   const inputRef = useRef<HTMLInputElement>(null)
   const [busy, setBusy] = useState(false)
   const [error, setError] = useState<string | null>(null)
+  const [upload, setUpload] = useState<{ sent: number; total: number } | null>(null)
 
-  async function upload(file: File) {
+  async function send(file: File) {
     setError(null)
     setBusy(true)
-    const form = new FormData()
-    form.append('file', file)
-    const res = await fetch(`/api/projects/${projectId}/archive`, { method: 'POST', body: form })
-    const data = await res.json().catch(() => ({}))
-    setBusy(false)
-    if (!res.ok) {
-      setError(data.error ?? 'Upload failed')
-      return
+    setUpload({ sent: 0, total: file.size })
+    try {
+      await uploadArchive(projectId, file, (sent) => setUpload({ sent, total: file.size }))
+      router.refresh()
+    } catch (e) {
+      setError(e instanceof Error ? e.message : 'Upload failed')
+    } finally {
+      setBusy(false)
+      setUpload(null)
     }
-    router.refresh()
   }
 
   async function remove() {
@@ -62,7 +60,7 @@ export default function ArchiveManager({ projectId, archiveName, archiveSize }: 
         tabIndex={-1}
         onChange={(e) => {
           const file = e.target.files?.[0]
-          if (file) upload(file)
+          if (file) send(file)
           e.target.value = ''
         }}
       />
@@ -72,7 +70,7 @@ export default function ArchiveManager({ projectId, archiveName, archiveSize }: 
           <span className="text-sm text-zinc-700 dark:text-zinc-300">
             {archiveName}
             {archiveSize != null && (
-              <span className="text-zinc-500"> · {formatSize(archiveSize)}</span>
+              <span className="text-zinc-500"> · {formatBytes(archiveSize)}</span>
             )}
           </span>
           <button
@@ -98,6 +96,21 @@ export default function ArchiveManager({ projectId, archiveName, archiveSize }: 
         >
           {busy ? 'Uploading…' : 'Upload archive'}
         </button>
+      )}
+
+      {upload && (
+        <div className="mt-3">
+          <p aria-live="polite" className="text-xs text-zinc-500">
+            Uploading {formatBytes(upload.sent)} of {formatBytes(upload.total)} (
+            {Math.round((upload.sent / upload.total) * 100)}%)
+          </p>
+          <div className="mt-1">
+            <ProgressBar
+              value={(upload.sent / upload.total) * 100}
+              label="Archive upload progress"
+            />
+          </div>
+        </div>
       )}
 
       {error && (

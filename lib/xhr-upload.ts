@@ -11,17 +11,31 @@ export interface UploadResult {
 // fetch() has no upload-progress event, so a large (13MB+) upload gives no
 // feedback for however long the request takes. XMLHttpRequest is the only
 // dependency-free way to get real byte-level progress.
+export interface UploadProgress {
+  loaded: number
+  total: number
+}
+
 export function postWithProgress(
   url: string,
   form: FormData,
-  onProgress: (percent: number) => void
+  onProgress: (progress: UploadProgress) => void
+): Promise<UploadResult> {
+  return sendWithProgress('POST', url, form, onProgress)
+}
+
+export function sendWithProgress(
+  method: string,
+  url: string,
+  body: XMLHttpRequestBodyInit,
+  onProgress: (progress: UploadProgress) => void
 ): Promise<UploadResult> {
   return new Promise((resolve, reject) => {
     const xhr = new XMLHttpRequest()
-    xhr.open('POST', url)
+    xhr.open(method, url)
 
     xhr.upload.onprogress = (e) => {
-      if (e.lengthComputable) onProgress(Math.round((e.loaded / e.total) * 100))
+      if (e.lengthComputable) onProgress({ loaded: e.loaded, total: e.total })
     }
 
     xhr.onload = () => {
@@ -38,6 +52,6 @@ export function postWithProgress(
     xhr.ontimeout = () => reject(new Error('Upload timed out'))
     xhr.onabort = () => reject(new Error('Upload aborted'))
 
-    xhr.send(form)
+    xhr.send(body)
   })
 }

@@ -1,0 +1,28 @@
+{
+  "common": {
+    "appName": "Kuvalib",
+    "save": "Salvează",
+    "cancel": "Anulează",
+    "delete": "Șterge",
+    "close": "Închide",
+    "loading": "Se încarcă…",
+    "tryAgain": "Încearcă din nou",
+    "notFound": "Pagina nu a fost găsită",
+    "goToProjects": "Mergi la proiecte",
+    "somethingWrong": "Ceva nu a funcționat."
+  },
+  "language": {
+    "label": "Limbă",
+    "switchTo": "Schimbă limba în {language}",
+    "names": {
+      "en": "engleză",
+      "ro": "română"
+    }
+  },
+  "admin": {},
+  "gallery": {},
+  "lightbox": {},
+  "showcaseBuilder": {},
+  "showcaseViewer": {},
+  "errors": {}
+}

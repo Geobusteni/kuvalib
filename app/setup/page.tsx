@@ -3,6 +3,7 @@
 
 import { redirect } from 'next/navigation'
 import { setupRequired } from '@/lib/users'
+import LanguageSwitcher from '@/components/ui/LanguageSwitcher'
 import SetupForm from './_components/SetupForm'
 
 export const metadata = { title: 'Setup' }
@@ -13,6 +14,7 @@ export default async function SetupPage() {
 
   return (
     <div className="flex min-h-screen items-center justify-center bg-zinc-50 px-4 dark:bg-zinc-950">
+      <LanguageSwitcher className="absolute right-2 top-2" />
       <div className="w-full max-w-sm">
         <h1 className="text-2xl font-semibold tracking-tight text-zinc-900 dark:text-zinc-100">
           Welcome to Kuvalib

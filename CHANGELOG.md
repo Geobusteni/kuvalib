@@ -10,6 +10,13 @@ adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html). While the
 
 ## [Unreleased]
 
+### Added
+
+- **English and Romanian interface language.** The first visit follows the browser's language
+  (English otherwise); an **EN | RO** switcher in the admin header and on the sign-in and setup
+  pages changes it, and the choice is remembered for a year. Gallery and showcase links are
+  unchanged. Only the not-found and error pages are translated so far; the rest follows.
+
 ## [1.10.0] - 2026-09-13
 
 ### Added

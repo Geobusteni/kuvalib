@@ -1,0 +1,28 @@
+{
+  "common": {
+    "appName": "Kuvalib",
+    "save": "Save",
+    "cancel": "Cancel",
+    "delete": "Delete",
+    "close": "Close",
+    "loading": "Loading…",
+    "tryAgain": "Try again",
+    "notFound": "Page not found",
+    "goToProjects": "Go to projects",
+    "somethingWrong": "Something went wrong."
+  },
+  "language": {
+    "label": "Language",
+    "switchTo": "Switch language to {language}",
+    "names": {
+      "en": "English",
+      "ro": "Romanian"
+    }
+  },
+  "admin": {},
+  "gallery": {},
+  "lightbox": {},
+  "showcaseBuilder": {},
+  "showcaseViewer": {},
+  "errors": {}
+}

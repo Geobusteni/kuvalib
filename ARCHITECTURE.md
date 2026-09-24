@@ -17,6 +17,7 @@
 | Auth       | Iron Session (signed cookies) + bcryptjs |
 | Images     | Sharp (server-side thumbnails)      |
 | Archives   | fflate (ZIP create and extract)     |
+| i18n       | next-intl (cookie/`Accept-Language`, no locale routes) |
 | Showcase builder | `@craftjs/core` + `react-rnd` + `zustand` (Stage 2, admin only) |
 
 > Before writing any Next.js code, read the relevant guide in `node_modules/next/dist/docs/`.
@@ -526,6 +527,33 @@ shared, framework-free core.
 
 ---
 
+## Internationalisation
+
+English and Romanian, via `next-intl` **without** locale-prefixed routes.
+
+- `lib/locales.ts` — `locales`, `defaultLocale`, `LOCALE_COOKIE` (`kuvalib_locale`) and the pure
+  `resolveLocale(cookie, acceptLanguage)`: whitelisted cookie, else best `Accept-Language`
+  match by language subtag and q-value, else `en`.
+- `i18n/request.ts` — next-intl request config; reads the cookie and header per request and
+  loads `messages/<locale>.json`. `next.config.ts` wraps the config with `createNextIntlPlugin`.
+- `app/layout.tsx` — `<html lang={locale}>`, `NextIntlClientProvider`, `generateMetadata`,
+  Geist with the `latin-ext` subset (Romanian diacritics).
+- `app/actions/locale.ts` — `setLocale` server action: whitelist check, sets the cookie
+  (1 year, `sameSite: lax`, `secure` per `COOKIE_SECURE`), revalidates the layout.
+- `components/ui/LanguageSwitcher.tsx` — the EN | RO control, reusable anywhere.
+- `messages/{en,ro}.json` — namespaces `common`, `language`, `admin`, `gallery`, `lightbox`,
+  `showcaseBuilder`, `showcaseViewer`, `errors`. `global.d.ts` types keys from `en.json`.
+  `scripts/check-i18n.mjs` (`npm run i18n:check`) fails when the key sets differ.
+
+Conventions: keys are camelCase, nested by component or feature (`admin.projectForm.title`);
+ICU placeholders for values (`{count}`), ICU plurals for counts, no string concatenation. Server
+components use `await getTranslations('ns')` from `next-intl/server`; client components use
+`useTranslations('ns')`. API routes return `{ error: '<code>' }` with a stable snake_case code
+and the same HTTP status; the client renders `t(\`errors.${code}\`)` with a generic fallback.
+User-authored content (titles, showcase text) is never translated.
+
+---
+
 ## Motion
 
 1. `hooks/useReducedMotion.ts` reports the media query and updates on change.
@@ -571,6 +599,8 @@ On the server:
 
 | Decision                          | Reason                                                        |
 |-----------------------------------|---------------------------------------------------------------|
+| No locale-prefixed routes (`/ro/g/...`) for i18n | Gallery and showcase links are shared with clients and must stay `/g/[slug]`, `/s/[slug]` forever; the language is a per-browser preference, not part of the address |
+| Locale lives in a `kuvalib_locale` cookie, not the session | Gallery clients are anonymous and never have an iron-session; a plain cookie works for them and for signed-out admin pages. It holds a whitelisted value only, so it is safe to read client-side |
 | PostgreSQL over SQLite            | Real user/role relations; room to grow beyond one machine     |
 | Prisma over raw SQL               | Typed schema and migrations; the app is expected to extend    |
 | Driver adapter (`@prisma/adapter-pg`) | Required by Prisma 7 — no implicit connection             |

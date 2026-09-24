@@ -12,7 +12,8 @@
     "build": "next build",
     "postbuild": "mkdir -p .next/standalone/.next/static .next/standalone/public && cp -R .next/static/. .next/standalone/.next/static/ && cp -R public/. .next/standalone/public/",
     "start": "node .next/standalone/server.js",
-    "lint": "eslint"
+    "lint": "eslint",
+    "i18n:check": "node scripts/check-i18n.mjs"
   },
   "dependencies": {
     "@craftjs/core": "^0.2.12",
@@ -24,6 +25,7 @@
     "iron-session": "^8.0.4",
     "mariadb": "^3.5.3",
     "next": "16.2.12",
+    "next-intl": "^4.14.7",
     "prisma": "^7.9.1",
     "react": "19.2.4",
     "react-dom": "19.2.4",

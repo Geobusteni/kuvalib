@@ -84,6 +84,16 @@ directly unless the query is a one-off ownership check.
 
 ---
 
+## Internationalisation
+
+- No hardcoded user-facing strings (text, aria-labels, titles, placeholders, metadata). Add keys
+  to **both** `messages/en.json` and `messages/ro.json` and run `npm run i18n:check`.
+- next-intl without locale-prefixed routes; the locale is the `kuvalib_locale` cookie, falling
+  back to `Accept-Language`, then `en`. Never put the locale in a URL.
+- API routes return stable error codes, not English sentences; the client maps `errors.<code>`.
+
+---
+
 ## Configuration
 
 There is **exactly one** configuration file: `.env` in the project root, modelled on

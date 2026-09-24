@@ -6,6 +6,7 @@ import Link from 'next/link'
 import { requireAuth } from '@/lib/auth'
 import { setupRequired } from '@/lib/users'
 import LogoutButton from '@/components/ui/LogoutButton'
+import LanguageSwitcher from '@/components/ui/LanguageSwitcher'
 
 // Every admin route depends on the session and live database state.
 export const dynamic = 'force-dynamic'
@@ -42,7 +43,10 @@ export default async function AdminLayout({ children }: { children: React.ReactN
               </Link>
             )}
           </nav>
-          <LogoutButton />
+          <div className="flex items-center gap-4">
+            <LanguageSwitcher />
+            <LogoutButton />
+          </div>
         </div>
       </header>
       <main className="mx-auto max-w-5xl px-4 py-8">{children}</main>

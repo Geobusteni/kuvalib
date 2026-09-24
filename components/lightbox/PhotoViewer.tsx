@@ -3,6 +3,7 @@
 
 'use client'
 
+import { useTranslations } from 'next-intl'
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import { useGestures } from '@/hooks/useGestures'
 import { useImageZoom } from '@/hooks/useImageZoom'
@@ -52,6 +53,7 @@ export default function PhotoViewer({
   submitFeedback,
   resetFeedback,
 }: PhotoViewerProps) {
+  const t = useTranslations('lightbox')
   const dialogRef = useRef<HTMLDivElement>(null)
   const containerRef = useRef<HTMLDivElement>(null)
   // iOS Safari has no Fullscreen API for non-<video> elements. Rather than offer a
@@ -240,7 +242,7 @@ export default function PhotoViewer({
       role="dialog"
       aria-modal
       tabIndex={-1}
-      aria-label={`Photo viewer: image ${currentIndex + 1} of ${photos.length}`}
+      aria-label={t('dialogLabel', { index: currentIndex + 1, total: photos.length })}
       className="fixed inset-0 z-50 flex h-dvh items-center justify-center bg-black focus:outline-none"
       onMouseMove={resetHideTimer}
       onKeyDown={trapFocus}
@@ -254,7 +256,7 @@ export default function PhotoViewer({
         <img
           key={photo.id}
           src={photo.thumbLg}
-          alt={`Photo ${currentIndex + 1} of ${photos.length}`}
+          alt={t('photoAlt', { index: currentIndex + 1, total: photos.length })}
           className={`max-h-full max-w-full object-contain ${reactionRing}`}
           style={{
             userSelect: 'none',
@@ -300,13 +302,13 @@ export default function PhotoViewer({
             }}
             className="flex h-12 items-center justify-center rounded-xl bg-white text-sm font-medium text-zinc-900"
           >
-            Download image
+            {t('download')}
           </button>
           <button
             onClick={() => setActionPanel(false)}
             className="h-12 rounded-xl text-sm font-medium text-zinc-400"
           >
-            Cancel
+            {t('cancel')}
           </button>
         </div>
       )}

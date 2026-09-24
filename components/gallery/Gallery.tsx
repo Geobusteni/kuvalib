@@ -4,6 +4,8 @@
 'use client'
 
 import { useCallback, useEffect, useReducer, useRef, useState } from 'react'
+import { useTranslations } from 'next-intl'
+import LanguageSwitcher from '@/components/ui/LanguageSwitcher'
 import Toolbar from './Toolbar'
 import ImageTile, { type PhotoData } from './ImageTile'
 import PhotoFeedbackRow from './PhotoFeedbackRow'
@@ -82,6 +84,7 @@ export default function Gallery({
   feedbackResetAt,
   showcaseHref,
 }: GalleryProps) {
+  const t = useTranslations('gallery')
   const [state, dispatch] = useReducer(reducer, { mode: 'gallery' })
   const openedFrom = useRef<HTMLElement | null>(null)
   const [downloadDialogOpen, setDownloadDialogOpen] = useState(false)
@@ -215,8 +218,15 @@ export default function Gallery({
               download
               className="inline-flex h-11 items-center justify-center rounded-lg border border-white/20 px-5 text-sm font-medium text-zinc-300 transition-colors hover:bg-zinc-800 hover:text-white focus:outline-none focus-visible:ring-2 focus-visible:ring-white/50"
             >
-              Download All (Original ZIP)
+              {t('downloadAll')}
             </a>
+          </div>
+        )}
+
+        {/* The toolbar has no room for the switcher on narrow screens. */}
+        {state.mode !== 'selection' && (
+          <div className="mt-6 flex justify-center sm:hidden">
+            <LanguageSwitcher className="[&_button]:!text-zinc-400 [&_button:hover]:!text-white [&_button[aria-current=true]]:!text-white [&_span[aria-hidden=true]]:!text-zinc-700" />
           </div>
         )}
       </main>
@@ -259,9 +269,7 @@ export default function Gallery({
       )}
 
       <div aria-live="polite" className="sr-only">
-        {selected && selected.size > 0
-          ? `${selected.size} photo${selected.size === 1 ? '' : 's'} selected`
-          : null}
+        {selected && selected.size > 0 ? t('selectedCount', { count: selected.size }) : null}
       </div>
     </>
   )

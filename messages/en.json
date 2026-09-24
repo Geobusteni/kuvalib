@@ -20,8 +20,96 @@
     }
   },
   "admin": {},
-  "gallery": {},
-  "lightbox": {},
+  "gallery": {
+    "metaTitle": "Gallery",
+    "notFound": {
+      "message": "Gallery not found."
+    },
+    "expired": "This gallery has expired.",
+    "downloadAll": "Download All (Original ZIP)",
+    "selectedCount": "{count, plural, one {# photo selected} other {# photos selected}}",
+    "gate": {
+      "title": "This gallery is private",
+      "emailPrompt": "Enter the email address the gallery was shared with.",
+      "passwordPrompt": "Enter the password you were given.",
+      "emailLabel": "Email address",
+      "emailPlaceholder": "you@example.com",
+      "passwordLabel": "Gallery password",
+      "checking": "Checking…",
+      "submit": "View gallery"
+    },
+    "toolbar": {
+      "viewShowcase": "View showcase",
+      "select": "Select",
+      "cancel": "Cancel",
+      "download": "Download",
+      "downloadCount": "Download ({count})"
+    },
+    "tile": {
+      "open": "Open photo {index} of {total}",
+      "select": "Select photo {index} of {total}",
+      "deselect": "Deselect photo {index} of {total}",
+      "liked": ", liked",
+      "disliked": ", disliked",
+      "commented": ", commented"
+    },
+    "feedback": {
+      "group": "React to this photo",
+      "like": {
+        "action": "Like this photo",
+        "done": "Liked",
+        "locked": "Like (unavailable — you already reacted to this photo)"
+      },
+      "dislike": {
+        "action": "Dislike this photo",
+        "done": "Disliked",
+        "locked": "Dislike (unavailable — you already reacted to this photo)"
+      },
+      "comment": {
+        "action": "Comment on this photo",
+        "done": "Commented",
+        "locked": "Comment (unavailable — you already reacted to this photo)"
+      },
+      "undo": "Undo your reaction"
+    },
+    "commentDialog": {
+      "title": "Add a comment",
+      "onlyOnce": "You can only comment once on this photo.",
+      "label": "Your comment",
+      "send": "Send comment",
+      "sending": "Sending…",
+      "cancel": "Cancel",
+      "sendError": "Could not send your comment. Please try again."
+    },
+    "downloadDialog": {
+      "title": "{count, plural, one {Download # photo} other {Download # photos}}",
+      "zip": "Download as ZIP",
+      "share": "Share photos",
+      "individually": "Download individually",
+      "cancel": "Cancel",
+      "back": "Back",
+      "preparing": "Preparing your download…",
+      "preparingLabel": "Preparing your download",
+      "fetching": "Fetching photo {done} of {total}…",
+      "fetchingLabel": "Fetching photo {done} of {total}",
+      "zipError": "Could not build the ZIP archive. Please try again.",
+      "shareError": "Could not share the photos. Please try again.",
+      "fetchOneError": "Could not fetch the photo. Please try again.",
+      "fetchAllError": "Could not fetch all photos. Please try again."
+    }
+  },
+  "lightbox": {
+    "counter": "{index} / {total}",
+    "dialogLabel": "Photo viewer: image {index} of {total}",
+    "photoAlt": "Photo {index} of {total}",
+    "download": "Download image",
+    "enterFullscreen": "Enter fullscreen",
+    "exitFullscreen": "Exit fullscreen",
+    "close": "Close viewer",
+    "previous": "Previous image",
+    "next": "Next image",
+    "cancel": "Cancel"
+  },
   "showcaseBuilder": {},
   "showcaseViewer": {
     "metadata": {

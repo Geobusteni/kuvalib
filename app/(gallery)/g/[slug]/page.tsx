@@ -3,6 +3,7 @@
 
 import { notFound } from 'next/navigation'
 import type { Metadata } from 'next'
+import { getTranslations } from 'next-intl/server'
 import { getProject, incrementVisit, listPhotos } from '@/lib/projects'
 import { getShowcaseByProject } from '@/lib/showcase'
 import { verifyGalleryAccess } from '@/lib/gallery-auth'
@@ -14,9 +15,9 @@ type Props = { params: Promise<{ slug: string }> }
 
 export async function generateMetadata({ params }: Props): Promise<Metadata> {
   const { slug } = await params
-  const project = await getProject(slug)
+  const [project, t] = await Promise.all([getProject(slug), getTranslations('gallery')])
   return {
-    title: project?.title ?? 'Gallery',
+    title: project?.title ?? t('metaTitle'),
     robots: { index: false, follow: false },
   }
 }
@@ -25,11 +26,12 @@ export default async function GalleryPage({ params }: Props) {
   const { slug } = await params
   const project = await getProject(slug)
   if (!project) notFound()
+  const t = await getTranslations('gallery')
 
   if (project.expiresAt && new Date(project.expiresAt) < new Date()) {
     return (
       <div className="flex min-h-screen items-center justify-center bg-black px-4">
-        <p className="text-center text-sm text-zinc-400">This gallery has expired.</p>
+        <p className="text-center text-sm text-zinc-400">{t('expired')}</p>
       </div>
     )
   }

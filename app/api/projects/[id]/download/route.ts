@@ -25,19 +25,19 @@ function attachmentName(name: string): string {
 export async function GET(request: Request, ctx: Ctx) {
   const { id } = await ctx.params
   const project = await getProject(id)
-  if (!project) return Response.json({ error: 'Not found' }, { status: 404 })
+  if (!project) return Response.json({ error: 'download_not_found' }, { status: 404 })
   if (!project.zipEnabled || !project.archiveName) {
-    return Response.json({ error: 'No archive is available for this gallery' }, { status: 404 })
+    return Response.json({ error: 'download_no_archive' }, { status: 404 })
   }
   if (!(await verifyGalleryAccess(id))) {
-    return Response.json({ error: 'Unauthorized' }, { status: 401 })
+    return Response.json({ error: 'download_unauthorized' }, { status: 401 })
   }
 
   let size: number
   try {
     size = (await fs.stat(archivePath(id))).size
   } catch {
-    return Response.json({ error: 'The archive file is missing' }, { status: 404 })
+    return Response.json({ error: 'download_archive_missing' }, { status: 404 })
   }
 
   const headers: Record<string, string> = {
@@ -72,14 +72,14 @@ export async function GET(request: Request, ctx: Ctx) {
 export async function POST(request: Request, ctx: Ctx) {
   const { id } = await ctx.params
   const project = await getProject(id)
-  if (!project) return Response.json({ error: 'Not found' }, { status: 404 })
+  if (!project) return Response.json({ error: 'download_not_found' }, { status: 404 })
   if (!(await verifyGalleryAccess(id))) {
-    return Response.json({ error: 'Unauthorized' }, { status: 401 })
+    return Response.json({ error: 'download_unauthorized' }, { status: 401 })
   }
 
   const body = await request.json().catch(() => null)
   if (!Array.isArray(body?.photoIds) || body.photoIds.length === 0) {
-    return Response.json({ error: 'photoIds required' }, { status: 400 })
+    return Response.json({ error: 'download_photo_ids_required' }, { status: 400 })
   }
 
   const dir = photosDir(id)
@@ -107,7 +107,7 @@ export async function POST(request: Request, ctx: Ctx) {
   }
 
   if (Object.keys(files).length === 0) {
-    return Response.json({ error: 'No valid photos' }, { status: 400 })
+    return Response.json({ error: 'download_no_valid_photos' }, { status: 400 })
   }
 
   const data = zipSync(files, { level: 1 })

@@ -13,6 +13,7 @@ const STALE_MS = 24 * 60 * 60 * 1000
 const UUID_RE = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i
 
 export class UploadError extends Error {
+  // `message` is a stable error code the client translates, not display text.
   constructor(
     message: string,
     public status: number,
@@ -54,7 +55,7 @@ export async function createUpload(
   name: string,
   size: number
 ): Promise<string> {
-  if (!Number.isSafeInteger(size) || size <= 0) throw new UploadError('Invalid file size', 400)
+  if (!Number.isSafeInteger(size) || size <= 0) throw new UploadError('archive_invalid_size', 400)
   await ensureProjectDirs(projectId)
   await purgeStale(projectId)
   const uploadId = crypto.randomUUID()
@@ -75,7 +76,7 @@ async function readSession(projectId: string, uploadId: string) {
     const { size: received } = await fs.stat(partPath(projectId, uploadId))
     return { ...meta, received }
   } catch {
-    throw new UploadError('Upload not found', 404)
+    throw new UploadError('archive_upload_not_found', 404)
   }
 }
 
@@ -96,7 +97,7 @@ export async function appendChunk(
   const session = await readSession(projectId, uploadId)
   if (!Number.isSafeInteger(offset) || offset < 0 || offset > session.received) {
     body.resume()
-    throw new UploadError('Offset does not match received bytes', 409, session.received)
+    throw new UploadError('archive_offset_mismatch', 409, session.received)
   }
   if (offset < session.received) {
     body.resume()
@@ -112,7 +113,7 @@ export async function appendChunk(
       async function* (source: AsyncIterable<Buffer>) {
         for await (const chunk of source) {
           written += chunk.length
-          if (written > limit) throw new UploadError('Chunk is larger than allowed', 413)
+          if (written > limit) throw new UploadError('archive_chunk_too_large', 413)
           yield chunk
         }
       },
@@ -131,7 +132,7 @@ export async function completeUpload(
 ): Promise<{ name: string; size: number }> {
   const session = await readSession(projectId, uploadId)
   if (session.received !== session.size) {
-    throw new UploadError('Upload is incomplete', 409, session.received)
+    throw new UploadError('archive_incomplete', 409, session.received)
   }
   const file = partPath(projectId, uploadId)
   const handle = await fs.open(file, 'r')
@@ -144,7 +145,7 @@ export async function completeUpload(
   const isZip = head[0] === 0x50 && head[1] === 0x4b && [0x03, 0x05, 0x07].includes(head[2])
   if (!isZip) {
     await abortUpload(projectId, uploadId)
-    throw new UploadError('The archive must be a ZIP file', 400)
+    throw new UploadError('archive_not_zip', 400)
   }
   await fs.rename(file, archivePath(projectId))
   await fs.rm(metaPath(projectId, uploadId), { force: true })

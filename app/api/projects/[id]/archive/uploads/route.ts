@@ -10,11 +10,11 @@ type Ctx = { params: Promise<{ id: string }> }
 export async function POST(request: Request, ctx: Ctx) {
   await requireAdmin()
   const { id } = await ctx.params
-  if (!(await getProject(id))) return Response.json({ error: 'Not found' }, { status: 404 })
+  if (!(await getProject(id))) return Response.json({ error: 'archive_not_found' }, { status: 404 })
 
   const body = await request.json().catch(() => null)
   if (typeof body?.name !== 'string' || typeof body?.size !== 'number') {
-    return Response.json({ error: 'name and size required' }, { status: 400 })
+    return Response.json({ error: 'archive_name_size_required' }, { status: 400 })
   }
 
   try {
@@ -25,6 +25,6 @@ export async function POST(request: Request, ctx: Ctx) {
       return Response.json({ error: error.message }, { status: error.status })
     }
     console.error('[archive] could not start upload:', error)
-    return Response.json({ error: 'Could not start the upload' }, { status: 500 })
+    return Response.json({ error: 'archive_start_failed' }, { status: 500 })
   }
 }

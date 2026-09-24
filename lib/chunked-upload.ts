@@ -8,12 +8,13 @@ const BACKOFF_MS = 1000
 
 const wait = (ms: number) => new Promise((resolve) => setTimeout(resolve, ms))
 
-async function errorFrom(res: Response, fallback: string): Promise<Error> {
+async function errorFrom(res: Response, fallbackCode: string): Promise<Error> {
   const data = await res.json().catch(() => ({}))
-  return new Error(data.error ?? fallback)
+  return new Error(data.error ?? fallbackCode)
 }
 
 /**
+ * Errors thrown here carry a stable error code as their message; callers translate it.
  * Sends a large file to the archive endpoint in sequential chunks. After a failed chunk
  * the server is asked how many bytes it really has, so a retry resumes from there.
  */
@@ -29,13 +30,13 @@ export async function uploadArchive(
     headers: { 'Content-Type': 'application/json' },
     body: JSON.stringify({ name: file.name, size: file.size }),
   })
-  if (!created.ok) throw await errorFrom(created, 'Could not start the upload')
+  if (!created.ok) throw await errorFrom(created, 'archive_start_failed')
   const { uploadId, chunkSize } = (await created.json()) as { uploadId: string; chunkSize: number }
   const target = `${base}/${uploadId}`
 
   async function received(): Promise<number> {
     const res = await fetch(target)
-    if (!res.ok) throw await errorFrom(res, 'Could not resume the upload')
+    if (!res.ok) throw await errorFrom(res, 'archive_resume_failed')
     return (await res.json()).received
   }
 
@@ -58,16 +59,16 @@ export async function uploadArchive(
       continue
     }
     if (result && result.status !== 409 && result.status < 500) {
-      throw new Error(result.data.error ?? 'Upload failed')
+      throw new Error(result.data.error ?? 'archive_upload_failed')
     }
 
     failures++
-    if (failures >= MAX_ATTEMPTS) throw new Error('The connection kept failing. Try again.')
+    if (failures >= MAX_ATTEMPTS) throw new Error('archive_connection_failed')
     await wait(BACKOFF_MS * 2 ** (failures - 1))
     offset = await received()
     onProgress(offset)
   }
 
   const done = await fetch(`${target}/complete`, { method: 'POST' })
-  if (!done.ok) throw await errorFrom(done, 'Could not store the archive')
+  if (!done.ok) throw await errorFrom(done, 'archive_store_failed')
 }

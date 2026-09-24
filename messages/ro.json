@@ -24,5 +24,7 @@
   "lightbox": {},
   "showcaseBuilder": {},
   "showcaseViewer": {},
-  "errors": {}
+  "errors": {
+    "generic": "A apărut o eroare. Încearcă din nou."
+  }
 }

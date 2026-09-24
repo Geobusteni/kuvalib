@@ -24,5 +24,7 @@
   "lightbox": {},
   "showcaseBuilder": {},
   "showcaseViewer": {},
-  "errors": {}
+  "errors": {
+    "generic": "Something went wrong. Please try again."
+  }
 }

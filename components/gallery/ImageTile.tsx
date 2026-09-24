@@ -3,6 +3,8 @@
 
 'use client'
 
+import { useTranslations } from 'next-intl'
+
 export interface PhotoData {
   id: string
   filename: string
@@ -36,8 +38,8 @@ export default function ImageTile({
   onOpen,
   onToggleSelect,
 }: ImageTileProps) {
+  const t = useTranslations('gallery.tile')
   const selecting = mode === 'selection'
-  const position = `${index + 1} of ${total}`
 
   function handleClick() {
     if (selecting) onToggleSelect(photo.id)
@@ -62,13 +64,19 @@ export default function ImageTile({
         : reaction === 'COMMENT'
           ? 'ring-2 ring-yellow-400 ring-offset-2 ring-offset-black'
           : ''
+  const position = { index: index + 1, total }
+  const label = selecting
+    ? selected
+      ? t('deselect', position)
+      : t('select', position)
+    : t('open', position)
   const reactionSuffix =
     reaction === 'LIKE'
-      ? ', liked'
+      ? t('liked')
       : reaction === 'DISLIKE'
-        ? ', disliked'
+        ? t('disliked')
         : reaction === 'COMMENT'
-          ? ', commented'
+          ? t('commented')
           : ''
 
   return (
@@ -76,11 +84,7 @@ export default function ImageTile({
       data-photo-index={index}
       onClick={handleClick}
       onKeyDown={handleKeyDown}
-      aria-label={
-        (selecting
-          ? `${selected ? 'Deselect' : 'Select'} photo ${position}`
-          : `Open photo ${position}`) + reactionSuffix
-      }
+      aria-label={label + reactionSuffix}
       aria-pressed={selecting ? selected : undefined}
       className={`group relative block w-full overflow-hidden rounded-sm bg-zinc-900 focus:outline-none focus-visible:ring-2 focus-visible:ring-white focus-visible:ring-offset-2 focus-visible:ring-offset-black ${reactionRing}`}
       style={{ aspectRatio: `${photo.width} / ${photo.height}` }}

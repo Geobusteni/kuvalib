@@ -3,6 +3,8 @@
 
 'use client'
 
+import { useTranslations } from 'next-intl'
+
 import type { PhotoReaction } from '@/components/gallery/ImageTile'
 
 interface PhotoFeedbackBarProps {
@@ -22,13 +24,14 @@ export default function PhotoFeedbackBar({
   onComment,
   onReset,
 }: PhotoFeedbackBarProps) {
+  const t = useTranslations('gallery.feedback')
   const locked = reaction !== null
   const visible = controlsVisible
 
   return (
     <div
       role="group"
-      aria-label="React to this photo"
+      aria-label={t('group')}
       aria-hidden={!visible}
       className={`absolute inset-x-0 bottom-4 z-10 flex items-center justify-center gap-2 transition-opacity duration-200 ${
         visible ? 'opacity-100' : 'pointer-events-none opacity-0'
@@ -42,10 +45,10 @@ export default function PhotoFeedbackBar({
           visible={visible}
           label={
             reaction === 'LIKE'
-              ? 'Liked'
+              ? t('like.done')
               : locked
-                ? 'Like (unavailable — you already reacted to this photo)'
-                : 'Like this photo'
+                ? t('like.locked')
+                : t('like.action')
           }
           className={feedbackBtn(reaction === 'LIKE', 'green')}
         >
@@ -58,10 +61,10 @@ export default function PhotoFeedbackBar({
           visible={visible}
           label={
             reaction === 'DISLIKE'
-              ? 'Disliked'
+              ? t('dislike.done')
               : locked
-                ? 'Dislike (unavailable — you already reacted to this photo)'
-                : 'Dislike this photo'
+                ? t('dislike.locked')
+                : t('dislike.action')
           }
           className={feedbackBtn(reaction === 'DISLIKE', 'red')}
         >
@@ -74,17 +77,17 @@ export default function PhotoFeedbackBar({
           visible={visible}
           label={
             reaction === 'COMMENT'
-              ? 'Commented'
+              ? t('comment.done')
               : locked
-                ? 'Comment (unavailable — you already reacted to this photo)'
-                : 'Comment on this photo'
+                ? t('comment.locked')
+                : t('comment.action')
           }
           className={feedbackBtn(reaction === 'COMMENT', 'yellow')}
         >
           <CommentIcon />
         </TooltipButton>
         {locked && (
-          <TooltipButton onClick={onReset} visible={visible} label="Undo your reaction" className={resetBtn}>
+          <TooltipButton onClick={onReset} visible={visible} label={t('undo')} className={resetBtn}>
             <ResetIcon />
           </TooltipButton>
         )}

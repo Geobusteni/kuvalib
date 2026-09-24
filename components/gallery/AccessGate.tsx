@@ -4,6 +4,9 @@
 'use client'
 
 import { useRef, useState } from 'react'
+import { useTranslations } from 'next-intl'
+import LanguageSwitcher from '@/components/ui/LanguageSwitcher'
+import { useErrorMessage } from '@/hooks/useErrorMessage'
 
 export default function AccessGate({
   projectId,
@@ -12,6 +15,8 @@ export default function AccessGate({
   projectId: string
   accessType: 'PASSWORD' | 'EMAIL'
 }) {
+  const t = useTranslations('gallery.gate')
+  const errorMessage = useErrorMessage()
   const inputRef = useRef<HTMLInputElement>(null)
   const [error, setError] = useState<string | null>(null)
   const [loading, setLoading] = useState(false)
@@ -38,11 +43,12 @@ export default function AccessGate({
         return
       }
 
-      setError((await res.json()).error ?? 'Access denied')
+      const data = await res.json().catch(() => ({}))
+      setError(errorMessage(data.error))
       inputRef.current?.focus()
       inputRef.current?.select()
     } catch {
-      setError('Something went wrong. Please try again.')
+      setError(errorMessage(null))
     } finally {
       setLoading(false)
     }
@@ -52,12 +58,12 @@ export default function AccessGate({
     <div className="flex min-h-screen items-center justify-center bg-black px-4">
       <div className="w-full max-w-xs">
         <h1 className="mb-2 text-center text-lg font-medium text-zinc-100">
-          This gallery is private
+          {t('title')}
         </h1>
         <p className="mb-6 text-center text-sm text-zinc-500">
           {isEmail
-            ? 'Enter the email address the gallery was shared with.'
-            : 'Enter the password you were given.'}
+            ? t('emailPrompt')
+            : t('passwordPrompt')}
         </p>
 
         <form onSubmit={handleSubmit} className="flex flex-col gap-3">
@@ -68,14 +74,14 @@ export default function AccessGate({
           )}
 
           <label htmlFor="access" className="sr-only">
-            {isEmail ? 'Email address' : 'Gallery password'}
+            {isEmail ? t('emailLabel') : t('passwordLabel')}
           </label>
           <input
             ref={inputRef}
             id="access"
             type={isEmail ? 'email' : 'password'}
             inputMode={isEmail ? 'email' : undefined}
-            placeholder={isEmail ? 'you@example.com' : 'Gallery password'}
+            placeholder={isEmail ? t('emailPlaceholder') : t('passwordLabel')}
             autoComplete={isEmail ? 'email' : 'current-password'}
             autoFocus
             required
@@ -87,9 +93,13 @@ export default function AccessGate({
             disabled={loading}
             className="h-11 rounded-lg bg-zinc-100 text-sm font-medium text-zinc-900 transition-colors hover:bg-white focus:outline-none focus-visible:ring-2 focus-visible:ring-white focus-visible:ring-offset-2 focus-visible:ring-offset-black disabled:opacity-50"
           >
-            {loading ? 'Checking…' : 'View gallery'}
+            {loading ? t('checking') : t('submit')}
           </button>
         </form>
+
+        <div className="mt-6 flex justify-center">
+          <LanguageSwitcher className="[&_button]:!text-zinc-400 [&_button:hover]:!text-white [&_button[aria-current=true]]:!text-white [&_span[aria-hidden=true]]:!text-zinc-700" />
+        </div>
       </div>
     </div>
   )

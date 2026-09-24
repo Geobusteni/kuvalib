@@ -20,8 +20,96 @@
     }
   },
   "admin": {},
-  "gallery": {},
-  "lightbox": {},
+  "gallery": {
+    "metaTitle": "Galerie",
+    "notFound": {
+      "message": "Galeria nu a fost găsită."
+    },
+    "expired": "Această galerie a expirat.",
+    "downloadAll": "Descarcă tot (ZIP original)",
+    "selectedCount": "{count, plural, one {# fotografie selectată} few {# fotografii selectate} other {# de fotografii selectate}}",
+    "gate": {
+      "title": "Această galerie este privată",
+      "emailPrompt": "Introdu adresa de e-mail cu care a fost partajată galeria.",
+      "passwordPrompt": "Introdu parola primită.",
+      "emailLabel": "Adresă de e-mail",
+      "emailPlaceholder": "tu@exemplu.ro",
+      "passwordLabel": "Parola galeriei",
+      "checking": "Se verifică…",
+      "submit": "Vezi galeria"
+    },
+    "toolbar": {
+      "viewShowcase": "Vezi prezentarea",
+      "select": "Selectează",
+      "cancel": "Anulează",
+      "download": "Descarcă",
+      "downloadCount": "Descarcă ({count})"
+    },
+    "tile": {
+      "open": "Deschide fotografia {index} din {total}",
+      "select": "Selectează fotografia {index} din {total}",
+      "deselect": "Deselectează fotografia {index} din {total}",
+      "liked": ", apreciată",
+      "disliked": ", neapreciată",
+      "commented": ", comentată"
+    },
+    "feedback": {
+      "group": "Reacționează la această fotografie",
+      "like": {
+        "action": "Apreciază această fotografie",
+        "done": "Apreciată",
+        "locked": "Apreciază (indisponibil — ai reacționat deja la această fotografie)"
+      },
+      "dislike": {
+        "action": "Nu-mi place această fotografie",
+        "done": "Neapreciată",
+        "locked": "Nu-mi place (indisponibil — ai reacționat deja la această fotografie)"
+      },
+      "comment": {
+        "action": "Comentează această fotografie",
+        "done": "Comentată",
+        "locked": "Comentează (indisponibil — ai reacționat deja la această fotografie)"
+      },
+      "undo": "Anulează reacția"
+    },
+    "commentDialog": {
+      "title": "Adaugă un comentariu",
+      "onlyOnce": "Poți comenta o singură dată la această fotografie.",
+      "label": "Comentariul tău",
+      "send": "Trimite comentariul",
+      "sending": "Se trimite…",
+      "cancel": "Anulează",
+      "sendError": "Comentariul nu a putut fi trimis. Încearcă din nou."
+    },
+    "downloadDialog": {
+      "title": "{count, plural, one {Descarcă # fotografie} few {Descarcă # fotografii} other {Descarcă # de fotografii}}",
+      "zip": "Descarcă ZIP",
+      "share": "Partajează fotografiile",
+      "individually": "Descarcă individual",
+      "cancel": "Anulează",
+      "back": "Înapoi",
+      "preparing": "Se pregătește descărcarea…",
+      "preparingLabel": "Se pregătește descărcarea",
+      "fetching": "Se preia fotografia {done} din {total}…",
+      "fetchingLabel": "Se preia fotografia {done} din {total}",
+      "zipError": "Arhiva ZIP nu a putut fi creată. Încearcă din nou.",
+      "shareError": "Fotografiile nu au putut fi partajate. Încearcă din nou.",
+      "fetchOneError": "Fotografia nu a putut fi preluată. Încearcă din nou.",
+      "fetchAllError": "Nu toate fotografiile au putut fi preluate. Încearcă din nou."
+    }
+  },
+  "lightbox": {
+    "counter": "{index} / {total}",
+    "dialogLabel": "Vizualizator foto: imaginea {index} din {total}",
+    "photoAlt": "Fotografia {index} din {total}",
+    "download": "Descarcă imaginea",
+    "enterFullscreen": "Intră în ecran complet",
+    "exitFullscreen": "Ieși din ecran complet",
+    "close": "Închide vizualizatorul",
+    "previous": "Imaginea anterioară",
+    "next": "Imaginea următoare",
+    "cancel": "Anulează"
+  },
   "showcaseBuilder": {},
   "showcaseViewer": {},
   "errors": {

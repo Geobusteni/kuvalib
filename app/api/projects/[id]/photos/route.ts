@@ -10,10 +10,10 @@ type Ctx = { params: Promise<{ id: string }> }
 export async function GET(_req: Request, ctx: Ctx) {
   const { id } = await ctx.params
   const project = await getProject(id)
-  if (!project) return Response.json({ error: 'Not found' }, { status: 404 })
+  if (!project) return Response.json({ error: 'not_found' }, { status: 404 })
 
   if (!(await verifyGalleryAccess(id))) {
-    return Response.json({ error: 'Unauthorized' }, { status: 401 })
+    return Response.json({ error: 'unauthorized' }, { status: 401 })
   }
 
   const photos = await listPhotos(id)

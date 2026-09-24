@@ -13,7 +13,7 @@ export async function GET(_req: Request, ctx: Ctx) {
   await requireAdmin()
   const { id } = await ctx.params
   const project = await getProject(id)
-  if (!project) return Response.json({ error: 'Not found' }, { status: 404 })
+  if (!project) return Response.json({ error: 'not_found' }, { status: 404 })
   return Response.json({ ...project, photoCount: await countPhotos(id) })
 }
 
@@ -21,10 +21,10 @@ export async function PUT(request: Request, ctx: Ctx) {
   await requireAdmin()
   const { id } = await ctx.params
   const project = await getProject(id)
-  if (!project) return Response.json({ error: 'Not found' }, { status: 404 })
+  if (!project) return Response.json({ error: 'not_found' }, { status: 404 })
 
   const body = await request.json().catch(() => null)
-  if (!body) return Response.json({ error: 'Invalid body' }, { status: 400 })
+  if (!body) return Response.json({ error: 'invalid_body' }, { status: 400 })
 
   const updates: UpdateProjectData = {}
   if (body.title !== undefined) updates.title = body.title
@@ -47,7 +47,7 @@ export async function DELETE(_req: Request, ctx: Ctx) {
   await requireAdmin()
   const { id } = await ctx.params
   const project = await getProject(id)
-  if (!project) return Response.json({ error: 'Not found' }, { status: 404 })
+  if (!project) return Response.json({ error: 'not_found' }, { status: 404 })
 
   await deleteProject(id)
   await deleteProjectFiles(id)

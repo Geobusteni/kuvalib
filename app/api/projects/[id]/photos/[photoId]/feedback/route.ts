@@ -14,43 +14,43 @@ export async function POST(request: NextRequest, ctx: Ctx) {
   const { id, photoId } = await ctx.params
 
   if (!(await verifyGalleryAccess(id))) {
-    return Response.json({ error: 'Unauthorized' }, { status: 401 })
+    return Response.json({ error: 'unauthorized' }, { status: 401 })
   }
 
   const project = await getProject(id)
-  if (!project) return Response.json({ error: 'Not found' }, { status: 404 })
+  if (!project) return Response.json({ error: 'not_found' }, { status: 404 })
   if (!project.feedbackEnabled) {
-    return Response.json({ error: 'Feedback is not enabled for this gallery' }, { status: 403 })
+    return Response.json({ error: 'feedback_disabled' }, { status: 403 })
   }
 
   const photo = await getPhoto(photoId)
   if (!photo || photo.projectId !== id) {
-    return Response.json({ error: 'Not found' }, { status: 404 })
+    return Response.json({ error: 'not_found' }, { status: 404 })
   }
 
   const ip = request.headers.get('x-forwarded-for')?.split(',')[0].trim() ?? 'unknown'
   if (!checkRateLimit(`feedback:${ip}:${id}`).allowed) {
-    return Response.json({ error: 'Too many attempts. Try again later.' }, { status: 429 })
+    return Response.json({ error: 'too_many_attempts' }, { status: 429 })
   }
 
   const body = await request.json().catch(() => null)
-  if (!body) return Response.json({ error: 'Invalid body' }, { status: 400 })
+  if (!body) return Response.json({ error: 'invalid_body' }, { status: 400 })
 
   const { visitorId, type, comment } = body
   if (typeof visitorId !== 'string' || !visitorId || visitorId.length > 100) {
-    return Response.json({ error: 'A visitor id is required' }, { status: 400 })
+    return Response.json({ error: 'visitor_id_required' }, { status: 400 })
   }
   if (type !== 'LIKE' && type !== 'DISLIKE' && type !== 'COMMENT') {
-    return Response.json({ error: 'Invalid feedback type' }, { status: 400 })
+    return Response.json({ error: 'invalid_feedback_type' }, { status: 400 })
   }
 
   let trimmedComment: string | null = null
   if (type === 'COMMENT') {
     if (typeof comment !== 'string' || !comment.trim()) {
-      return Response.json({ error: 'A comment is required' }, { status: 400 })
+      return Response.json({ error: 'comment_required' }, { status: 400 })
     }
     if (comment.trim().length > 2000) {
-      return Response.json({ error: 'Comment is too long' }, { status: 400 })
+      return Response.json({ error: 'comment_too_long' }, { status: 400 })
     }
     trimmedComment = comment.trim()
   }
@@ -63,7 +63,7 @@ export async function POST(request: NextRequest, ctx: Ctx) {
     // should have prevented this, but a second tab, a cleared cache, or a
     // replayed request can still reach here, and it must not slip through.
     if (err instanceof Prisma.PrismaClientKnownRequestError && err.code === 'P2002') {
-      return Response.json({ error: 'You have already given feedback on this photo' }, { status: 409 })
+      return Response.json({ error: 'feedback_already_given' }, { status: 409 })
     }
     throw err
   }
@@ -77,24 +77,24 @@ export async function DELETE(request: NextRequest, ctx: Ctx) {
   const { id, photoId } = await ctx.params
 
   if (!(await verifyGalleryAccess(id))) {
-    return Response.json({ error: 'Unauthorized' }, { status: 401 })
+    return Response.json({ error: 'unauthorized' }, { status: 401 })
   }
 
   const project = await getProject(id)
-  if (!project) return Response.json({ error: 'Not found' }, { status: 404 })
+  if (!project) return Response.json({ error: 'not_found' }, { status: 404 })
   if (!project.feedbackEnabled) {
-    return Response.json({ error: 'Feedback is not enabled for this gallery' }, { status: 403 })
+    return Response.json({ error: 'feedback_disabled' }, { status: 403 })
   }
 
   const photo = await getPhoto(photoId)
   if (!photo || photo.projectId !== id) {
-    return Response.json({ error: 'Not found' }, { status: 404 })
+    return Response.json({ error: 'not_found' }, { status: 404 })
   }
 
   const body = await request.json().catch(() => null)
   const visitorId = body?.visitorId
   if (typeof visitorId !== 'string' || !visitorId || visitorId.length > 100) {
-    return Response.json({ error: 'A visitor id is required' }, { status: 400 })
+    return Response.json({ error: 'visitor_id_required' }, { status: 400 })
   }
 
   await deleteVisitorFeedback(photoId, visitorId)

@@ -18,16 +18,16 @@ export async function POST(request: Request) {
 
   const body = await request.json().catch(() => null)
   if (!body?.email || !ROLES.includes(body.role)) {
-    return Response.json({ error: 'Email and a valid role are required' }, { status: 400 })
+    return Response.json({ error: 'email_and_role_required' }, { status: 400 })
   }
 
   const role = body.role as Role
   if (role !== 'GUEST') {
     if (!body.username) {
-      return Response.json({ error: 'Username is required for admins and users' }, { status: 400 })
+      return Response.json({ error: 'username_required' }, { status: 400 })
     }
     if (!body.password || String(body.password).length < 8) {
-      return Response.json({ error: 'Password must be at least 8 characters' }, { status: 400 })
+      return Response.json({ error: 'password_too_short' }, { status: 400 })
     }
   }
 
@@ -41,6 +41,6 @@ export async function POST(request: Request) {
     })
     return Response.json(toPublicUser(user), { status: 201 })
   } catch {
-    return Response.json({ error: 'A user with that email or username already exists' }, { status: 409 })
+    return Response.json({ error: 'user_exists' }, { status: 409 })
   }
 }

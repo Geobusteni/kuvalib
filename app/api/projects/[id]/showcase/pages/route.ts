@@ -17,14 +17,14 @@ export async function PUT(request: NextRequest, ctx: Ctx) {
   const { id } = await ctx.params
 
   const showcase = await getShowcaseByProject(id)
-  if (!showcase) return Response.json({ error: 'Not found' }, { status: 404 })
+  if (!showcase) return Response.json({ error: 'not_found' }, { status: 404 })
 
   const body = await request.json().catch(() => null)
   if (!body || !Array.isArray(body.pages) || body.pages.length === 0) {
-    return Response.json({ error: 'pages required' }, { status: 400 })
+    return Response.json({ error: 'pages_required' }, { status: 400 })
   }
   if (body.pages.length > 100) {
-    return Response.json({ error: 'Too many pages' }, { status: 400 })
+    return Response.json({ error: 'too_many_pages' }, { status: 400 })
   }
 
   const pages = (body.pages as unknown[]).map((page) => ({

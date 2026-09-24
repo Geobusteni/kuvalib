@@ -7,15 +7,15 @@ import { createUser, setupRequired } from '@/lib/users'
 export async function POST(request: Request) {
   // Only usable while no admin exists — prevents privilege escalation later.
   if (!(await setupRequired())) {
-    return Response.json({ error: 'Setup already completed' }, { status: 403 })
+    return Response.json({ error: 'setup_completed' }, { status: 403 })
   }
 
   const body = await request.json().catch(() => null)
   if (!body?.email || !body?.username || !body?.password) {
-    return Response.json({ error: 'Email, username and password are required' }, { status: 400 })
+    return Response.json({ error: 'setup_fields_required' }, { status: 400 })
   }
   if (String(body.password).length < 8) {
-    return Response.json({ error: 'Password must be at least 8 characters' }, { status: 400 })
+    return Response.json({ error: 'password_too_short' }, { status: 400 })
   }
 
   const user = await createUser({

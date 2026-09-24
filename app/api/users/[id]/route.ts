@@ -14,15 +14,15 @@ export async function PUT(request: Request, ctx: Ctx) {
   const { id } = await ctx.params
 
   const user = await getUser(id)
-  if (!user) return Response.json({ error: 'Not found' }, { status: 404 })
+  if (!user) return Response.json({ error: 'not_found' }, { status: 404 })
 
   const body = await request.json().catch(() => null)
-  if (!body) return Response.json({ error: 'Invalid body' }, { status: 400 })
+  if (!body) return Response.json({ error: 'invalid_body' }, { status: 400 })
 
   // Never allow the last admin to be demoted — it would lock everyone out.
   if (user.role === 'ADMIN' && body.role && body.role !== 'ADMIN') {
     if ((await countAdmins()) <= 1) {
-      return Response.json({ error: 'Cannot demote the only administrator' }, { status: 400 })
+      return Response.json({ error: 'cannot_demote_last_admin' }, { status: 400 })
     }
   }
 
@@ -36,7 +36,7 @@ export async function PUT(request: Request, ctx: Ctx) {
     })
     return Response.json(toPublicUser(updated))
   } catch {
-    return Response.json({ error: 'A user with that email or username already exists' }, { status: 409 })
+    return Response.json({ error: 'user_exists' }, { status: 409 })
   }
 }
 
@@ -45,13 +45,13 @@ export async function DELETE(_req: Request, ctx: Ctx) {
   const { id } = await ctx.params
 
   const user = await getUser(id)
-  if (!user) return Response.json({ error: 'Not found' }, { status: 404 })
+  if (!user) return Response.json({ error: 'not_found' }, { status: 404 })
 
   if (user.id === session.userId) {
-    return Response.json({ error: 'You cannot delete your own account' }, { status: 400 })
+    return Response.json({ error: 'cannot_delete_self' }, { status: 400 })
   }
   if (user.role === 'ADMIN' && (await countAdmins()) <= 1) {
-    return Response.json({ error: 'Cannot delete the only administrator' }, { status: 400 })
+    return Response.json({ error: 'cannot_delete_last_admin' }, { status: 400 })
   }
 
   await deleteUser(id)

@@ -7,7 +7,7 @@ import { getUserByEmail, getUserByUsername } from '@/lib/users'
 export async function POST(request: Request) {
   const body = await request.json().catch(() => null)
   if (!body?.identifier || !body?.password) {
-    return Response.json({ error: 'Missing credentials' }, { status: 400 })
+    return Response.json({ error: 'missing_credentials' }, { status: 400 })
   }
 
   const identifier = String(body.identifier).trim()
@@ -17,12 +17,12 @@ export async function POST(request: Request) {
 
   // Guests never log in — they are identified by email at the gallery.
   if (!user || !user.password || user.role === 'GUEST') {
-    return Response.json({ error: 'Invalid credentials' }, { status: 401 })
+    return Response.json({ error: 'invalid_credentials' }, { status: 401 })
   }
 
   const valid = await verifyPassword(body.password, user.password)
   if (!valid) {
-    return Response.json({ error: 'Invalid credentials' }, { status: 401 })
+    return Response.json({ error: 'invalid_credentials' }, { status: 401 })
   }
 
   const session = await getSession()

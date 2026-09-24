@@ -31,11 +31,11 @@ export async function POST(request: Request, ctx: Ctx) {
   const { id } = await ctx.params
 
   if (!(await getProject(id))) {
-    return Response.json({ error: 'Not found' }, { status: 404 })
+    return Response.json({ error: 'not_found' }, { status: 404 })
   }
 
   const body = await request.json().catch(() => null)
-  if (!body?.userId) return Response.json({ error: 'userId required' }, { status: 400 })
+  if (!body?.userId) return Response.json({ error: 'user_id_required' }, { status: 400 })
 
   await assignUserToProject(id, body.userId)
   return Response.json({ ok: true }, { status: 201 })
@@ -46,7 +46,7 @@ export async function DELETE(request: Request, ctx: Ctx) {
   const { id } = await ctx.params
 
   const body = await request.json().catch(() => null)
-  if (!body?.userId) return Response.json({ error: 'userId required' }, { status: 400 })
+  if (!body?.userId) return Response.json({ error: 'user_id_required' }, { status: 400 })
 
   await removeUserFromProject(id, body.userId)
   return Response.json({ ok: true })

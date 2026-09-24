@@ -16,13 +16,13 @@ export async function POST(request: Request) {
 
   const body = await request.json().catch(() => null)
   if (!body?.title) {
-    return Response.json({ error: 'Title is required' }, { status: 400 })
+    return Response.json({ error: 'title_required' }, { status: 400 })
   }
 
   const accessType = body.accessType === 'EMAIL' ? 'EMAIL' : 'PASSWORD'
   if (accessType === 'PASSWORD' && !body.password) {
     return Response.json(
-      { error: 'Password is required for password-protected projects' },
+      { error: 'password_required_for_project' },
       { status: 400 }
     )
   }

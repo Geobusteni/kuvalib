@@ -549,7 +549,7 @@ Conventions: keys are camelCase, nested by component or feature (`admin.projectF
 ICU placeholders for values (`{count}`), ICU plurals for counts, no string concatenation. Server
 components use `await getTranslations('ns')` from `next-intl/server`; client components use
 `useTranslations('ns')`. API routes return `{ error: '<code>' }` with a stable snake_case code
-and the same HTTP status; the client renders `t(\`errors.${code}\`)` with a generic fallback.
+and the same HTTP status; the client renders the message at key `errors.<code>` with a generic fallback.
 User-authored content (titles, showcase text) is never translated.
 
 ---

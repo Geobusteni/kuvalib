@@ -3,6 +3,8 @@
 
 'use client'
 
+import { useTranslations } from 'next-intl'
+
 /**
  * A small pill of its own, separate from the main slideshow controls, so it's
  * never mistaken for the slides' own play/pause. Exactly one control shows,
@@ -27,6 +29,7 @@ export function MusicControls({
   onToggleMuted: () => void
   visible: boolean
 }) {
+  const t = useTranslations('showcaseViewer.music')
   return (
     <div
       className="pointer-events-auto absolute right-2 top-16 z-10 flex items-center gap-0.5 rounded-full bg-black/40 p-1 backdrop-blur-sm transition-opacity duration-300 sm:right-3 sm:top-16"
@@ -35,10 +38,10 @@ export function MusicControls({
       {autoStarted ? (
         <button
           type="button"
-          aria-label={muted ? 'Unmute music' : 'Mute music'}
+          aria-label={muted ? t('unmute') : t('mute')}
           aria-pressed={muted}
           onClick={onToggleMuted}
-          title={muted ? 'Unmute music' : 'Mute music'}
+          title={muted ? t('unmute') : t('mute')}
           className="flex h-10 w-10 items-center justify-center rounded-full text-white/90 hover:bg-white/10 focus:outline-none focus-visible:ring-2 focus-visible:ring-white/70"
         >
           <svg width="18" height="18" viewBox="0 0 20 20" fill="none" stroke="currentColor" strokeWidth="1.6" strokeLinecap="round" strokeLinejoin="round">
@@ -49,10 +52,10 @@ export function MusicControls({
       ) : (
         <button
           type="button"
-          aria-label={playing ? 'Pause music' : 'Play music'}
+          aria-label={playing ? t('pause') : t('play')}
           aria-pressed={playing}
           onClick={onTogglePlaying}
-          title={playing ? 'Pause music' : 'Play music'}
+          title={playing ? t('pause') : t('play')}
           className="flex h-10 w-10 items-center justify-center rounded-full text-white/90 hover:bg-white/10 focus:outline-none focus-visible:ring-2 focus-visible:ring-white/70"
         >
           <svg width="18" height="18" viewBox="0 0 20 20" fill="currentColor" stroke="currentColor" strokeWidth="1.6" strokeLinecap="round" strokeLinejoin="round">

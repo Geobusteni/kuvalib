@@ -3,6 +3,7 @@
 
 'use client'
 
+import { useTranslations } from 'next-intl'
 import { useCallback, useEffect, useRef, useState, useSyncExternalStore } from 'react'
 import type { Block, HeadingLevel, PageSettings, TextSizePreset } from '@/lib/showcase-blocks'
 import { collectPhotoIds } from '@/lib/showcase-blocks'
@@ -26,6 +27,7 @@ import { ThumbnailRail } from './ThumbnailRail'
 import { DotIndicator } from './DotIndicator'
 import { MusicPlayer } from './MusicPlayer'
 import { MusicControls } from './MusicControls'
+import { ViewerLanguage } from './ViewerLanguage'
 import { ShowcaseDownloadDialog } from './ShowcaseDownloadDialog'
 import { useSlideshow } from './useSlideshow'
 
@@ -79,6 +81,7 @@ export function ShowcaseViewer({
   passwordProtected,
   backHref,
 }: ShowcaseViewerProps) {
+  const t = useTranslations('showcaseViewer')
   const reducedMotion = useReducedMotion()
   const stageRef = useRef<HTMLDivElement>(null)
   const total = Math.max(1, pages.length)
@@ -191,17 +194,14 @@ export function ShowcaseViewer({
     navigator.clipboard?.writeText(absolute).then(
       () => {
         if (passwordProtected) {
-          flashToast(
-            "Link copied — this showcase needs a password too, so send that along. Don't know it? Ask the admin or whoever sent you this link.",
-            5000,
-          )
+          flashToast(t('toast.linkCopiedWithPassword'), 5000)
         } else {
-          flashToast('Showcase link copied')
+          flashToast(t('toast.linkCopied'))
         }
       },
-      () => flashToast('Could not copy the link'),
+      () => flashToast(t('toast.copyFailed')),
     )
-  }, [shareUrl, passwordProtected, flashToast])
+  }, [shareUrl, passwordProtected, flashToast, t])
 
   return (
     <div
@@ -221,7 +221,7 @@ export function ShowcaseViewer({
       {fontsHref && <link rel="stylesheet" href={fontsHref} />}
 
       <div aria-live="polite" className="sr-only">
-        Page {current + 1} of {total}
+        {t('stage.pageStatus', { current: current + 1, total })}
       </div>
 
       <ViewerControls
@@ -236,6 +236,8 @@ export function ShowcaseViewer({
         backHref={backHref}
         visible={controlsVisible}
       />
+
+      <ViewerLanguage visible={controlsVisible} />
 
       {trackIds.length > 0 && (
         <MusicControls
@@ -280,7 +282,7 @@ export function ShowcaseViewer({
           <>
             <button
               type="button"
-              aria-label="Previous page"
+              aria-label={t('nav.previousPage')}
               onClick={prev}
               className="absolute left-2 top-1/2 z-10 flex h-11 w-11 -translate-y-1/2 items-center justify-center rounded-full bg-black/40 text-white backdrop-blur-sm hover:bg-black/60 sm:left-3"
             >
@@ -288,7 +290,7 @@ export function ShowcaseViewer({
             </button>
             <button
               type="button"
-              aria-label="Next page"
+              aria-label={t('nav.nextPage')}
               onClick={next}
               className="absolute right-2 top-1/2 z-10 flex h-11 w-11 -translate-y-1/2 items-center justify-center rounded-full bg-black/40 text-white backdrop-blur-sm hover:bg-black/60 sm:right-3"
             >

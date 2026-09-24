@@ -3,6 +3,8 @@
 
 'use client'
 
+import { useTranslations } from 'next-intl'
+
 import type { Block, HeadingLevel, TextSizePreset } from '@/lib/showcase-blocks'
 import type { ShowcasePhoto } from '../photos-context'
 import { BlockRenderer } from './BlockRenderer'
@@ -32,6 +34,7 @@ export function ThumbnailRail({
   headingFont?: string | null
   textFont?: string | null
 }) {
+  const t = useTranslations('showcaseViewer.nav')
   const scale = THUMB_W / PREVIEW_W
 
   return (
@@ -54,7 +57,7 @@ export function ThumbnailRail({
               onSelect(i)
             }
           }}
-          aria-label={`Go to page ${i + 1}`}
+          aria-label={t('goToPage', { page: i + 1 })}
           aria-current={i === current ? 'true' : undefined}
           className={`sc-thumbnail relative shrink-0 cursor-pointer overflow-hidden rounded-md border-2 focus:outline-none focus-visible:ring-2 focus-visible:ring-white/70${i === current ? ' sc-thumbnail-active' : ''}`}
           style={{

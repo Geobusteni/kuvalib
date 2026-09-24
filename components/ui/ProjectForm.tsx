@@ -5,6 +5,8 @@
 
 import { useState } from 'react'
 import { useRouter } from 'next/navigation'
+import { useTranslations } from 'next-intl'
+import { useErrorMessage } from '@/hooks/useErrorMessage'
 
 type AccessType = 'PASSWORD' | 'EMAIL'
 
@@ -32,6 +34,8 @@ function toDateInput(value: Date | string | null | undefined): string {
 
 export default function ProjectForm({ mode, projectId, defaults }: ProjectFormProps) {
   const router = useRouter()
+  const t = useTranslations('ui.projectForm')
+  const msg = useErrorMessage()
   const [error, setError] = useState<string | null>(null)
   const [loading, setLoading] = useState(false)
   const [accessType, setAccessType] = useState<AccessType>(defaults?.accessType ?? 'PASSWORD')
@@ -52,7 +56,7 @@ export default function ProjectForm({ mode, projectId, defaults }: ProjectFormPr
     const password = value('password')
 
     if (mode === 'create' && needsPassword && !password) {
-      setError('A gallery password is required for password-protected projects')
+      setError(t('passwordRequired'))
       setLoading(false)
       return
     }
@@ -79,7 +83,7 @@ export default function ProjectForm({ mode, projectId, defaults }: ProjectFormPr
       )
 
       if (!res.ok) {
-        setError((await res.json()).error ?? 'Something went wrong')
+        setError(msg((await res.json()).error))
         return
       }
 
@@ -87,7 +91,7 @@ export default function ProjectForm({ mode, projectId, defaults }: ProjectFormPr
       router.push(`/projects/${project.id}`)
       router.refresh()
     } catch {
-      setError('Something went wrong. Please try again.')
+      setError(msg(null))
     } finally {
       setLoading(false)
     }
@@ -101,7 +105,7 @@ export default function ProjectForm({ mode, projectId, defaults }: ProjectFormPr
         </p>
       )}
 
-      <Field label="Title" htmlFor="title" required>
+      <Field label={t('title')} htmlFor="title" required>
         <input
           id="title"
           name="title"
@@ -113,7 +117,7 @@ export default function ProjectForm({ mode, projectId, defaults }: ProjectFormPr
         />
       </Field>
 
-      <Field label="Event date" htmlFor="eventDate">
+      <Field label={t('eventDate')} htmlFor="eventDate">
         <input
           id="eventDate"
           name="eventDate"
@@ -124,9 +128,9 @@ export default function ProjectForm({ mode, projectId, defaults }: ProjectFormPr
       </Field>
 
       <Field
-        label="Access type"
+        label={t('accessType')}
         htmlFor="accessType"
-        hint="Password galleries are shared with one password. Email galleries only admit guests whose email you have assigned."
+        hint={t('accessHint')}
       >
         <select
           id="accessType"
@@ -135,17 +139,17 @@ export default function ProjectForm({ mode, projectId, defaults }: ProjectFormPr
           onChange={(e) => setAccessType(e.target.value as AccessType)}
           className={inputClass}
         >
-          <option value="PASSWORD">Password protected</option>
-          <option value="EMAIL">Email based</option>
+          <option value="PASSWORD">{t('passwordOption')}</option>
+          <option value="EMAIL">{t('emailOption')}</option>
         </select>
       </Field>
 
       {needsPassword && (
         <Field
-          label={mode === 'create' ? 'Gallery password' : 'New gallery password'}
+          label={mode === 'create' ? t('galleryPassword') : t('newGalleryPassword')}
           htmlFor="password"
           required={mode === 'create'}
-          hint={mode === 'edit' ? 'Leave blank to keep the current password' : undefined}
+          hint={mode === 'edit' ? t('keepPasswordHint') : undefined}
         >
           <input
             id="password"
@@ -158,9 +162,9 @@ export default function ProjectForm({ mode, projectId, defaults }: ProjectFormPr
       )}
 
       <Field
-        label="Expiration date"
+        label={t('expiresAt')}
         htmlFor="expiresAt"
-        hint="The gallery becomes inaccessible after this date"
+        hint={t('expiresHint')}
       >
         <input
           id="expiresAt"
@@ -174,17 +178,17 @@ export default function ProjectForm({ mode, projectId, defaults }: ProjectFormPr
       <div className="flex flex-col gap-3">
         <Toggle
           id="zipEnabled"
-          label="Offer the uploaded archive for download"
+          label={t('zipEnabled')}
           defaultChecked={defaults?.zipEnabled ?? true}
         />
         <Toggle
           id="dlEnabled"
-          label="Allow individual image downloads"
+          label={t('dlEnabled')}
           defaultChecked={defaults?.dlEnabled ?? true}
         />
         <Toggle
           id="feedbackEnabled"
-          label="Allow clients to like, dislike, and comment on photos"
+          label={t('feedbackEnabled')}
           defaultChecked={defaults?.feedbackEnabled ?? false}
         />
       </div>
@@ -195,14 +199,14 @@ export default function ProjectForm({ mode, projectId, defaults }: ProjectFormPr
           disabled={loading}
           className="h-10 rounded-lg bg-zinc-900 px-5 text-sm font-medium text-white transition-colors hover:bg-zinc-700 focus:outline-none focus-visible:ring-2 focus-visible:ring-zinc-500 focus-visible:ring-offset-2 disabled:opacity-50 dark:bg-zinc-100 dark:text-zinc-900 dark:hover:bg-zinc-300"
         >
-          {loading ? 'Saving…' : mode === 'create' ? 'Create project' : 'Save changes'}
+          {loading ? t('saving') : mode === 'create' ? t('create') : t('save')}
         </button>
         <button
           type="button"
           onClick={() => router.back()}
           className="h-10 rounded-lg border border-zinc-300 px-5 text-sm font-medium text-zinc-700 transition-colors hover:bg-zinc-100 focus:outline-none focus-visible:ring-2 focus-visible:ring-zinc-500 dark:border-zinc-700 dark:text-zinc-300 dark:hover:bg-zinc-800"
         >
-          Cancel
+          {t('cancel')}
         </button>
       </div>
     </form>

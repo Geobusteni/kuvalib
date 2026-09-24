@@ -19,12 +19,203 @@
       "ro": "română"
     }
   },
-  "admin": {},
+  "admin": {
+    "nav": {
+      "label": "Principal",
+      "projects": "Proiecte",
+      "users": "Utilizatori"
+    },
+    "accessType": {
+      "password": "Parolă",
+      "email": "E-mail",
+      "emailBased": "Pe bază de e-mail"
+    },
+    "roles": {
+      "admin": "Administrator",
+      "user": "Utilizator",
+      "guest": "Invitat"
+    },
+    "projects": {
+      "metaTitle": "Proiecte",
+      "title": "Proiecte",
+      "newProject": "Proiect nou",
+      "empty": "Niciun proiect încă.",
+      "emptyAssigned": "Nu ai fost alocat niciunui proiect.",
+      "createFirst": "Creează primul proiect",
+      "columns": {
+        "title": "Titlu",
+        "access": "Acces",
+        "date": "Data",
+        "photos": "Fotografii",
+        "visits": "Vizite",
+        "downloads": "Descărcări",
+        "lastAccess": "Ultimul acces"
+      }
+    },
+    "newProject": {
+      "metaTitle": "Proiect nou",
+      "title": "Proiect nou"
+    },
+    "users": {
+      "metaTitle": "Utilizatori",
+      "title": "Utilizatori",
+      "description": "Administratorii au acces complet. Utilizatorii văd doar proiectele la care sunt alocați. Invitații nu au nevoie de parolă și sunt identificați prin e-mail în galeriile cu acces pe bază de e-mail."
+    },
+    "userManager": {
+      "columns": {
+        "email": "E-mail",
+        "name": "Nume",
+        "username": "Nume de utilizator",
+        "role": "Rol",
+        "actions": "Acțiuni"
+      },
+      "delete": "Șterge",
+      "addUser": "Adaugă utilizator",
+      "adding": "Se adaugă…",
+      "cancel": "Anulează",
+      "role": "Rol",
+      "roleOptions": {
+        "admin": "Administrator — acces complet",
+        "user": "Utilizator — doar proiectele alocate",
+        "guest": "Invitat — doar citire, identificat prin e-mail"
+      },
+      "email": "E-mail",
+      "name": "Nume",
+      "username": "Nume de utilizator",
+      "password": "Parolă",
+      "passwordHint": "Cel puțin 8 caractere"
+    },
+    "project": {
+      "metaTitle": "Proiect",
+      "viewGallery": "Vezi galeria ↗",
+      "stats": {
+        "photos": "Fotografii",
+        "access": "Acces",
+        "galleryPassword": "Parola galeriei",
+        "visits": "Vizite în galerie",
+        "downloads": "Descărcări",
+        "lastAccess": "Ultimul acces"
+      },
+      "sections": {
+        "photos": "Fotografii",
+        "people": "Persoane",
+        "feedback": "Feedback",
+        "settings": "Setări",
+        "dangerZone": "Zonă periculoasă"
+      },
+      "peopleHint": "Alocă utilizatorii care pot administra acest proiect și invitații care îl pot vedea pe bază de e-mail.",
+      "dangerText": "Ștergerea acestui proiect va elimina definitiv toate fotografiile și datele."
+    },
+    "photoGrid": {
+      "deletePhoto": "Șterge fotografia {name}"
+    },
+    "passwordReveal": {
+      "show": "Arată",
+      "hide": "Ascunde",
+      "copy": "Copiază",
+      "copied": "Copiat",
+      "copiedStatus": "Parola a fost copiată în clipboard"
+    },
+    "feedback": {
+      "off": "Feedback-ul este dezactivat pentru această galerie. Activează-l în Setări, mai jos, pentru a le permite clienților să aprecieze, să neaprecieze și să comenteze fotografiile.",
+      "counts": "{likes, plural, one {# apreciere} few {# aprecieri} other {# de aprecieri}} · {dislikes, plural, one {# neapreciere} few {# neaprecieri} other {# de neaprecieri}} · {comments, plural, one {# comentariu} few {# comentarii} other {# de comentarii}}",
+      "reset": "Resetează feedback-ul",
+      "resetConfirm": "Se șterg toate aprecierile, neaprecierile și comentariile, iar clienții pot reacționa din nou. Acțiunea nu poate fi anulată.",
+      "yesReset": "Da, resetează",
+      "resetting": "Se resetează…",
+      "cancel": "Anulează",
+      "none": "Niciun feedback încă.",
+      "viewLarger": "Vezi o versiune mai mare a fotografiei {name}",
+      "closePreview": "Închide previzualizarea"
+    },
+    "assignments": {
+      "nobody": "Nicio persoană nu este alocată încă acestui proiect.",
+      "remove": "Elimină",
+      "removeLabel": "Elimină {email} din acest proiect",
+      "selectLabel": "Alege o persoană de alocat",
+      "choose": "Alege o persoană…",
+      "option": "{email} ({role})",
+      "assign": "Alocă"
+    },
+    "showcaseManager": {
+      "title": "Prezentare",
+      "description": "O prezentare grafică, pagină cu pagină, creată din fotografiile acestui proiect și partajată la propriul link. Folosește același acces și aceeași parolă ca galeria — un client care deschide una poate trece la cealaltă fără să se autentifice din nou.",
+      "pages": "{count, plural, one {# pagină} few {# pagini} other {# de pagini}}",
+      "openBuilder": "Deschide editorul",
+      "view": "Vezi prezentarea ↗",
+      "copyLink": "Copiază linkul pentru client",
+      "copied": "Link copiat ✓",
+      "copyFailed": "Linkul nu a putut fi copiat",
+      "deleteConfirm": "Ștergi întreaga prezentare?",
+      "delete": "Șterge",
+      "keep": "Păstrează",
+      "create": "Creează prezentarea",
+      "creating": "Se creează…"
+    },
+    "showcasePage": {
+      "metaTitle": "Prezentare",
+      "metaTitleWithProject": "Prezentare · {title}"
+    }
+  },
   "gallery": {},
   "lightbox": {},
   "showcaseBuilder": {},
   "showcaseViewer": {},
   "errors": {
     "generic": "A apărut o eroare. Încearcă din nou."
+  },
+  "auth": {
+    "login": {
+      "metaTitle": "Autentificare",
+      "identifier": "Nume de utilizator sau e-mail",
+      "password": "Parolă",
+      "submit": "Autentificare",
+      "submitting": "Se autentifică…"
+    },
+    "setup": {
+      "metaTitle": "Configurare",
+      "welcome": "Bun venit în Kuvalib",
+      "intro": "Creează primul cont de administrator pentru a începe.",
+      "name": "Nume",
+      "email": "E-mail",
+      "username": "Nume de utilizator",
+      "password": "Parolă",
+      "passwordHint": "Cel puțin 8 caractere",
+      "submit": "Creează contul de administrator",
+      "submitting": "Se creează contul…"
+    }
+  },
+  "ui": {
+    "logout": {
+      "signOut": "Deconectare"
+    },
+    "deleteProject": {
+      "delete": "Șterge proiectul",
+      "irreversible": "Acțiunea nu poate fi anulată.",
+      "confirm": "Da, șterge",
+      "deleting": "Se șterge…",
+      "cancel": "Anulează"
+    },
+    "projectForm": {
+      "passwordRequired": "Pentru proiectele protejate prin parolă este necesară o parolă a galeriei",
+      "title": "Titlu",
+      "eventDate": "Data evenimentului",
+      "accessType": "Tip de acces",
+      "accessHint": "Galeriile cu parolă se partajează cu o singură parolă. Galeriile pe bază de e-mail îi admit doar pe invitații ale căror adrese de e-mail le-ai alocat.",
+      "passwordOption": "Protejat prin parolă",
+      "emailOption": "Pe bază de e-mail",
+      "galleryPassword": "Parola galeriei",
+      "newGalleryPassword": "Parolă nouă a galeriei",
+      "keepPasswordHint": "Lasă gol pentru a păstra parola curentă",
+      "expiresAt": "Data expirării",
+      "expiresHint": "Galeria devine inaccesibilă după această dată",
+      "zipEnabled": "Oferă arhiva încărcată spre descărcare",
+      "dlEnabled": "Permite descărcarea fotografiilor individuale",
+      "feedbackEnabled": "Permite clienților să aprecieze, să neaprecieze și să comenteze fotografiile",
+      "saving": "Se salvează…",
+      "create": "Creează proiectul",
+      "save": "Salvează modificările",
+      "cancel": "Anulează"
+    }
   }
 }

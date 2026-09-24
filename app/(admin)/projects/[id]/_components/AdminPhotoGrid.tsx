@@ -5,6 +5,7 @@
 
 import { useState } from 'react'
 import { useRouter } from 'next/navigation'
+import { useTranslations } from 'next-intl'
 
 interface PhotoRow {
   id: string
@@ -20,6 +21,7 @@ export default function AdminPhotoGrid({
   projectId: string
 }) {
   const router = useRouter()
+  const t = useTranslations('admin.photoGrid')
   const [deleting, setDeleting] = useState<string | null>(null)
 
   async function handleDelete(photoId: string) {
@@ -54,7 +56,7 @@ export default function AdminPhotoGrid({
             <button
               onClick={() => handleDelete(photo.id)}
               disabled={deleting === photo.id}
-              aria-label={`Delete photo ${photo.originalName}`}
+              aria-label={t('deletePhoto', { name: photo.originalName })}
               className="absolute right-1 top-1 flex h-11 w-11 items-center justify-center rounded-full text-white opacity-0 transition-opacity focus:opacity-100 focus:outline-none focus-visible:ring-2 focus-visible:ring-white group-hover:opacity-100 disabled:opacity-50"
             >
               <span className="flex h-6 w-6 items-center justify-center rounded-full bg-black/70">

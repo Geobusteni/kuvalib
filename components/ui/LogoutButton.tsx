@@ -4,9 +4,11 @@
 'use client'
 
 import { useRouter } from 'next/navigation'
+import { useTranslations } from 'next-intl'
 
 export default function LogoutButton() {
   const router = useRouter()
+  const t = useTranslations('ui.logout')
 
   async function handleLogout() {
     await fetch('/api/auth', { method: 'DELETE' })
@@ -19,7 +21,7 @@ export default function LogoutButton() {
       onClick={handleLogout}
       className="text-sm text-zinc-500 transition-colors hover:text-zinc-900 dark:hover:text-zinc-100"
     >
-      Sign out
+      {t('signOut')}
     </button>
   )
 }

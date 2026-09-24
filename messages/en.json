@@ -19,12 +19,203 @@
       "ro": "Romanian"
     }
   },
-  "admin": {},
+  "admin": {
+    "nav": {
+      "label": "Main",
+      "projects": "Projects",
+      "users": "Users"
+    },
+    "accessType": {
+      "password": "Password",
+      "email": "Email",
+      "emailBased": "Email based"
+    },
+    "roles": {
+      "admin": "Admin",
+      "user": "User",
+      "guest": "Guest"
+    },
+    "projects": {
+      "metaTitle": "Projects",
+      "title": "Projects",
+      "newProject": "New project",
+      "empty": "No projects yet.",
+      "emptyAssigned": "You have not been assigned to any projects.",
+      "createFirst": "Create your first project",
+      "columns": {
+        "title": "Title",
+        "access": "Access",
+        "date": "Date",
+        "photos": "Photos",
+        "visits": "Visits",
+        "downloads": "Downloads",
+        "lastAccess": "Last access"
+      }
+    },
+    "newProject": {
+      "metaTitle": "New project",
+      "title": "New project"
+    },
+    "users": {
+      "metaTitle": "Users",
+      "title": "Users",
+      "description": "Admins have full access. Users can only see projects they are assigned to. Guests need no password and are identified by email on email-based galleries."
+    },
+    "userManager": {
+      "columns": {
+        "email": "Email",
+        "name": "Name",
+        "username": "Username",
+        "role": "Role",
+        "actions": "Actions"
+      },
+      "delete": "Delete",
+      "addUser": "Add user",
+      "adding": "Adding…",
+      "cancel": "Cancel",
+      "role": "Role",
+      "roleOptions": {
+        "admin": "Admin — full access",
+        "user": "User — assigned projects only",
+        "guest": "Guest — read only, email identified"
+      },
+      "email": "Email",
+      "name": "Name",
+      "username": "Username",
+      "password": "Password",
+      "passwordHint": "At least 8 characters"
+    },
+    "project": {
+      "metaTitle": "Project",
+      "viewGallery": "View gallery ↗",
+      "stats": {
+        "photos": "Photos",
+        "access": "Access",
+        "galleryPassword": "Gallery password",
+        "visits": "Gallery visits",
+        "downloads": "Downloads",
+        "lastAccess": "Last access"
+      },
+      "sections": {
+        "photos": "Photos",
+        "people": "People",
+        "feedback": "Feedback",
+        "settings": "Settings",
+        "dangerZone": "Danger zone"
+      },
+      "peopleHint": "Assign users who may manage this project, and guests who may view it by email.",
+      "dangerText": "Deleting this project will permanently remove all photos and data."
+    },
+    "photoGrid": {
+      "deletePhoto": "Delete photo {name}"
+    },
+    "passwordReveal": {
+      "show": "Show",
+      "hide": "Hide",
+      "copy": "Copy",
+      "copied": "Copied",
+      "copiedStatus": "Password copied to clipboard"
+    },
+    "feedback": {
+      "off": "Feedback is off for this gallery. Turn it on in Settings below to let clients like, dislike, and comment on photos.",
+      "counts": "{likes, plural, one {# like} other {# likes}} · {dislikes, plural, one {# dislike} other {# dislikes}} · {comments, plural, one {# comment} other {# comments}}",
+      "reset": "Reset feedback",
+      "resetConfirm": "This deletes every like, dislike, and comment, and lets clients react again. This cannot be undone.",
+      "yesReset": "Yes, reset",
+      "resetting": "Resetting…",
+      "cancel": "Cancel",
+      "none": "No feedback yet.",
+      "viewLarger": "View a larger version of {name}",
+      "closePreview": "Close preview"
+    },
+    "assignments": {
+      "nobody": "Nobody is assigned to this project yet.",
+      "remove": "Remove",
+      "removeLabel": "Remove {email} from this project",
+      "selectLabel": "Select a person to assign",
+      "choose": "Choose a person…",
+      "option": "{email} ({role})",
+      "assign": "Assign"
+    },
+    "showcaseManager": {
+      "title": "Showcase",
+      "description": "A designed, page-by-page slideshow built from this project’s photos, shared on its own link. It uses the same access and password as the gallery — a client who opens one can move to the other without signing in again.",
+      "pages": "{count, plural, one {# page} other {# pages}}",
+      "openBuilder": "Open builder",
+      "view": "View showcase ↗",
+      "copyLink": "Copy client link",
+      "copied": "Link copied ✓",
+      "copyFailed": "Could not copy the link",
+      "deleteConfirm": "Delete the whole showcase?",
+      "delete": "Delete",
+      "keep": "Keep",
+      "create": "Create showcase",
+      "creating": "Creating…"
+    },
+    "showcasePage": {
+      "metaTitle": "Showcase",
+      "metaTitleWithProject": "Showcase · {title}"
+    }
+  },
   "gallery": {},
   "lightbox": {},
   "showcaseBuilder": {},
   "showcaseViewer": {},
   "errors": {
     "generic": "Something went wrong. Please try again."
+  },
+  "auth": {
+    "login": {
+      "metaTitle": "Sign in",
+      "identifier": "Username or email",
+      "password": "Password",
+      "submit": "Sign in",
+      "submitting": "Signing in…"
+    },
+    "setup": {
+      "metaTitle": "Setup",
+      "welcome": "Welcome to Kuvalib",
+      "intro": "Create the first administrator account to get started.",
+      "name": "Name",
+      "email": "Email",
+      "username": "Username",
+      "password": "Password",
+      "passwordHint": "At least 8 characters",
+      "submit": "Create admin account",
+      "submitting": "Creating account…"
+    }
+  },
+  "ui": {
+    "logout": {
+      "signOut": "Sign out"
+    },
+    "deleteProject": {
+      "delete": "Delete project",
+      "irreversible": "This cannot be undone.",
+      "confirm": "Yes, delete",
+      "deleting": "Deleting…",
+      "cancel": "Cancel"
+    },
+    "projectForm": {
+      "passwordRequired": "A gallery password is required for password-protected projects",
+      "title": "Title",
+      "eventDate": "Event date",
+      "accessType": "Access type",
+      "accessHint": "Password galleries are shared with one password. Email galleries only admit guests whose email you have assigned.",
+      "passwordOption": "Password protected",
+      "emailOption": "Email based",
+      "galleryPassword": "Gallery password",
+      "newGalleryPassword": "New gallery password",
+      "keepPasswordHint": "Leave blank to keep the current password",
+      "expiresAt": "Expiration date",
+      "expiresHint": "The gallery becomes inaccessible after this date",
+      "zipEnabled": "Offer the uploaded archive for download",
+      "dlEnabled": "Allow individual image downloads",
+      "feedbackEnabled": "Allow clients to like, dislike, and comment on photos",
+      "saving": "Saving…",
+      "create": "Create project",
+      "save": "Save changes",
+      "cancel": "Cancel"
+    }
   }
 }

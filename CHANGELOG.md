@@ -10,6 +10,25 @@ adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html). While the
 
 ## [Unreleased]
 
+### Added
+
+- **Overall progress when uploading photos** — a second "Total" bar shows bytes sent across the
+  whole batch, next to the existing per-file bar.
+- **Byte counts on the archive upload** — the archive uploader now shows a progress bar with
+  bytes sent, total and percentage.
+
+### Changed
+
+- **The client-facing ZIP archive uploads in 32 MB chunks** and resumes after a dropped
+  connection, so archives of 5 GB and more are possible. **Action required:** update the nginx
+  config as described in `DEPLOYMENT.md` section 4 (`client_max_body_size 64m`,
+  `proxy_request_buffering off`, longer proxy timeouts).
+
+### Fixed
+
+- **Downloading a large archive no longer loads it into server memory**; it is streamed and
+  supports resuming (HTTP Range).
+
 ## [1.10.0] - 2026-09-13
 
 ### Added

@@ -131,12 +131,33 @@ async function main() {
     check('download 404s without an uploaded archive', noArchive.status === 404, noArchive.status)
 
     const zip = zipSync({ 'a.txt': new TextEncoder().encode('hello') })
-    const archiveForm = new FormData()
-    archiveForm.append('file', new File([new Uint8Array(zip)], 'delivery.zip', { type: 'application/zip' }))
-    const upArchive = await call(`/api/projects/${projectId}/archive`, {
+    const archiveBase = `/api/projects/${projectId}/archive/uploads`
+    const session = await call(archiveBase, {
       method: 'POST',
-      body: archiveForm,
+      body: JSON.stringify({ name: 'delivery.zip', size: zip.length }),
     })
+    const { uploadId } = await session.json()
+    check('archive upload session', session.ok && !!uploadId)
+
+    const half = Math.floor(zip.length / 2)
+    const put1 = await call(`${archiveBase}/${uploadId}?offset=0`, {
+      method: 'PUT',
+      body: new Uint8Array(zip.slice(0, half)),
+    })
+    check('first chunk stored', put1.ok && (await put1.json()).received === half)
+    const wrongOffset = await call(`${archiveBase}/${uploadId}?offset=${half + 1}`, {
+      method: 'PUT',
+      body: new Uint8Array(zip.slice(half)),
+    })
+    check('out-of-order chunk rejected', wrongOffset.status === 409, wrongOffset.status)
+    const resumed = await call(`${archiveBase}/${uploadId}`)
+    check('resume reports received bytes', (await resumed.json()).received === half)
+    const put2 = await call(`${archiveBase}/${uploadId}?offset=${half}`, {
+      method: 'PUT',
+      body: new Uint8Array(zip.slice(half)),
+    })
+    check('last chunk stored', put2.ok, put2.status)
+    const upArchive = await call(`${archiveBase}/${uploadId}/complete`, { method: 'POST' })
     check('archive upload', upArchive.ok, await upArchive.clone().text())
 
     const withArchive = await call(`/api/projects/${projectId}/download`)
@@ -145,6 +166,15 @@ async function main() {
       'archive keeps its filename',
       withArchive.headers.get('content-disposition')?.includes('delivery.zip') ?? false,
       withArchive.headers.get('content-disposition')
+    )
+
+    const ranged = await call(`/api/projects/${projectId}/download`, {
+      headers: { range: 'bytes=0-3' },
+    })
+    check(
+      'archive download honours Range',
+      ranged.status === 206 && (await ranged.arrayBuffer()).byteLength === 4,
+      ranged.status
     )
 
     // 5. Single photo downloads under its original name.

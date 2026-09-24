@@ -55,5 +55,6 @@ next-env.d.ts
 kuvalib.db
 uploads/
 !app/api/uploads
+!app/api/projects/*/archive/uploads
 
 /lib/generated/prisma

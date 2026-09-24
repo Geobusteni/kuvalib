@@ -361,8 +361,12 @@ GET    /api/projects/[id]/assignments   List assigned people (admin)
 POST   /api/projects/[id]/assignments   Assign a user/guest (admin)
 DELETE /api/projects/[id]/assignments   Unassign (admin)
 POST   /api/projects/[id]/upload        JPEG or ZIP of photos (admin)
-POST   /api/projects/[id]/archive       Upload the client-facing ZIP (admin)
-DELETE /api/projects/[id]/archive       Remove it (admin)
+DELETE /api/projects/[id]/archive       Remove the client-facing ZIP (admin)
+POST   /api/projects/[id]/archive/uploads                    Start a chunked upload {name,size} (admin)
+GET    /api/projects/[id]/archive/uploads/[uploadId]         Bytes received so far (admin)
+PUT    /api/projects/[id]/archive/uploads/[uploadId]?offset=N Append one raw chunk (admin)
+POST   /api/projects/[id]/archive/uploads/[uploadId]/complete Verify, publish as archive.zip (admin)
+DELETE /api/projects/[id]/archive/uploads/[uploadId]         Abort (admin)
 DELETE /api/projects/[id]/photos/[pid]  Delete photo + files (admin)
 DELETE /api/projects/[id]/feedback      Wipe all feedback for the project + bump
                                           feedbackResetAt (admin)
@@ -419,7 +423,8 @@ uploads/
   [project-id]/
     photos/    originals, named [uuid].jpg
     thumbs/    [uuid]-sm.jpg (400px), [uuid]-lg.jpg (1200px), [uuid]-share.jpg (2048px)
-    archive/   archive.zip — the ZIP the photographer uploaded, if any
+    archive/   archive.zip — the ZIP the photographer uploaded, if any; plus in-flight
+               [uploadId].part/.json chunked-upload temp files (purged after 24 h)
     audio/     [uuid].mp3|m4a|ogg|wav — the showcase's background-music tracks
 ```
 
@@ -659,3 +664,4 @@ On the server:
 | Music gets its own floating controls pill (`MusicControls.tsx`), separate from `ViewerControls`, showing exactly one button (mute/unmute *or* play/pause, never both) | The request was explicit that the music control must not be confused with the slideshow's own play/pause. A second, visually distinct pill — plus showing only the one control that's actually meaningful in the current autoplay state — rules that out entirely, rather than relying on iconography alone inside one shared bar |
 | `ShowcaseViewer`'s copy-link toast checks `passwordProtected` (a prop threaded from `project.accessType === 'PASSWORD'`) to add a password reminder, but never reads or displays the password itself | The gallery password is legitimately recoverable by an admin (`lib/crypto.ts`), but the showcase viewer is client-facing code with no admin session — it only needs to know *whether* to nudge the visitor to also send the password, never the value. Keeping the prop boolean-only means there's no password-bearing data in this component even to leak |
 | `NumberField`'s out-of-range indicator is an inline `style={{ borderColor }}` override, not a conditional Tailwind class | The invalid-state class (`border-red-500 …`) targeted the same CSS property as the base input's own `border-zinc-300`/`border-zinc-700` classes; two utility classes on the same property don't reliably cascade by className order — whichever was compiled later in the stylesheet wins, which isn't guaranteed. An inline style always wins over any class, regardless of build order, so it's the only reliable way to force an override like this |
+| Archive upload is chunked (32 MB `PUT`s to a temp file, `lib/archive-upload.ts`) and its download is streamed with Range support | `formData()` + `arrayBuffer()` buffered the whole file in memory and hit proxy body limits, capping archives at a few hundred MB. The temp file's size *is* the received-byte count, so resuming needs no extra state and a failed chunk is truncated back to its offset. Chunks must arrive sequentially at exactly that offset; an earlier offset is acknowledged without rewriting, so retries are idempotent |

@@ -5,16 +5,12 @@
 
 import { useEditor } from '@craftjs/core'
 import { useTranslations } from 'next-intl'
+import { useState } from 'react'
 import type { Block } from '@/lib/showcase-blocks'
+import { ArrangeList } from './ArrangeList'
+import { rowDetail } from './rowDetail'
 import { useBlockTypeLabel } from './useBlockTypeLabel'
-
-/** A short label for the row beyond the block type — whatever text the block
- *  itself carries, so two Text blocks aren't indistinguishable in the list. */
-function rowDetail(block: Block): string {
-  if (block.type === 'title' || block.type === 'text') return block.text ?? ''
-  if (block.type === 'button') return block.label ?? ''
-  return ''
-}
+import { useBuilder } from './useBuilder'
 
 /**
  * A flat, selectable list of the current page's blocks — an alternative to
@@ -29,10 +25,15 @@ function rowDetail(block: Block): string {
  * setState-during-render warning (and, transiently, a blank page list on
  * first load). Per-row data is read from `query` in the render body instead,
  * same as SettingsPanel does for the selected block.
+ *
+ * The Arrange toggle swaps the read-only list for `ArrangeList`, which adds a
+ * drag handle per row to reorder blocks and move them into or out of a group.
  */
 export function BlockTree() {
   const t = useTranslations('showcaseBuilder.blockTree')
   const blockTypeLabel = useBlockTypeLabel()
+  const { applyTreeRows } = useBuilder()
+  const [arrange, setArrange] = useState(false)
   const { ids, selected, actions, query } = useEditor((state) => ({
     ids: state.nodes.ROOT?.data.nodes ?? [],
     selected: state.events.selected,
@@ -42,9 +43,40 @@ export function BlockTree() {
     return <p className="text-xs text-zinc-500">{t('empty')}</p>
   }
 
+  const header = (
+    <div className="flex items-center justify-between gap-2">
+      <span className="text-xs font-medium text-zinc-500">{t('heading')}</span>
+      <button
+        type="button"
+        onClick={() => setArrange((v) => !v)}
+        aria-pressed={arrange}
+        className={`h-11 rounded-lg border px-3 text-xs font-medium focus:outline-none focus-visible:ring-2 focus-visible:ring-zinc-500 ${
+          arrange
+            ? 'border-zinc-900 bg-zinc-900 text-white dark:border-zinc-100 dark:bg-zinc-100 dark:text-zinc-900'
+            : 'border-zinc-300 hover:bg-zinc-100 dark:border-zinc-700 dark:hover:bg-zinc-800'
+        }`}
+      >
+        {t('arrange')}
+      </button>
+    </div>
+  )
+
+  if (arrange) {
+    const rows = ids.map((id) => {
+      const props = query.node(id).get().data.props
+      return { id, block: props.block as Block, parentGroupId: (props.parentGroupId ?? null) as string | null }
+    })
+    return (
+      <div className="flex flex-col gap-1">
+        {header}
+        <ArrangeList rows={rows} selected={selected} onSelect={(id) => actions.selectNode(id)} onApply={applyTreeRows} />
+      </div>
+    )
+  }
+
   return (
     <div className="flex flex-col gap-1">
-      <span className="text-xs font-medium text-zinc-500">{t('heading')}</span>
+      {header}
       <ol className="flex flex-col gap-0.5">
         {ids.map((id) => {
           const node = query.node(id).get()

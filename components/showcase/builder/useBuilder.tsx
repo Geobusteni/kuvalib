@@ -22,6 +22,7 @@ import {
   TextBlock,
   TitleBlock,
 } from './blocks'
+import type { TreeRow } from '@/lib/showcase-tree'
 import { serializedToNested } from '../craft-bridge'
 import { useShowcaseStore } from '../store'
 
@@ -39,6 +40,8 @@ const COMPONENT_FOR: Record<BlockType, React.ElementType> = {
   group: GroupBlock,
 }
 
+type TreeRowOf<B extends Block> = TreeRow & { block: B }
+
 interface BuilderApi {
   switchPage: (pageId: string) => void
   addPage: () => void
@@ -47,6 +50,7 @@ interface BuilderApi {
   addCover: () => void
   addGroupChild: (groupNodeId: string, type: BlockType) => void
   arrangeGroup: (groupNodeId: string, mode: ArrangeMode) => void
+  applyTreeRows: (rows: TreeRowOf<Block>[]) => void
   save: () => Promise<void>
   /** The whole deck as nested blocks — current page from the live editor. */
   getDeck: () => { id: string; blocks: Block[]; settings: PageSettings }[]
@@ -200,6 +204,27 @@ export function BuilderProvider({ children }: { children: ReactNode }) {
     [actions, markDirty, query],
   )
 
+  // ROOT order, membership and any fitted box go in through one `setState`, so
+  // the whole drop is a single undo step. (`history.merge()` would fold into the
+  // *previous* history entry, not group the calls that follow it.)
+  const applyTreeRows = useCallback(
+    (rows: TreeRowOf<Block>[]) => {
+      actions.setState((state) => {
+        state.nodes.ROOT.data.nodes = rows.map((r) => r.id)
+        for (const r of rows) {
+          const props = state.nodes[r.id].data.props as { block: Block; parentGroupId: string | null }
+          if ((props.parentGroupId ?? null) !== r.parentGroupId) props.parentGroupId = r.parentGroupId
+          const b = props.block
+          if (b.x !== r.block.x || b.y !== r.block.y || b.w !== r.block.w || b.h !== r.block.h) {
+            props.block = { ...b, x: r.block.x, y: r.block.y, w: r.block.w, h: r.block.h }
+          }
+        }
+      })
+      markDirty()
+    },
+    [actions, markDirty],
+  )
+
   const lastSavedBody = useRef<string | null>(null)
 
   const save = useCallback(async () => {
@@ -282,6 +307,7 @@ export function BuilderProvider({ children }: { children: ReactNode }) {
     addCover,
     addGroupChild,
     arrangeGroup,
+    applyTreeRows,
     save,
     getDeck,
   }

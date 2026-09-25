@@ -344,7 +344,19 @@
     },
     "blockTree": {
       "empty": "No blocks on this page yet.",
-      "heading": "Blocks"
+      "heading": "Blocks",
+      "arrange": "Arrange",
+      "arrangeHint": "Drag a handle to reorder. Drag right to move a block into the group above it, left to move it out. From the keyboard: focus a handle, press Space, then Up or Down to move, Right or Left to move into or out of a group, Space to drop, Escape to cancel.",
+      "moveHandle": "Move {name}",
+      "drop": {
+        "reorder": "Reorder",
+        "nest": "Move into group",
+        "outdent": "Move out of group"
+      },
+      "position": "Position {position} of {total}",
+      "pickedUp": "{name} picked up.",
+      "dropped": "{name} dropped.",
+      "cancelled": "Move cancelled."
     },
     "pageRail": {
       "heading": "Pages",

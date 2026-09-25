@@ -49,6 +49,29 @@ flat, clickable list — an alternative to hunting for a block on the canvas. It
 matches stacking order: the first row is the block furthest back, the last row is the frontmost
 one, and a group's children are indented under it, in that same back-to-front order.
 
+#### Arrange
+
+**Arrange** (top of the list, a toggle) gives every row a drag handle:
+
+- **Drag up or down** to reorder — that changes stacking order.
+- **Drag right** (onto or just under a Group's rows) to move the block **into that group**; **drag
+  left** to move a child **out** to the top level. Only a Group can take children, and a Group can
+  itself never be nested, so those targets simply are not offered for a Group.
+- A blue line shows where the block will land, indented when it will join a group (the group is
+  outlined), with a text label: *Reorder*, *Move into group* or *Move out of group*.
+- Moving a Group moves its children with it.
+- **Keyboard:** focus a handle, press **Space** to pick it up, **Up/Down** to move, **Right/Left**
+  to move into/out of a group, **Space** or **Enter** to drop, **Escape** to cancel. Each step is
+  announced to screen readers. **Touch** works from the handle too.
+- A block keeps its place on the canvas, except when moving into a group: it is shifted the
+  shortest distance that puts it wholly inside the group's box, and shrunk if it is bigger than the
+  group allows (a child must stay under half the group's area, or "Arrange children" would treat it
+  as not a child). If even the smallest size would not fit, the group is not offered as a target.
+- A group's children always sit directly after it in the list, which is also how the client viewer
+  paints them. Older showcases where a child sat further down the list are tidied into that order
+  the first time you Arrange.
+- One drop is one undo step, and autosave picks it up.
+
 ### Pages
 
 - The page rail lists every page. Click one to edit it — including the page you're already on,

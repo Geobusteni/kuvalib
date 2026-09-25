@@ -28,11 +28,29 @@ adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html). While the
   this size need the streaming settings in `DEPLOYMENT.md` section 4 (`proxy_request_buffering
   off`, `proxy_buffering off`, 600 s proxy timeouts); the existing `client_max_body_size 500M`
   is enough.
+- **Archive upload sessions**: only one upload per project is kept at a time (starting a new one
+  discards the previous partial file), file names over 255 characters are refused, and a failed
+  upload cleans up its partial file on the server.
+- **Only a download of the whole archive counts** towards the download count; range probes and
+  resumed downloads no longer do.
 
 ### Fixed
 
 - **Downloading a large archive no longer loads it into server memory**; it is streamed and
   supports resuming (HTTP Range).
+- **Archives larger than 2 GiB can be stored.** The archive size is now a 64-bit column.
+  **Action required:** apply the schema change on upgrade (`prisma db push`, which
+  `update-from-github.sh` runs, or `prisma migrate deploy`); existing values are kept.
+- **Downloads no longer fail for names with non-Latin-1 characters** (for example "Nuntă Ștefan"
+  or emoji); the browser receives the full name.
+- **A failed database update no longer leaves a half-finished archive upload**: the previous
+  archive stays in place until the new one is recorded.
+- Two chunks of the same upload can no longer overwrite each other after a retry.
+- Malformed or multi-range `Range` headers on the archive download are ignored instead of
+  answered with an error.
+- Error messages that mention a limit (for example the maximum audio size) now show the limit.
+- Download failures show the server's reason instead of a fixed message, and the admin header no
+  longer overflows on 400 px screens in Romanian.
 
 ## [1.10.0] - 2026-09-13
 

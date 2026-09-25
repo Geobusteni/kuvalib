@@ -169,7 +169,7 @@ erDiagram
         AccessType accessType "PASSWORD | EMAIL"
         string password "AES-256-GCM, null when EMAIL"
         string archiveName "null until an archive is uploaded"
-        int archiveSize
+        bigint archiveSize
         datetime expiresAt
         boolean zipEnabled
         boolean dlEnabled
@@ -695,3 +695,7 @@ On the server:
 | `ShowcaseViewer`'s copy-link toast checks `passwordProtected` (a prop threaded from `project.accessType === 'PASSWORD'`) to add a password reminder, but never reads or displays the password itself | The gallery password is legitimately recoverable by an admin (`lib/crypto.ts`), but the showcase viewer is client-facing code with no admin session — it only needs to know *whether* to nudge the visitor to also send the password, never the value. Keeping the prop boolean-only means there's no password-bearing data in this component even to leak |
 | `NumberField`'s out-of-range indicator is an inline `style={{ borderColor }}` override, not a conditional Tailwind class | The invalid-state class (`border-red-500 …`) targeted the same CSS property as the base input's own `border-zinc-300`/`border-zinc-700` classes; two utility classes on the same property don't reliably cascade by className order — whichever was compiled later in the stylesheet wins, which isn't guaranteed. An inline style always wins over any class, regardless of build order, so it's the only reliable way to force an override like this |
 | Archive upload is chunked (32 MB `PUT`s to a temp file, `lib/archive-upload.ts`) and its download is streamed with Range support | `formData()` + `arrayBuffer()` buffered the whole file in memory and hit proxy body limits, capping archives at a few hundred MB. The temp file's size *is* the received-byte count, so resuming needs no extra state and a failed chunk is truncated back to its offset. Chunks must arrive sequentially at exactly that offset; an earlier offset is acknowledged without rewriting, so retries are idempotent |
+| `Project.archiveSize` is `BigInt`, converted to `number` in `lib/projects.ts` | A 32-bit `Int` overflowed for archives over 2 GiB. Prisma returns `BigInt`, which `JSON.stringify` and server-to-client props reject, so `getProject`/`listProjects`/`updateProject` map it to a number (safe far beyond any real file) |
+| `completeUpload` records the archive (via a callback) before the file is swapped in, and one upload runs per project, guarded by an in-process lock | A database failure after the rename left the new file with the old record. An in-memory `busy` set is enough for a single-process app: a second PUT at the same offset, or `complete` during a PUT, gets 409 instead of racing and truncating the other's bytes |
+| `Content-Disposition` goes through `lib/content-disposition.ts` (ASCII `filename` plus RFC 5987 `filename*`) | Header values must be Latin-1; a raw Romanian or emoji title made `Headers` throw and the download return 500 |
+| An unparseable or multi-range `Range` header is ignored; only a valid unsatisfiable single range gets 416 | RFC 9110 lets a server ignore a Range it cannot honour; erroring broke clients that send several ranges |

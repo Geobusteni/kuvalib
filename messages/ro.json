@@ -120,7 +120,7 @@
     },
     "feedback": {
       "off": "Feedback-ul este dezactivat pentru această galerie. Activează-l în Setări, mai jos, pentru a le permite clienților să aprecieze, să neaprecieze și să comenteze fotografiile.",
-      "counts": "{likes, plural, one {# favorită} few {# favorite} other {# de favortie}} · {dislikes, plural, one {# respinsă} few {# respinse} other {# de de respinse}} · {comments, plural, one {# comentariu} few {# comentarii} other {# de comentarii}}",
+      "counts": "{likes, plural, one {# favorită} few {# favorite} other {# de favorite}} · {dislikes, plural, one {# respinsă} few {# respinse} other {# de respinse}} · {comments, plural, one {# comentariu} few {# comentarii} other {# de comentarii}}",
       "reset": "Resetează feedback-ul",
       "resetConfirm": "Se șterg toate favoritele, respinsele și comentariile, iar clienții pot reacționa din nou. Acțiunea nu poate fi anulată.",
       "yesReset": "Da, resetează",

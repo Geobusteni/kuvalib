@@ -26,8 +26,6 @@ import { ViewerControls } from './ViewerControls'
 import { ThumbnailRail } from './ThumbnailRail'
 import { DotIndicator } from './DotIndicator'
 import { MusicPlayer } from './MusicPlayer'
-import { MusicControls } from './MusicControls'
-import { ViewerLanguage } from './ViewerLanguage'
 import { ShowcaseDownloadDialog } from './ShowcaseDownloadDialog'
 import { useSlideshow } from './useSlideshow'
 
@@ -68,6 +66,8 @@ export interface ShowcaseViewerProps {
 }
 
 const CONTROLS_HIDE_MS = 3000
+const TOAST_MS = 3000
+const TOAST_LONG_MS = 5000
 
 export function ShowcaseViewer({
   projectId,
@@ -107,6 +107,7 @@ export function ShowcaseViewer({
   const [controlsVisible, setControlsVisible] = useState(true)
   const [toast, setToast] = useState<string | null>(null)
   const hideTimer = useRef<ReturnType<typeof setTimeout> | null>(null)
+  const toastTimer = useRef<ReturnType<typeof setTimeout> | null>(null)
 
   // `isFullscreenSupported()` reads `document`; the server snapshot is `false` so
   // the first client render matches, then React swaps in the real value without a
@@ -120,9 +121,14 @@ export function ShowcaseViewer({
   const downloadPhotoIds = collectPhotoIds(pages.map((p) => ({ id: p.id, blocks: p.blocks })))
   const fontsHref = googleFontsHref([settings.headingFont, settings.textFont])
 
-  const flashToast = useCallback((message: string, durationMs = 2200) => {
+  const flashToast = useCallback((message: string, durationMs = TOAST_MS) => {
+    if (toastTimer.current) clearTimeout(toastTimer.current)
     setToast(message)
-    setTimeout(() => setToast(null), durationMs)
+    toastTimer.current = setTimeout(() => setToast(null), durationMs)
+  }, [])
+
+  useEffect(() => () => {
+    if (toastTimer.current) clearTimeout(toastTimer.current)
   }, [])
 
   // Fullscreen: track the browser state; leave fullscreen when the viewer unmounts.
@@ -194,7 +200,7 @@ export function ShowcaseViewer({
     navigator.clipboard?.writeText(absolute).then(
       () => {
         if (passwordProtected) {
-          flashToast(t('toast.linkCopiedWithPassword'), 5000)
+          flashToast(t('toast.linkCopiedWithPassword'), TOAST_LONG_MS)
         } else {
           flashToast(t('toast.linkCopied'))
         }
@@ -206,7 +212,7 @@ export function ShowcaseViewer({
   return (
     <div
       ref={stageRef}
-      className="sc-viewer relative min-h-screen w-full overflow-hidden bg-black"
+      className="sc-viewer relative min-h-dvh w-full overflow-hidden bg-black"
       style={{
         ...showcaseThemeVars(settings.eventType, settings.albumBg),
         backgroundImage:
@@ -228,37 +234,36 @@ export function ShowcaseViewer({
         autoplay={playing}
         onToggleAutoplay={() => setPlaying(!playing)}
         onToggleThumbs={() => setThumbsOpen((v) => !v)}
+        thumbsOpen={thumbsOpen}
         showFullscreen={fullscreenSupported}
         onToggleFullscreen={toggleFullscreen}
         onCopyLink={copyLink}
         onDownload={() => setDownloadOpen(true)}
         showDownload={downloadEnabled}
+        music={
+          trackIds.length > 0
+            ? {
+                autoStarted: musicAutoStarts,
+                playing: musicPlaying,
+                onTogglePlaying: () => setMusicPlaying((v) => !v),
+                muted: musicMuted,
+                onToggleMuted: () => setMusicMuted((v) => !v),
+              }
+            : undefined
+        }
         backHref={backHref}
         visible={controlsVisible}
-      />
-
-      <ViewerLanguage visible={controlsVisible} />
-
-      {trackIds.length > 0 && (
-        <MusicControls
-          autoStarted={musicAutoStarts}
-          playing={musicPlaying}
-          onTogglePlaying={() => setMusicPlaying((v) => !v)}
-          muted={musicMuted}
-          onToggleMuted={() => setMusicMuted((v) => !v)}
-          visible={controlsVisible}
-        />
-      )}
-
-      {settings.dotsEnabled && total > 1 && (
-        <DotIndicator
-          total={total}
-          current={current}
-          onSelect={goTo}
-          activeColor={settings.dotColorActive ?? DEFAULT_DOT_COLORS.active}
-          inactiveColor={settings.dotColorInactive ?? DEFAULT_DOT_COLORS.inactive}
-        />
-      )}
+      >
+        {settings.dotsEnabled && total > 1 && (
+          <DotIndicator
+            total={total}
+            current={current}
+            onSelect={goTo}
+            activeColor={settings.dotColorActive ?? DEFAULT_DOT_COLORS.active}
+            inactiveColor={settings.dotColorInactive ?? DEFAULT_DOT_COLORS.inactive}
+          />
+        )}
+      </ViewerControls>
 
       <div className="absolute inset-0" onClick={(e) => e.stopPropagation()}>
         {page && (
@@ -331,14 +336,16 @@ export function ShowcaseViewer({
         />
       )}
 
-      {toast && (
-        <div
-          role="status"
-          className="pointer-events-none absolute right-2 top-28 z-20 max-w-64 rounded-lg bg-white px-3 py-1.5 text-left text-xs font-medium leading-snug text-zinc-900 shadow-lg sm:right-3 sm:top-28 sm:max-w-80"
-        >
-          {toast}
-        </div>
-      )}
+      <div
+        role="status"
+        className="pointer-events-none absolute right-[max(0.5rem,env(safe-area-inset-right))] top-[calc(max(0.5rem,env(safe-area-inset-top))+3.75rem)] z-20 w-72 max-w-[calc(100%-1rem)]"
+      >
+        {toast && (
+          <p className="ml-auto w-fit max-w-full rounded-lg bg-white px-3 py-2 text-left text-xs font-medium leading-snug text-zinc-900 shadow-lg">
+            {toast}
+          </p>
+        )}
+      </div>
     </div>
   )
 }

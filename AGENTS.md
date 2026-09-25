@@ -314,8 +314,10 @@ hidden entirely rather than offered with nothing behind it.
   `prefers-reduced-motion`; with motion reduced the page swaps instantly and autoplay still
   advances.
 - Top bar: page counter, music toggle (only with tracks), autoplay toggle, thumbnail-rail
-  toggle, fullscreen (hidden where unsupported), copy-link, download. In fullscreen the bar
-  auto-hides after ~3 s and returns on activity.
+  toggle, fullscreen (hidden where unsupported), copy-link, download, compact language button.
+  Below `md` only autoplay and music stay in the bar; the rest fold into a "More" disclosure
+  and the dots become a "3 / 10" counter, so nothing overlaps at any width. In fullscreen the
+  bar auto-hides after ~3 s and returns on activity. Toasts clear themselves after ~3 s.
 - Background music starts only from the music toggle (browsers block autoplay audio); the
   playlist advances track to track and loops if enabled.
 - A Button block with link type `zip` opens the download dialog, `gallery` links to `/g/<id>`,

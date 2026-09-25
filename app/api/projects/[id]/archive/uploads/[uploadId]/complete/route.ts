@@ -15,8 +15,9 @@ export async function POST(_req: Request, ctx: Ctx) {
   }
 
   try {
-    const { name, size } = await completeUpload(id, uploadId)
-    await setArchive(id, { archiveName: name, archiveSize: size })
+    const { name, size } = await completeUpload(id, uploadId, (archive) =>
+      setArchive(id, { archiveName: archive.name, archiveSize: archive.size })
+    )
     return Response.json({ ok: true, archiveName: name, archiveSize: size })
   } catch (error) {
     if (error instanceof UploadError) {

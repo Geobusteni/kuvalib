@@ -9,7 +9,7 @@ import type { Readable } from 'stream'
 import { archiveDir, archivePath, ensureProjectDirs } from './storage'
 
 export const ARCHIVE_CHUNK_SIZE = 32 * 1024 * 1024
-const STALE_MS = 24 * 60 * 60 * 1000
+const MAX_NAME_LENGTH = 255
 const UUID_RE = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i
 
 export class UploadError extends Error {
@@ -35,18 +35,21 @@ function metaPath(projectId: string, uploadId: string): string {
   return path.join(archiveDir(projectId), `${uploadId}.json`)
 }
 
-async function purgeStale(projectId: string): Promise<void> {
+function tempPath(projectId: string, uploadId: string): string {
+  return path.join(archiveDir(projectId), `${uploadId}.done`)
+}
+
+// Sessions currently being written or completed. Kuvalib runs as one process, so an
+// in-memory set is enough to keep two requests off the same file.
+const busy = new Set<string>()
+
+async function clearSessions(projectId: string): Promise<void> {
   const dir = archiveDir(projectId)
   const entries = await fs.readdir(dir).catch(() => [] as string[])
-  const cutoff = Date.now() - STALE_MS
   await Promise.all(
     entries
-      .filter((name) => name.endsWith('.part') || name.endsWith('.json'))
-      .map(async (name) => {
-        const file = path.join(dir, name)
-        const stat = await fs.stat(file).catch(() => null)
-        if (stat && stat.mtimeMs < cutoff) await fs.rm(file, { force: true })
-      })
+      .filter((name) => /\.(part|json|done)$/.test(name))
+      .map((name) => fs.rm(path.join(dir, name), { force: true }))
   )
 }
 
@@ -56,8 +59,10 @@ export async function createUpload(
   size: number
 ): Promise<string> {
   if (!Number.isSafeInteger(size) || size <= 0) throw new UploadError('archive_invalid_size', 400)
+  if (name.length > MAX_NAME_LENGTH) throw new UploadError('archive_name_too_long', 400)
   await ensureProjectDirs(projectId)
-  await purgeStale(projectId)
+  // One session per project: starting a new upload discards the previous one's files.
+  await clearSessions(projectId)
   const uploadId = crypto.randomUUID()
   await fs.writeFile(partPath(projectId, uploadId), '')
   await fs.writeFile(
@@ -95,7 +100,12 @@ export async function appendChunk(
   body: Readable
 ): Promise<number> {
   const session = await readSession(projectId, uploadId)
-  if (!Number.isSafeInteger(offset) || offset < 0 || offset > session.received) {
+  if (
+    busy.has(uploadId) ||
+    !Number.isSafeInteger(offset) ||
+    offset < 0 ||
+    offset > session.received
+  ) {
     body.resume()
     throw new UploadError('archive_offset_mismatch', 409, session.received)
   }
@@ -104,6 +114,7 @@ export async function appendChunk(
     return session.received
   }
 
+  busy.add(uploadId)
   const limit = Math.min(ARCHIVE_CHUNK_SIZE, session.size - offset)
   let written = 0
   const file = partPath(projectId, uploadId)
@@ -122,34 +133,57 @@ export async function appendChunk(
   } catch (error) {
     await fs.truncate(file, offset).catch(() => {})
     throw error
+  } finally {
+    busy.delete(uploadId)
   }
   return offset + written
 }
 
+/**
+ * Validates the finished upload, records it through `register`, then swaps it in as the
+ * live archive. The live file is only replaced after `register` succeeds, so a database
+ * failure leaves the previous archive and its record untouched and the upload retryable.
+ */
 export async function completeUpload(
   projectId: string,
-  uploadId: string
+  uploadId: string,
+  register: (archive: { name: string; size: number }) => Promise<void>
 ): Promise<{ name: string; size: number }> {
   const session = await readSession(projectId, uploadId)
-  if (session.received !== session.size) {
+  if (busy.has(uploadId) || session.received !== session.size) {
     throw new UploadError('archive_incomplete', 409, session.received)
   }
-  const file = partPath(projectId, uploadId)
-  const handle = await fs.open(file, 'r')
-  const head = Buffer.alloc(4)
+  busy.add(uploadId)
   try {
-    await handle.read(head, 0, 4, 0)
+    const file = partPath(projectId, uploadId)
+    const handle = await fs.open(file, 'r')
+    const head = Buffer.alloc(4)
+    try {
+      await handle.read(head, 0, 4, 0)
+    } finally {
+      await handle.close()
+    }
+    const isZip = head[0] === 0x50 && head[1] === 0x4b && [0x03, 0x05, 0x07].includes(head[2])
+    if (!isZip) {
+      await abortUpload(projectId, uploadId)
+      throw new UploadError('archive_not_zip', 400)
+    }
+
+    const temp = tempPath(projectId, uploadId)
+    await fs.rename(file, temp)
+    const archive = { name: session.name, size: session.size }
+    try {
+      await register(archive)
+    } catch (error) {
+      await fs.rename(temp, file).catch(() => {})
+      throw error
+    }
+    await fs.rename(temp, archivePath(projectId))
+    await fs.rm(metaPath(projectId, uploadId), { force: true })
+    return archive
   } finally {
-    await handle.close()
+    busy.delete(uploadId)
   }
-  const isZip = head[0] === 0x50 && head[1] === 0x4b && [0x03, 0x05, 0x07].includes(head[2])
-  if (!isZip) {
-    await abortUpload(projectId, uploadId)
-    throw new UploadError('archive_not_zip', 400)
-  }
-  await fs.rename(file, archivePath(projectId))
-  await fs.rm(metaPath(projectId, uploadId), { force: true })
-  return { name: session.name, size: session.size }
 }
 
 export async function abortUpload(projectId: string, uploadId: string): Promise<void> {

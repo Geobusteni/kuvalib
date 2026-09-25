@@ -39,7 +39,7 @@
       "title": "Proiecte",
       "newProject": "Proiect nou",
       "empty": "Niciun proiect încă.",
-      "emptyAssigned": "Nu ai fost alocat niciunui proiect.",
+      "emptyAssigned": "Nu ai alocat niciun proiect.",
       "createFirst": "Creează primul proiect",
       "columns": {
         "title": "Titlu",
@@ -120,9 +120,9 @@
     },
     "feedback": {
       "off": "Feedback-ul este dezactivat pentru această galerie. Activează-l în Setări, mai jos, pentru a le permite clienților să aprecieze, să neaprecieze și să comenteze fotografiile.",
-      "counts": "{likes, plural, one {# apreciere} few {# aprecieri} other {# de aprecieri}} · {dislikes, plural, one {# neapreciere} few {# neaprecieri} other {# de neaprecieri}} · {comments, plural, one {# comentariu} few {# comentarii} other {# de comentarii}}",
+      "counts": "{likes, plural, one {# favorită} few {# favorite} other {# de favortie}} · {dislikes, plural, one {# respinsă} few {# respinse} other {# de de respinse}} · {comments, plural, one {# comentariu} few {# comentarii} other {# de comentarii}}",
       "reset": "Resetează feedback-ul",
-      "resetConfirm": "Se șterg toate aprecierile, neaprecierile și comentariile, iar clienții pot reacționa din nou. Acțiunea nu poate fi anulată.",
+      "resetConfirm": "Se șterg toate favoritele, respinsele și comentariile, iar clienții pot reacționa din nou. Acțiunea nu poate fi anulată.",
       "yesReset": "Da, resetează",
       "resetting": "Se resetează…",
       "cancel": "Anulează",
@@ -134,14 +134,14 @@
       "nobody": "Nicio persoană nu este alocată încă acestui proiect.",
       "remove": "Elimină",
       "removeLabel": "Elimină {email} din acest proiect",
-      "selectLabel": "Alege o persoană de alocat",
+      "selectLabel": "Adaugă o persoană",
       "choose": "Alege o persoană…",
       "option": "{email} ({role})",
-      "assign": "Alocă"
+      "assign": "Adaugă"
     },
     "showcaseManager": {
       "title": "Prezentare",
-      "description": "O prezentare grafică, pagină cu pagină, creată din fotografiile acestui proiect și partajată la propriul link. Folosește același acces și aceeași parolă ca galeria — un client care deschide una poate trece la cealaltă fără să se autentifice din nou.",
+      "description": "O prezentare grafică, pagină cu pagină, creată din fotografiile acestui proiect cu propria adresă web pentru partajare. Folosește același acces și aceeași parolă ca și galeria — un client care ajunge la adresă nu poate vedea prezentarea fără să se autentifice din nou.",
       "pages": "{count, plural, one {# pagină} few {# pagini} other {# de pagini}}",
       "openBuilder": "Deschide editorul",
       "view": "Vezi prezentarea ↗",
@@ -189,7 +189,7 @@
       "select": "Selectează fotografia {index} din {total}",
       "deselect": "Deselectează fotografia {index} din {total}",
       "liked": ", apreciată",
-      "disliked": ", neapreciată",
+      "disliked": ", respinsă",
       "commented": ", comentată"
     },
     "feedback": {
@@ -200,9 +200,9 @@
         "locked": "Apreciază (indisponibil — ai reacționat deja la această fotografie)"
       },
       "dislike": {
-        "action": "Nu-mi place această fotografie",
-        "done": "Neapreciată",
-        "locked": "Nu-mi place (indisponibil — ai reacționat deja la această fotografie)"
+        "action": "Respinge această fotografie",
+        "done": "Respinge",
+        "locked": "Respinge (indisponibil — ai reacționat deja la această fotografie)"
       },
       "comment": {
         "action": "Comentează această fotografie",
@@ -239,12 +239,12 @@
   },
   "lightbox": {
     "counter": "{index} / {total}",
-    "dialogLabel": "Vizualizator foto: imaginea {index} din {total}",
+    "dialogLabel": "Vizualizare fotografii: imaginea {index} din {total}",
     "photoAlt": "Fotografia {index} din {total}",
     "download": "Descarcă imaginea",
     "enterFullscreen": "Intră în ecran complet",
     "exitFullscreen": "Ieși din ecran complet",
-    "close": "Închide vizualizatorul",
+    "close": "Închide",
     "previous": "Imaginea anterioară",
     "next": "Imaginea următoare",
     "cancel": "Anulează"

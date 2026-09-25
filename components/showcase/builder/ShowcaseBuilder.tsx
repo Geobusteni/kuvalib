@@ -243,7 +243,7 @@ function BuilderShell({
           </div>
           <div className="flex flex-col gap-3">
             {blocksOpen && (
-              <div id="sc-block-tree" className="max-h-56 overflow-y-auto rounded-xl border border-zinc-200 p-3 dark:border-zinc-800">
+              <div id="sc-block-tree" className="max-h-[55vh] overflow-y-auto rounded-xl border border-zinc-200 p-3 dark:border-zinc-800">
                 <BlockTree />
               </div>
             )}

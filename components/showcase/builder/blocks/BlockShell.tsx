@@ -169,7 +169,10 @@ export function BlockShell({
         const nx = clamp(held.x, 0, 100 - block.w)
         const ny = clamp(held.y, 0, 100 - block.h)
         live.held = { x: nx, y: ny }
-        rndRef.current?.updatePosition({ x: pctToPx(nx, frameW), y: pctToPx(ny, frameH) })
+        const heldPx = { x: pctToPx(nx, frameW), y: pctToPx(ny, frameH) }
+        // react-draggable sets its own state right after onDrag returns; a microtask lands first
+        // in React's flush, so the held position wins over the raw pointer position.
+        queueMicrotask(() => rndRef.current?.updatePosition(heldPx))
         if (!isGroup || !dragStart.current) return
         const dx = nx - dragStart.current.x
         const dy = ny - dragStart.current.y

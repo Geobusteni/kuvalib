@@ -23,6 +23,7 @@ adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html). While the
   to pick up, arrow keys to move, Space to drop, Escape to cancel) and by touch, and each drop is a
   single undo step. Moving a block into a group nudges it (and, if needed, shrinks it) so it sits
   inside that group's box.
+- **The Blocks list is taller** (up to 55 % of the window) so several rows fit while arranging.
 - **Opacity for a Group's shadow** — a slider next to the shadow colour, from fully transparent to
   solid. Existing shadows stay as they were (fully opaque colour).
 

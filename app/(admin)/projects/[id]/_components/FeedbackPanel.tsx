@@ -5,6 +5,7 @@
 
 import { useEffect, useRef, useState } from 'react'
 import { useRouter } from 'next/navigation'
+import { useFormatter, useTranslations } from 'next-intl'
 import { useFocusTrap } from '@/hooks/useFocusTrap'
 import { useKeyboard } from '@/hooks/useKeyboard'
 
@@ -28,6 +29,8 @@ export default function FeedbackPanel({
   summaries: FeedbackPhotoSummary[]
 }) {
   const router = useRouter()
+  const t = useTranslations('admin.feedback')
+  const format = useFormatter()
   const [confirmingReset, setConfirmingReset] = useState(false)
   const [resetting, setResetting] = useState(false)
   const [expanded, setExpanded] = useState<string | null>(null)
@@ -44,8 +47,7 @@ export default function FeedbackPanel({
   if (!enabled) {
     return (
       <p className="text-sm text-zinc-500">
-        Feedback is off for this gallery. Turn it on in Settings below to let clients like,
-        dislike, and comment on photos.
+        {t('off')}
       </p>
     )
   }
@@ -64,7 +66,7 @@ export default function FeedbackPanel({
     <div className="flex flex-col gap-4 rounded-xl border border-zinc-200 bg-white p-4 dark:border-zinc-800 dark:bg-zinc-900">
       <div className="flex flex-wrap items-center justify-between gap-4">
         <p className="text-sm text-zinc-500">
-          {totals.likes} likes · {totals.dislikes} dislikes · {totals.comments} comments
+          {t('counts', totals)}
         </p>
 
         {!confirmingReset ? (
@@ -73,34 +75,33 @@ export default function FeedbackPanel({
             disabled={totals.likes + totals.dislikes + totals.comments === 0}
             className="h-9 shrink-0 rounded-lg border border-red-300 px-4 text-sm font-medium text-red-600 transition-colors hover:bg-red-50 focus:outline-none focus:ring-2 focus:ring-red-500 focus:ring-offset-2 disabled:opacity-40 dark:border-red-800 dark:text-red-400 dark:hover:bg-red-950"
           >
-            Reset feedback
+            {t('reset')}
           </button>
         ) : (
           <div className="flex flex-wrap items-center gap-3">
             <p className="text-sm text-zinc-600 dark:text-zinc-400">
-              This deletes every like, dislike, and comment, and lets clients react again. This
-              cannot be undone.
+              {t('resetConfirm')}
             </p>
             <button
               onClick={handleReset}
               disabled={resetting}
               className="h-9 rounded-lg bg-red-600 px-4 text-sm font-medium text-white transition-colors hover:bg-red-700 focus:outline-none focus:ring-2 focus:ring-red-500 focus:ring-offset-2 disabled:opacity-50"
             >
-              {resetting ? 'Resetting…' : 'Yes, reset'}
+              {resetting ? t('resetting') : t('yesReset')}
             </button>
             <button
               onClick={() => setConfirmingReset(false)}
               disabled={resetting}
               className="h-9 rounded-lg border border-zinc-300 px-4 text-sm font-medium text-zinc-700 transition-colors hover:bg-zinc-100 focus:outline-none focus:ring-2 focus:ring-zinc-500 focus:ring-offset-2 dark:border-zinc-700 dark:text-zinc-300 dark:hover:bg-zinc-800"
             >
-              Cancel
+              {t('cancel')}
             </button>
           </div>
         )}
       </div>
 
       {withFeedback.length === 0 ? (
-        <p className="text-sm text-zinc-500">No feedback yet.</p>
+        <p className="text-sm text-zinc-500">{t('none')}</p>
       ) : (
         <ul className="flex flex-col divide-y divide-zinc-200 dark:divide-zinc-800">
           {withFeedback.map((s) => {
@@ -111,7 +112,7 @@ export default function FeedbackPanel({
                 <div className="flex items-center gap-3">
                   <button
                     onClick={() => setPreview({ url: s.thumbLg, name: s.originalName })}
-                    aria-label={`View a larger version of ${s.originalName}`}
+                    aria-label={t('viewLarger', { name: s.originalName })}
                     className="shrink-0 rounded focus:outline-none focus-visible:ring-2 focus-visible:ring-zinc-500"
                   >
                     {/* eslint-disable-next-line @next/next/no-img-element */}
@@ -128,7 +129,11 @@ export default function FeedbackPanel({
                         {s.originalName}
                       </span>
                       <span className="shrink-0 text-xs text-zinc-500">
-                        {s.likes} likes · {s.dislikes} dislikes · {s.comments.length} comments
+                        {t('counts', {
+                          likes: s.likes,
+                          dislikes: s.dislikes,
+                          comments: s.comments.length,
+                        })}
                       </span>
                       <ChevronIcon expanded={isExpanded} />
                     </button>
@@ -138,7 +143,7 @@ export default function FeedbackPanel({
                         {s.originalName}
                       </span>
                       <span className="shrink-0 text-xs text-zinc-500">
-                        {s.likes} likes · {s.dislikes} dislikes · 0 comments
+                        {t('counts', { likes: s.likes, dislikes: s.dislikes, comments: 0 })}
                       </span>
                     </div>
                   )}
@@ -148,7 +153,7 @@ export default function FeedbackPanel({
                     {s.comments.map((c) => (
                       <li key={c.id}>
                         &ldquo;{c.comment}&rdquo; —{' '}
-                        <time dateTime={c.createdAt}>{new Date(c.createdAt).toLocaleString()}</time>
+                        <time dateTime={c.createdAt} suppressHydrationWarning>{format.dateTime(new Date(c.createdAt), { dateStyle: 'medium', timeStyle: 'medium' })}</time>
                       </li>
                     ))}
                   </ul>
@@ -196,6 +201,7 @@ function PhotoPreviewDialog({
   name: string
   onClose: () => void
 }) {
+  const t = useTranslations('admin.feedback')
   const dialogRef = useRef<HTMLDivElement>(null)
   const closeButtonRef = useRef<HTMLButtonElement>(null)
   const trapFocus = useFocusTrap(dialogRef)
@@ -223,7 +229,7 @@ function PhotoPreviewDialog({
         <button
           ref={closeButtonRef}
           onClick={onClose}
-          aria-label="Close preview"
+          aria-label={t('closePreview')}
           className="absolute -right-3 -top-3 flex h-9 w-9 items-center justify-center rounded-full bg-white text-zinc-900 shadow-lg focus:outline-none focus-visible:ring-2 focus-visible:ring-white"
         >
           <CloseIcon />

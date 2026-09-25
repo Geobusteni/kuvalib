@@ -4,7 +4,8 @@
 'use client'
 
 import { useEditor, Element } from '@craftjs/core'
-import { createContext, useCallback, useContext, useEffect, useRef, type ReactNode } from 'react'
+import { useTranslations } from 'next-intl'
+import { createContext, useCallback, useContext, useEffect, useMemo, useRef, type ReactNode } from 'react'
 import {
   arrangeGroupChildren,
   buildCoverComposite,
@@ -21,6 +22,7 @@ import {
   TextBlock,
   TitleBlock,
 } from './blocks'
+import type { TreeRow } from '@/lib/showcase-tree'
 import { serializedToNested } from '../craft-bridge'
 import { useShowcaseStore } from '../store'
 
@@ -38,6 +40,8 @@ const COMPONENT_FOR: Record<BlockType, React.ElementType> = {
   group: GroupBlock,
 }
 
+type TreeRowOf<B extends Block> = TreeRow & { block: B }
+
 interface BuilderApi {
   switchPage: (pageId: string) => void
   addPage: () => void
@@ -46,6 +50,7 @@ interface BuilderApi {
   addCover: () => void
   addGroupChild: (groupNodeId: string, type: BlockType) => void
   arrangeGroup: (groupNodeId: string, mode: ArrangeMode) => void
+  applyTreeRows: (rows: TreeRowOf<Block>[]) => void
   save: () => Promise<void>
   /** The whole deck as nested blocks — current page from the live editor. */
   getDeck: () => { id: string; blocks: Block[]; settings: PageSettings }[]
@@ -61,6 +66,11 @@ export function useBuilder(): BuilderApi {
 
 export function BuilderProvider({ children }: { children: ReactNode }) {
   const { query, actions } = useEditor()
+  const tDefaults = useTranslations('showcaseBuilder.defaults')
+  const texts = useMemo(
+    () => ({ heading: tDefaults('heading'), text: tDefaults('text'), buttonLabel: tDefaults('buttonLabel') }),
+    [tDefaults],
+  )
 
   const projectId = useShowcaseStore((s) => s.projectId)
   const currentPageId = useShowcaseStore((s) => s.currentPageId)
@@ -116,22 +126,26 @@ export function BuilderProvider({ children }: { children: ReactNode }) {
 
   const addBlock = useCallback(
     (type: BlockType) => {
-      const id = insert(makeBlock(type), null)
+      const id = insert(makeBlock(type, {}, texts), null)
       actions.selectNode(id)
       markDirty()
     },
-    [actions, insert, markDirty],
+    [actions, insert, markDirty, texts],
   )
 
   const addCover = useCallback(() => {
     const { title, eventDate } = useShowcaseStore.getState().settings
-    const [image, group] = buildCoverComposite(title, eventDate ?? '')
+    const [image, group] = buildCoverComposite(title, eventDate ?? '', {
+      ...texts,
+      albumTitle: tDefaults('albumTitle'),
+      eventDate: tDefaults('eventDate'),
+    })
     insert({ ...image }, null)
     const groupNodeId = insert({ ...group, children: undefined }, null)
     for (const child of group.children ?? []) insert(child, groupNodeId)
     actions.selectNode(groupNodeId)
     markDirty()
-  }, [actions, insert, markDirty])
+  }, [actions, insert, markDirty, tDefaults, texts])
 
   const addGroupChild = useCallback(
     (groupNodeId: string, type: BlockType) => {
@@ -143,12 +157,12 @@ export function BuilderProvider({ children }: { children: ReactNode }) {
         y: groupBlock.y + 4,
         w: Math.max(10, groupBlock.w - 8),
         h: Math.min(14, groupBlock.h / 3),
-      })
+      }, texts)
       const childId = insert(child, groupNodeId)
       actions.selectNode(childId)
       markDirty()
     },
-    [actions, insert, markDirty, query],
+    [actions, insert, markDirty, query, texts],
   )
 
   const arrangeGroup = useCallback(
@@ -188,6 +202,27 @@ export function BuilderProvider({ children }: { children: ReactNode }) {
       markDirty()
     },
     [actions, markDirty, query],
+  )
+
+  // ROOT order, membership and any fitted box go in through one `setState`, so
+  // the whole drop is a single undo step. (`history.merge()` would fold into the
+  // *previous* history entry, not group the calls that follow it.)
+  const applyTreeRows = useCallback(
+    (rows: TreeRowOf<Block>[]) => {
+      actions.setState((state) => {
+        state.nodes.ROOT.data.nodes = rows.map((r) => r.id)
+        for (const r of rows) {
+          const props = state.nodes[r.id].data.props as { block: Block; parentGroupId: string | null }
+          if ((props.parentGroupId ?? null) !== r.parentGroupId) props.parentGroupId = r.parentGroupId
+          const b = props.block
+          if (b.x !== r.block.x || b.y !== r.block.y || b.w !== r.block.w || b.h !== r.block.h) {
+            props.block = { ...b, x: r.block.x, y: r.block.y, w: r.block.w, h: r.block.h }
+          }
+        }
+      })
+      markDirty()
+    },
+    [actions, markDirty],
   )
 
   const lastSavedBody = useRef<string | null>(null)
@@ -272,6 +307,7 @@ export function BuilderProvider({ children }: { children: ReactNode }) {
     addCover,
     addGroupChild,
     arrangeGroup,
+    applyTreeRows,
     save,
     getDeck,
   }

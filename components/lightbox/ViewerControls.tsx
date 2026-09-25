@@ -3,6 +3,8 @@
 
 'use client'
 
+import { useTranslations } from 'next-intl'
+
 interface ViewerControlsProps {
   currentIndex: number
   total: number
@@ -30,6 +32,7 @@ export default function ViewerControls({
   onToggleFullscreen,
   onOpenDownload,
 }: ViewerControlsProps) {
+  const t = useTranslations('lightbox')
   const visible = controlsVisible
 
   return (
@@ -42,13 +45,13 @@ export default function ViewerControls({
         }`}
       >
         <span className="text-sm text-white/70">
-          {currentIndex + 1} / {total}
+          {t('counter', { index: currentIndex + 1, total })}
         </span>
         <div className="flex items-center gap-1">
           {canDownload && (
             <button
               onClick={onOpenDownload}
-              aria-label="Download image"
+              aria-label={t('download')}
               className={iconBtn}
               tabIndex={visible ? 0 : -1}
             >
@@ -58,7 +61,7 @@ export default function ViewerControls({
           {fullscreenCapable && (
             <button
               onClick={onToggleFullscreen}
-              aria-label={isFullscreen ? 'Exit fullscreen' : 'Enter fullscreen'}
+              aria-label={isFullscreen ? t('exitFullscreen') : t('enterFullscreen')}
               className={iconBtn}
               tabIndex={visible ? 0 : -1}
             >
@@ -67,7 +70,7 @@ export default function ViewerControls({
           )}
           <button
             onClick={onClose}
-            aria-label="Close viewer"
+            aria-label={t('close')}
             className={iconBtn}
             tabIndex={visible ? 0 : -1}
           >
@@ -80,7 +83,7 @@ export default function ViewerControls({
       <button
         onClick={onPrev}
         disabled={currentIndex === 0}
-        aria-label="Previous image"
+        aria-label={t('previous')}
         className={`${navBtn} left-2 ${visible ? 'opacity-100' : 'opacity-0 pointer-events-none'} disabled:opacity-0`}
         tabIndex={visible ? 0 : -1}
       >
@@ -89,7 +92,7 @@ export default function ViewerControls({
       <button
         onClick={onNext}
         disabled={currentIndex === total - 1}
-        aria-label="Next image"
+        aria-label={t('next')}
         className={`${navBtn} right-2 ${visible ? 'opacity-100' : 'opacity-0 pointer-events-none'} disabled:opacity-0`}
         tabIndex={visible ? 0 : -1}
       >

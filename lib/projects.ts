@@ -28,16 +28,24 @@ export interface UpdateProjectData {
   feedbackEnabled?: boolean
 }
 
+// archiveSize is a BigInt column (archives can pass 2 GiB); callers and JSON only see numbers.
+function withNumericArchiveSize<T extends { archiveSize: bigint | null }>(project: T) {
+  const archiveSize = project.archiveSize === null ? null : Number(project.archiveSize)
+  return { ...project, archiveSize }
+}
+
 export async function listProjects() {
-  return prisma.project.findMany({ orderBy: { createdAt: 'desc' } })
+  const projects = await prisma.project.findMany({ orderBy: { createdAt: 'desc' } })
+  return projects.map(withNumericArchiveSize)
 }
 
 export async function getProject(id: string) {
-  return prisma.project.findUnique({ where: { id } })
+  const project = await prisma.project.findUnique({ where: { id } })
+  return project && withNumericArchiveSize(project)
 }
 
 export async function createProject(data: CreateProjectData) {
-  return prisma.project.create({
+  const project = await prisma.project.create({
     data: {
       title: data.title,
       eventDate: data.eventDate ?? null,
@@ -49,10 +57,11 @@ export async function createProject(data: CreateProjectData) {
       feedbackEnabled: data.feedbackEnabled ?? false,
     },
   })
+  return withNumericArchiveSize(project)
 }
 
 export async function updateProject(id: string, data: UpdateProjectData) {
-  return prisma.project.update({ where: { id }, data })
+  return withNumericArchiveSize(await prisma.project.update({ where: { id }, data }))
 }
 
 export async function deleteProject(id: string) {
@@ -121,12 +130,12 @@ export async function replacePhotoFile(
 export async function setArchive(
   projectId: string,
   archive: { archiveName: string; archiveSize: number } | null
-) {
-  return prisma.project.update({
+): Promise<void> {
+  await prisma.project.update({
     where: { id: projectId },
     data: {
       archiveName: archive?.archiveName ?? null,
-      archiveSize: archive?.archiveSize ?? null,
+      archiveSize: archive ? BigInt(archive.archiveSize) : null,
     },
   })
 }

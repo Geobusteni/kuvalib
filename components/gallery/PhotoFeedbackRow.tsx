@@ -3,6 +3,8 @@
 
 'use client'
 
+import { useTranslations } from 'next-intl'
+
 import type { PhotoReaction } from './ImageTile'
 
 interface PhotoFeedbackRowProps {
@@ -20,20 +22,21 @@ export default function PhotoFeedbackRow({
   onComment,
   onReset,
 }: PhotoFeedbackRowProps) {
+  const t = useTranslations('gallery.feedback')
   const locked = reaction !== null
 
   return (
-    <div role="group" aria-label="React to this photo" className="mt-1 flex items-center justify-center gap-1">
+    <div role="group" aria-label={t('group')} className="mt-1 flex items-center justify-center gap-1">
       <TooltipButton
         onClick={onLike}
         disabled={locked}
         pressed={reaction === 'LIKE'}
         label={
           reaction === 'LIKE'
-            ? 'Liked'
+            ? t('like.done')
             : locked
-              ? 'Like (unavailable — you already reacted to this photo)'
-              : 'Like this photo'
+              ? t('like.locked')
+              : t('like.action')
         }
         className={feedbackBtn(reaction === 'LIKE', 'green')}
       >
@@ -45,10 +48,10 @@ export default function PhotoFeedbackRow({
         pressed={reaction === 'DISLIKE'}
         label={
           reaction === 'DISLIKE'
-            ? 'Disliked'
+            ? t('dislike.done')
             : locked
-              ? 'Dislike (unavailable — you already reacted to this photo)'
-              : 'Dislike this photo'
+              ? t('dislike.locked')
+              : t('dislike.action')
         }
         className={feedbackBtn(reaction === 'DISLIKE', 'red')}
       >
@@ -60,17 +63,17 @@ export default function PhotoFeedbackRow({
         pressed={reaction === 'COMMENT'}
         label={
           reaction === 'COMMENT'
-            ? 'Commented'
+            ? t('comment.done')
             : locked
-              ? 'Comment (unavailable — you already reacted to this photo)'
-              : 'Comment on this photo'
+              ? t('comment.locked')
+              : t('comment.action')
         }
         className={feedbackBtn(reaction === 'COMMENT', 'yellow')}
       >
         <CommentIcon />
       </TooltipButton>
       {locked && (
-        <TooltipButton onClick={onReset} label="Undo your reaction" className={resetBtn}>
+        <TooltipButton onClick={onReset} label={t('undo')} className={resetBtn}>
           <ResetIcon />
         </TooltipButton>
       )}

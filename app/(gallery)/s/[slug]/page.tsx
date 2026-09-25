@@ -3,7 +3,9 @@
 
 import { notFound } from 'next/navigation'
 import type { Metadata } from 'next'
-import { getProject, incrementVisit, listPhotos } from '@/lib/projects'
+import { getTranslations } from 'next-intl/server'
+import { getProject, listPhotos } from '@/lib/projects'
+import { recordVisit } from '@/lib/visits'
 import { getShowcaseById, pageSettingsFromRow } from '@/lib/showcase'
 import { verifyGalleryAccess } from '@/lib/gallery-auth'
 import { toShowcasePhoto } from '@/lib/photo-data'
@@ -23,14 +25,16 @@ type Props = { params: Promise<{ slug: string }> }
 export async function generateMetadata({ params }: Props): Promise<Metadata> {
   const { slug } = await params
   const showcase = await getShowcaseById(slug)
+  const t = await getTranslations('showcaseViewer.metadata')
   return {
-    title: showcase?.title ?? 'Showcase',
+    title: showcase?.title ?? t('fallbackTitle'),
     robots: { index: false, follow: false },
   }
 }
 
 export default async function ShowcasePage({ params }: Props) {
   const { slug } = await params
+  const t = await getTranslations('showcaseViewer.page')
   const showcase = await getShowcaseById(slug)
   if (!showcase) notFound()
 
@@ -40,7 +44,7 @@ export default async function ShowcasePage({ params }: Props) {
   if (project.expiresAt && new Date(project.expiresAt) < new Date()) {
     return (
       <div className="flex min-h-screen items-center justify-center bg-black px-4">
-        <p className="text-center text-sm text-zinc-400">This showcase has expired.</p>
+        <p className="text-center text-sm text-zinc-400">{t('expired')}</p>
       </div>
     )
   }
@@ -49,7 +53,7 @@ export default async function ShowcasePage({ params }: Props) {
     return <AccessGate projectId={project.id} accessType={project.accessType} />
   }
 
-  await incrementVisit(project.id)
+  await recordVisit(project.id)
 
   const photoRecords = await listPhotos(project.id)
   const pages = showcase.pages.map((p) => ({

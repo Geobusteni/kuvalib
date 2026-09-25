@@ -17,6 +17,7 @@
 | Auth       | Iron Session (signed cookies) + bcryptjs |
 | Images     | Sharp (server-side thumbnails)      |
 | Archives   | fflate (ZIP create and extract)     |
+| i18n       | next-intl (cookie/`Accept-Language`, no locale routes) |
 | Showcase builder | `@craftjs/core` + `react-rnd` + `zustand` (Stage 2, admin only) |
 
 > Before writing any Next.js code, read the relevant guide in `node_modules/next/dist/docs/`.
@@ -168,7 +169,7 @@ erDiagram
         AccessType accessType "PASSWORD | EMAIL"
         string password "AES-256-GCM, null when EMAIL"
         string archiveName "null until an archive is uploaded"
-        int archiveSize
+        bigint archiveSize
         datetime expiresAt
         boolean zipEnabled
         boolean dlEnabled
@@ -361,8 +362,12 @@ GET    /api/projects/[id]/assignments   List assigned people (admin)
 POST   /api/projects/[id]/assignments   Assign a user/guest (admin)
 DELETE /api/projects/[id]/assignments   Unassign (admin)
 POST   /api/projects/[id]/upload        JPEG or ZIP of photos (admin)
-POST   /api/projects/[id]/archive       Upload the client-facing ZIP (admin)
-DELETE /api/projects/[id]/archive       Remove it (admin)
+DELETE /api/projects/[id]/archive       Remove the client-facing ZIP (admin)
+POST   /api/projects/[id]/archive/uploads                    Start a chunked upload {name,size} (admin)
+GET    /api/projects/[id]/archive/uploads/[uploadId]         Bytes received so far (admin)
+PUT    /api/projects/[id]/archive/uploads/[uploadId]?offset=N Append one raw chunk (admin)
+POST   /api/projects/[id]/archive/uploads/[uploadId]/complete Verify, publish as archive.zip (admin)
+DELETE /api/projects/[id]/archive/uploads/[uploadId]         Abort (admin)
 DELETE /api/projects/[id]/photos/[pid]  Delete photo + files (admin)
 DELETE /api/projects/[id]/feedback      Wipe all feedback for the project + bump
                                           feedbackResetAt (admin)
@@ -419,7 +424,8 @@ uploads/
   [project-id]/
     photos/    originals, named [uuid].jpg
     thumbs/    [uuid]-sm.jpg (400px), [uuid]-lg.jpg (1200px), [uuid]-share.jpg (2048px)
-    archive/   archive.zip — the ZIP the photographer uploaded, if any
+    archive/   archive.zip — the ZIP the photographer uploaded, if any; plus in-flight
+               [uploadId].part/.json chunked-upload temp files (purged after 24 h)
     audio/     [uuid].mp3|m4a|ogg|wav — the showcase's background-music tracks
 ```
 
@@ -516,13 +522,41 @@ shared, framework-free core.
 | `lib/showcase-blocks.ts` | Block types; the no-overlap stack/align geometry; `buildCoverComposite`; `flattenBlocks` / `nestFlatBlocks`; `sanitizeBlocks`; `collectPhotoIds`. No React. |
 | `lib/showcase-theme.ts` | Event-type → accent CSS variables; per-block background/text/radius resolvers. |
 | `lib/showcase.ts` | Data access (mirrors `lib/projects.ts`). `lib/audio.ts` sniffs upload formats. |
+| `lib/showcase-snap.ts` | Pure math for live sibling edge adhesion while dragging (pull zone, push-through release, per-axis hold state). `BlockShell` feeds it the unsnapped pointer position and pushes the result into react-rnd with `updatePosition`. |
 | `components/showcase/store.ts` | `zustand`: album settings, page list, current page, non-active page snapshots, autosave flags. |
 | `components/showcase/craft-bridge.ts` | Nested `Block[]` ⇆ Craft `SerializedNodes`. Craft's tree is **flat** — a block's group membership is its `parentGroupId` prop, not DOM nesting. |
 | `builder/BlockShell` + `builder/blocks/*` | Craft user components. `react-rnd` does drag/resize in pixels; positions are written back as percentages. Dragging re-parents a leaf by which group box holds its centre; dragging or resizing a group carries its children; resizing a child clamps it to the parent group's own box (dragging, not resizing, is how a block leaves a group). A group's shadow lives on the outer, unclipped `Rnd` content div; its background/blur live on an inner `overflow:hidden` div, so the shadow isn't cut off by the same clip that keeps the blur inside the box. |
-| `builder/SettingsPanel`, `PageRail`, `BlockTree`, `AddBlockMenu`, `AlbumSettingsDialog`, `useBuilder` | The panel reads the selected Craft node; `useBuilder` couples Craft `query`/`actions` with the store (page switching, inserts, the Cover shortcut, arrange, debounced autosave to `PUT .../pages`). `BlockTree` lists `query.node('ROOT').get().data.nodes` in order (the same list `moveWithinBand` reorders) and calls `actions.selectNode(id)` — no state of its own. |
+| `builder/SettingsPanel`, `PageRail`, `BlockTree`, `AddBlockMenu`, `AlbumSettingsDialog`, `useBuilder` | The panel reads the selected Craft node; `useBuilder` couples Craft `query`/`actions` with the store (page switching, inserts, the Cover shortcut, arrange, debounced autosave to `PUT .../pages`). `BlockTree` lists `query.node('ROOT').get().data.nodes` in order (the same list `moveWithinBand` reorders) and calls `actions.selectNode(id)`. Its **Arrange** toggle (local state) swaps in `builder/ArrangeList`, which adds pointer/keyboard drag handles and a drop marker and, on drop, hands the new row list to `useBuilder.applyTreeRows`; the legal drop slots and resulting order/`parentGroupId`/box come from `lib/showcase-tree.ts`. |
 | `viewer/ShowcaseViewer` + `useSlideshow` | `idle → out → pre → in` page-turn machine (collapsed under `prefers-reduced-motion`); autoplay + loop; fullscreen as a local boolean (like the lightbox); keyboard. |
 | `viewer/BlockRenderer`, `PageStage`, `ViewerControls`, `DotIndicator`, `ThumbnailRail`, `MusicPlayer`, `ShowcaseDownloadDialog` | Render the flattened block list; per-`animationStyle` page transform; a floating top-right controls pill; a left-side page-dot column; `<audio>` playlist; ZIP dialog reusing `POST /api/projects/[id]/download`. |
 | `BlockContent` | The visual inside a block (image/headline/text/button) — shared by builder and viewer so they never drift. Resolves a Headline/Text block's font size from its own `fontSize` override, else the album's per-level/per-preset defaults. An Image block's Ken Burns keyframe animates the `<img>` itself inside a static, clipped border/radius wrapper. |
+
+---
+
+## Internationalisation
+
+English and Romanian, via `next-intl` **without** locale-prefixed routes.
+
+- `lib/locales.ts` — `locales`, `defaultLocale`, `LOCALE_COOKIE` (`kuvalib_locale`) and the pure
+  `resolveLocale(cookie, acceptLanguage)`: whitelisted cookie, else best `Accept-Language`
+  match by language subtag and q-value, else `en`.
+- `i18n/request.ts` — next-intl request config; reads the cookie and header per request and
+  loads `messages/<locale>.json`. `next.config.ts` wraps the config with `createNextIntlPlugin`.
+- `app/layout.tsx` — `<html lang={locale}>`, `NextIntlClientProvider`, `generateMetadata`,
+  Geist with the `latin-ext` subset (Romanian diacritics).
+- `app/actions/locale.ts` — `setLocale` server action: whitelist check, sets the cookie
+  (1 year, `sameSite: lax`, `secure` per `COOKIE_SECURE`), revalidates the layout.
+- `components/ui/LanguageSwitcher.tsx` — the EN | RO control, reusable anywhere.
+- `messages/{en,ro}.json` — namespaces `common`, `language`, `admin`, `gallery`, `lightbox`,
+  `showcaseBuilder`, `showcaseViewer`, `errors`. `global.d.ts` types keys from `en.json`.
+  `scripts/check-i18n.mjs` (`npm run i18n:check`) fails when the key sets differ.
+
+Conventions: keys are camelCase, nested by component or feature (`admin.projectForm.title`);
+ICU placeholders for values (`{count}`), ICU plurals for counts, no string concatenation. Server
+components use `await getTranslations('ns')` from `next-intl/server`; client components use
+`useTranslations('ns')`. API routes return `{ error: '<code>' }` with a stable snake_case code
+and the same HTTP status; the client renders the message at key `errors.<code>` with a generic fallback.
+User-authored content (titles, showcase text) is never translated.
 
 ---
 
@@ -571,6 +605,8 @@ On the server:
 
 | Decision                          | Reason                                                        |
 |-----------------------------------|---------------------------------------------------------------|
+| No locale-prefixed routes (`/ro/g/...`) for i18n | Gallery and showcase links are shared with clients and must stay `/g/[slug]`, `/s/[slug]` forever; the language is a per-browser preference, not part of the address |
+| Locale lives in a `kuvalib_locale` cookie, not the session | Gallery clients are anonymous and never have an iron-session; a plain cookie works for them and for signed-out admin pages. It holds a whitelisted value only, so it is safe to read client-side |
 | PostgreSQL over SQLite            | Real user/role relations; room to grow beyond one machine     |
 | Prisma over raw SQL               | Typed schema and migrations; the app is expected to extend    |
 | Driver adapter (`@prisma/adapter-pg`) | Required by Prisma 7 — no implicit connection             |
@@ -652,10 +688,21 @@ On the server:
 | `AlbumSettingsDialog`'s and `ShowcaseDownloadDialog`'s mount effects (focus + Escape listener) run once (`[]` dependency), not on every `onClose` identity change | Both dialogs received a fresh `onClose` closure on every re-render of their parent (an inline arrow function), and the effect depended on it — so *any* settings change (a checkbox, a colour pick) re-ran the effect, which called `.focus()` on the dialog's first input again, forcely scrolling the dialog back to its top. `onClose` always does the same thing regardless of which render created it, so a stale closure from mount is safe to keep for the life of the dialog |
 | `html { scrollbar-gutter: stable }` set globally | A general safeguard alongside the dialog re-focus fix above: reserving the scrollbar's width whether or not it's currently needed stops a page whose height crosses the scroll threshold (the builder, as blocks/panels change) from shifting its content sideways when the scrollbar appears or disappears |
 | Group shadow decomposed into `shadowOffsetX`/`shadowOffsetY`/`shadowSpread` alongside the existing `shadow` (blur) and `shadowColor`, with `offsetY ?? Math.round(blur/2)` and the others defaulting to 0 | Matches CSS `box-shadow` in full rather than blur-only. The fallback formula reproduces the exact shadow a pre-existing block (saved before these fields existed) already rendered, so no data migration or rewrite of old blocks was needed — the new fields are simply absent/`undefined` on them |
-| Magnetic block-edge snapping runs only in `onDragStop` (drop time), never during the live `onDrag` | The request was explicit: dragging must stay fully free — a block can still be dragged completely over another one. Snapping only at drop keeps the continuous drag feel unchanged and avoids fighting react-rnd's own live-position updates; the snap is a small nudge to the final position, not a constraint on the gesture |
+| Live sibling adhesion (`lib/showcase-snap.ts`) holds a dragged block flush against a same-level sibling's edge within 8 px, releasing once it is pushed more than 12 px into it; a released edge re-arms only after the pointer leaves the zone | Requested: blocks should feel magnetic while dragging, yet overlapping must stay possible. Siblings only (same `parentGroupId`), so a group child is never pulled toward blocks outside its group, and only neighbours overlapping on the cross axis count. react-draggable adds pointer deltas to its own state, so the shell tracks the raw pointer position itself and overrides the shown one via `Rnd.updatePosition`, deferred with `queueMicrotask` because react-draggable calls `setState` with the raw pointer position right after `onDrag` returns and would otherwise overwrite the held position (a direct call had no visible effect); nothing is written to Craft until drop, keeping one history entry per drag. Resize handles do not adhere: react-rnd has no equivalent per-event override that stays safe with min-size, group-child and group-scaling clamps |
+| (superseded by the row above for live drag) Magnetic block-edge snapping runs only in `onDragStop` (drop time), never during the live `onDrag` | The request was explicit: dragging must stay fully free — a block can still be dragged completely over another one. Snapping only at drop keeps the continuous drag feel unchanged and avoids fighting react-rnd's own live-position updates; the snap is a small nudge to the final position, not a constraint on the gesture |
 | The showcase builder's own width-breakout (`relative left-1/2 right-1/2 -mx-[50vw] w-screen` wrapper, `max-w-[1800px]` inner) lives in `ShowcaseBuilder.tsx`, not the shared admin layout | The builder is the one admin screen that's cramped inside the standard content column (three panels plus a canvas); widening the shared layout would affect every other admin page for no reason. Scoping the breakout to one component keeps the change local |
 | `MusicPlayer` starts playback muted, then unmutes right after `.play()` resolves, instead of calling `.play()` with the real `muted` value up front | Browsers block audible autoplay without a prior user gesture but always allow a muted one. Requesting muted playback first and flipping `audio.muted` immediately after succeeds lets genuinely unattended (autoplay) music actually start audibly, without needing a click |
 | `Showcase.musicAutoplay` is forced/shown-disabled whenever `Showcase.autoplay` (slides) is on, mirroring how the slideshow's own Autoplay checkbox already behaves for its dependents | Slides autoplaying always starts the music with them — there's no independent choice to make in that case, so the checkbox is disabled rather than removed, to make the "why" visible rather than silently ignoring the setting |
 | Music gets its own floating controls pill (`MusicControls.tsx`), separate from `ViewerControls`, showing exactly one button (mute/unmute *or* play/pause, never both) | The request was explicit that the music control must not be confused with the slideshow's own play/pause. A second, visually distinct pill — plus showing only the one control that's actually meaningful in the current autoplay state — rules that out entirely, rather than relying on iconography alone inside one shared bar |
 | `ShowcaseViewer`'s copy-link toast checks `passwordProtected` (a prop threaded from `project.accessType === 'PASSWORD'`) to add a password reminder, but never reads or displays the password itself | The gallery password is legitimately recoverable by an admin (`lib/crypto.ts`), but the showcase viewer is client-facing code with no admin session — it only needs to know *whether* to nudge the visitor to also send the password, never the value. Keeping the prop boolean-only means there's no password-bearing data in this component even to leak |
 | `NumberField`'s out-of-range indicator is an inline `style={{ borderColor }}` override, not a conditional Tailwind class | The invalid-state class (`border-red-500 …`) targeted the same CSS property as the base input's own `border-zinc-300`/`border-zinc-700` classes; two utility classes on the same property don't reliably cascade by className order — whichever was compiled later in the stylesheet wins, which isn't guaranteed. An inline style always wins over any class, regardless of build order, so it's the only reliable way to force an override like this |
+| Archive upload is chunked (32 MB `PUT`s to a temp file, `lib/archive-upload.ts`) and its download is streamed with Range support | `formData()` + `arrayBuffer()` buffered the whole file in memory and hit proxy body limits, capping archives at a few hundred MB. The temp file's size *is* the received-byte count, so resuming needs no extra state and a failed chunk is truncated back to its offset. Chunks must arrive sequentially at exactly that offset; an earlier offset is acknowledged without rewriting, so retries are idempotent |
+| `Project.archiveSize` is `BigInt`, converted to `number` in `lib/projects.ts` | A 32-bit `Int` overflowed for archives over 2 GiB. Prisma returns `BigInt`, which `JSON.stringify` and server-to-client props reject, so `getProject`/`listProjects`/`updateProject` map it to a number (safe far beyond any real file) |
+| `completeUpload` records the archive (via a callback) before the file is swapped in, and one upload runs per project, guarded by an in-process lock | A database failure after the rename left the new file with the old record. An in-memory `busy` set is enough for a single-process app: a second PUT at the same offset, or `complete` during a PUT, gets 409 instead of racing and truncating the other's bytes |
+| `Content-Disposition` goes through `lib/content-disposition.ts` (ASCII `filename` plus RFC 5987 `filename*`) | Header values must be Latin-1; a raw Romanian or emoji title made `Headers` throw and the download return 500 |
+| An unparseable or multi-range `Range` header is ignored; only a valid unsatisfiable single range gets 416 | RFC 9110 lets a server ignore a Range it cannot honour; erroring broke clients that send several ranges |
+| Block-tree Arrange writes ROOT order, `parentGroupId` and any fitted box in one Craft `actions.setState` (`useBuilder.applyTreeRows`), not `move` + `setProp` + `history.merge()` | Craft 0.2.12's `history.merge()` folds a call into the *previous* history entry rather than grouping the calls after it, so a first `move` would still be its own undo step. `setState` is recorded as exactly one entry, so a drop undoes in one press and can never leave order and membership half-applied |
+| The tree's ordering/nesting rules are pure functions in `lib/showcase-tree.ts` (`dropSlots`, `applyDrop`, `fitIntoGroup`, `canonicalRows`); the UI only picks a slot | Keeps the rules testable without Craft or a browser and shared by pointer and keyboard drags: both choose from the same list of legal slots, so neither can produce an illegal tree |
+| Tree order is kept canonical: a group's children directly follow it in ROOT, in their relative order; moving a group moves its children; a block nested into a group is placed after that group's last child (or at the chosen position among them); a top-level block is never offered a slot inside a group's run | The viewer paints `flattenBlocks` order (children right after their group), so the builder must hold the same order or paint order would differ between builder and client. Legacy showcases with a child further down the list are canonicalised on the first Arrange drop |
+| Nesting through the tree fits the block's box into the group (shortest shift to lie wholly inside; shrunk to fit and to stay under half the group's area; group not offered if the minimum size still would not fit) | The canvas rules free a child whose centre leaves the group, and `arrangeGroup` frees any child at least half the group's area. Re-parenting without touching geometry would be silently undone the next time the group is arranged or the block is dragged |
+| Arrange drag only moves a marker; the write happens on drop, and the keyboard drop restores focus to the handle | Rows re-order in the DOM on drop, which drops browser focus from the moved handle; and a blur caused by that re-render must not cancel the drop, hence the handlers read a ref rather than render state |

@@ -5,12 +5,16 @@
 
 import { useState, useRef } from 'react'
 import { useRouter } from 'next/navigation'
+import { useTranslations } from 'next-intl'
+import { useErrorMessage } from '@/hooks/useErrorMessage'
 
 const inputClass =
   'h-11 w-full rounded-lg border border-zinc-300 bg-white px-3 text-zinc-900 placeholder:text-zinc-400 focus:border-zinc-500 focus:outline-none focus:ring-2 focus:ring-zinc-500/20 dark:border-zinc-700 dark:bg-zinc-900 dark:text-zinc-100'
 
 export default function LoginForm() {
   const router = useRouter()
+  const t = useTranslations('auth.login')
+  const msg = useErrorMessage()
   const [error, setError] = useState<string | null>(null)
   const [loading, setLoading] = useState(false)
   const identifierRef = useRef<HTMLInputElement>(null)
@@ -35,12 +39,12 @@ export default function LoginForm() {
         router.push('/projects')
         router.refresh()
       } else {
-        const data = await res.json()
-        setError(data.error ?? 'Invalid credentials')
+        const data = await res.json().catch(() => ({}))
+        setError(msg(data))
         identifierRef.current?.focus()
       }
     } catch {
-      setError('Something went wrong. Please try again.')
+      setError(msg(null))
     } finally {
       setLoading(false)
     }
@@ -56,7 +60,7 @@ export default function LoginForm() {
 
       <div className="flex flex-col gap-1.5">
         <label htmlFor="identifier" className="text-sm font-medium text-zinc-700 dark:text-zinc-300">
-          Username or email
+          {t('identifier')}
         </label>
         <input
           ref={identifierRef}
@@ -72,7 +76,7 @@ export default function LoginForm() {
 
       <div className="flex flex-col gap-1.5">
         <label htmlFor="password" className="text-sm font-medium text-zinc-700 dark:text-zinc-300">
-          Password
+          {t('password')}
         </label>
         <input
           id="password"
@@ -89,7 +93,7 @@ export default function LoginForm() {
         disabled={loading}
         className="h-11 rounded-lg bg-zinc-900 px-6 text-sm font-medium text-white transition-colors hover:bg-zinc-700 focus:outline-none focus:ring-2 focus:ring-zinc-500 focus:ring-offset-2 disabled:opacity-50 dark:bg-zinc-100 dark:text-zinc-900 dark:hover:bg-zinc-300"
       >
-        {loading ? 'Signing in…' : 'Sign in'}
+        {loading ? t('submitting') : t('submit')}
       </button>
     </form>
   )

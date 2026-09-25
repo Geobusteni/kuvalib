@@ -12,7 +12,7 @@ export async function DELETE(_req: Request, ctx: Ctx) {
   const { id } = await ctx.params
 
   const project = await getProject(id)
-  if (!project) return Response.json({ error: 'Not found' }, { status: 404 })
+  if (!project) return Response.json({ error: 'not_found' }, { status: 404 })
 
   await resetProjectFeedback(id)
   return Response.json({ ok: true })

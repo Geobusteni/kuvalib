@@ -3,6 +3,7 @@
 
 import Link from 'next/link'
 import { notFound, redirect } from 'next/navigation'
+import { getFormatter, getTranslations } from 'next-intl/server'
 import { requireAuth } from '@/lib/auth'
 import prisma from '@/lib/prisma'
 import { getProject, getProjectAssignments, listPhotos } from '@/lib/projects'
@@ -25,12 +26,8 @@ type Props = { params: Promise<{ id: string }> }
 export async function generateMetadata({ params }: Props) {
   const { id } = await params
   const project = await getProject(id)
-  return { title: project?.title ?? 'Project' }
-}
-
-function formatDate(date: Date | null) {
-  if (!date) return '—'
-  return new Date(date).toLocaleDateString(undefined, { dateStyle: 'medium' })
+  const t = await getTranslations('admin.project')
+  return { title: project?.title ?? t('metaTitle') }
 }
 
 function Stat({ label, value }: { label: string; value: string | number }) {
@@ -44,6 +41,12 @@ function Stat({ label, value }: { label: string; value: string | number }) {
 
 export default async function EditProjectPage({ params }: Props) {
   const { id } = await params
+  const t = await getTranslations('admin.project')
+  const ta = await getTranslations('admin.accessType')
+  const tn = await getTranslations('admin.nav')
+  const format = await getFormatter()
+  const formatDate = (date: Date | null) =>
+    date ? format.dateTime(new Date(date), { dateStyle: 'medium' }) : '—'
   const session = await requireAuth()
 
   const project = await getProject(id)
@@ -78,7 +81,7 @@ export default async function EditProjectPage({ params }: Props) {
         <div>
           <p className="mb-1 text-sm text-zinc-500">
             <Link href="/projects" className="hover:underline">
-              Projects
+              {tn('projects')}
             </Link>
             {' / '}
           </p>
@@ -90,28 +93,31 @@ export default async function EditProjectPage({ params }: Props) {
           rel="noopener noreferrer"
           className="inline-flex h-9 shrink-0 items-center rounded-lg border border-zinc-300 px-4 text-sm font-medium text-zinc-700 transition-colors hover:bg-zinc-100 focus:outline-none focus-visible:ring-2 focus-visible:ring-zinc-500 dark:border-zinc-700 dark:text-zinc-300 dark:hover:bg-zinc-800"
         >
-          View gallery ↗
+          {t('viewGallery')}
         </a>
       </div>
 
       <dl className="flex flex-wrap gap-6 rounded-xl border border-zinc-200 bg-white p-4 dark:border-zinc-800 dark:bg-zinc-900">
-        <Stat label="Photos" value={photos.length} />
-        <Stat label="Access" value={project.accessType === 'EMAIL' ? 'Email based' : 'Password'} />
+        <Stat label={t('stats.photos')} value={photos.length} />
+        <Stat
+          label={t('stats.access')}
+          value={project.accessType === 'EMAIL' ? ta('emailBased') : ta('password')}
+        />
         {galleryPassword && (
           <div className="flex flex-col gap-0.5">
-            <dt className="text-xs text-zinc-500">Gallery password</dt>
+            <dt className="text-xs text-zinc-500">{t('stats.galleryPassword')}</dt>
             <dd>
               <PasswordReveal password={galleryPassword} />
             </dd>
           </div>
         )}
-        <Stat label="Gallery visits" value={project.visitCount} />
-        <Stat label="Downloads" value={project.dlCount} />
-        <Stat label="Last access" value={formatDate(project.lastAccess)} />
+        <Stat label={t('stats.visits')} value={project.visitCount} />
+        <Stat label={t('stats.downloads')} value={project.dlCount} />
+        <Stat label={t('stats.lastAccess')} value={formatDate(project.lastAccess)} />
       </dl>
 
       <section>
-        <h2 className="mb-4 text-base font-semibold text-zinc-900 dark:text-zinc-100">Photos</h2>
+        <h2 className="mb-4 text-base font-semibold text-zinc-900 dark:text-zinc-100">{t('sections.photos')}</h2>
         <UploadZone projectId={id} />
         {photos.length > 0 && (
           <div className="mt-4">
@@ -148,9 +154,9 @@ export default async function EditProjectPage({ params }: Props) {
 
       {isAdmin && (
         <section>
-          <h2 className="mb-1 text-base font-semibold text-zinc-900 dark:text-zinc-100">People</h2>
+          <h2 className="mb-1 text-base font-semibold text-zinc-900 dark:text-zinc-100">{t('sections.people')}</h2>
           <p className="mb-4 text-sm text-zinc-500">
-            Assign users who may manage this project, and guests who may view it by email.
+            {t('peopleHint')}
           </p>
           <AssignmentManager
             projectId={id}
@@ -169,7 +175,7 @@ export default async function EditProjectPage({ params }: Props) {
 
       {isAdmin && (
         <section>
-          <h2 className="mb-4 text-base font-semibold text-zinc-900 dark:text-zinc-100">Feedback</h2>
+          <h2 className="mb-4 text-base font-semibold text-zinc-900 dark:text-zinc-100">{t('sections.feedback')}</h2>
           <FeedbackPanel
             projectId={id}
             enabled={project.feedbackEnabled}
@@ -193,7 +199,7 @@ export default async function EditProjectPage({ params }: Props) {
       {isAdmin && (
         <>
           <section>
-            <h2 className="mb-4 text-base font-semibold text-zinc-900 dark:text-zinc-100">Settings</h2>
+            <h2 className="mb-4 text-base font-semibold text-zinc-900 dark:text-zinc-100">{t('sections.settings')}</h2>
             <div className="max-w-lg rounded-xl border border-zinc-200 bg-white p-6 dark:border-zinc-800 dark:bg-zinc-900">
               <ProjectForm
                 mode="edit"
@@ -212,10 +218,10 @@ export default async function EditProjectPage({ params }: Props) {
           </section>
 
           <section>
-            <h2 className="mb-4 text-base font-semibold text-red-600 dark:text-red-400">Danger zone</h2>
+            <h2 className="mb-4 text-base font-semibold text-red-600 dark:text-red-400">{t('sections.dangerZone')}</h2>
             <div className="rounded-xl border border-red-200 bg-white p-4 dark:border-red-900 dark:bg-zinc-900">
               <p className="mb-3 text-sm text-zinc-600 dark:text-zinc-400">
-                Deleting this project will permanently remove all photos and data.
+                {t('dangerText')}
               </p>
               <DeleteProjectButton projectId={id} />
             </div>

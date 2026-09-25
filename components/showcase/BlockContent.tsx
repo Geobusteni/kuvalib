@@ -4,6 +4,7 @@
 'use client'
 
 import type { CSSProperties } from 'react'
+import { useTranslations } from 'next-intl'
 import { safeExternalHref, type Block, type HeadingLevel, type TextSizePreset } from '@/lib/showcase-blocks'
 import {
   KEN_BURNS_KEYFRAMES,
@@ -52,6 +53,7 @@ export function BlockContent({
   headingFont,
   textFont,
 }: Props) {
+  const t = useTranslations('showcaseViewer.block')
   if (block.type === 'image') {
     const radius = blockRadiusCss(block.radius)
     const border = blockBorderCss(block)
@@ -109,7 +111,7 @@ export function BlockContent({
             'repeating-linear-gradient(135deg, var(--sc-surface), var(--sc-surface) 9px, var(--sc-deep) 9px, var(--sc-deep) 18px)',
         }}
       >
-        {editable ? 'Pick a photo' : ''}
+        {editable ? t('pickPhoto') : ''}
       </div>
     )
   }
@@ -183,7 +185,7 @@ export function BlockContent({
       border: explicitBorder !== 'none' ? explicitBorder : primary ? 'none' : '1px solid var(--sc-text-muted)',
       overflow: 'hidden',
     }
-    const label = block.label || 'Button'
+    const label = block.label || t('defaultButtonLabel')
 
     if (editable) return <span style={style}>{label}</span>
 

@@ -49,6 +49,29 @@ flat, clickable list — an alternative to hunting for a block on the canvas. It
 matches stacking order: the first row is the block furthest back, the last row is the frontmost
 one, and a group's children are indented under it, in that same back-to-front order.
 
+#### Arrange
+
+**Arrange** (top of the list, a toggle) gives every row a drag handle:
+
+- **Drag up or down** to reorder — that changes stacking order.
+- **Drag right** (onto or just under a Group's rows) to move the block **into that group**; **drag
+  left** to move a child **out** to the top level. Only a Group can take children, and a Group can
+  itself never be nested, so those targets simply are not offered for a Group.
+- A blue line shows where the block will land, indented when it will join a group (the group is
+  outlined), with a text label: *Reorder*, *Move into group* or *Move out of group*.
+- Moving a Group moves its children with it.
+- **Keyboard:** focus a handle, press **Space** to pick it up, **Up/Down** to move, **Right/Left**
+  to move into/out of a group, **Space** or **Enter** to drop, **Escape** to cancel. Each step is
+  announced to screen readers. **Touch** works from the handle too.
+- A block keeps its place on the canvas, except when moving into a group: it is shifted the
+  shortest distance that puts it wholly inside the group's box, and shrunk if it is bigger than the
+  group allows (a child must stay under half the group's area, or "Arrange children" would treat it
+  as not a child). If even the smallest size would not fit, the group is not offered as a target.
+- A group's children always sit directly after it in the list, which is also how the client viewer
+  paints them. Older showcases where a child sat further down the list are tidied into that order
+  the first time you Arrange.
+- One drop is one undo step, and autosave picks it up.
+
 ### Pages
 
 - The page rail lists every page. Click one to edit it — including the page you're already on,
@@ -71,9 +94,19 @@ one, and a group's children are indented under it, in that same back-to-front or
 
 - **Click** a block to select it — the settings panel fills in.
 - **Drag** a block to move it; **drag a corner handle** (shown only on the selected block) to
-  resize it. While dragging, a block's edges and centre lightly snap to the page edges/centre and
-  to other blocks' edges/centres once you're close — a magnetic nudge on drop, not a hard
-  constraint, so you can still drag it fully over another block or leave it unaligned.
+  resize it.
+- **Snapping.** Two things happen while you drag:
+  - *Sibling adhesion (live).* A block's edge that comes within about 8 px of a neighbour's
+    opposite edge is held flush against it (touching, no gap). Keep pushing and, once you are
+    more than 12 px into the neighbour, it lets go and moves freely, so you can still overlap
+    blocks on purpose. It works from every side and on both axes, and a released block does not
+    grab again until it has left the pull zone. Only blocks at the same level attract each
+    other: top-level blocks with top-level blocks, and children of one group with the other
+    children of that group — never across a group boundary. Only neighbours that overlap the
+    dragged block along the other axis count, so a block far above or below does not pull.
+  - *Drop alignment.* On release, the block's edges and centre also nudge onto the page
+    edges/centre and other blocks' edges/centres within about 6 px.
+  Resizing does not snap.
 - **Bring to front / Send to back** in the panel changes stacking order.
 - The trash icon in the panel deletes the selected block.
 
@@ -108,7 +141,7 @@ title-and-button pair.
 - **Blur** (Group only) — a backdrop blur behind the group, for a glass-panel effect over a
   photo.
 - **Shadow** (Group only) — a drop shadow behind the group's box: blur, offset X, offset Y,
-  spread, and colour — the same controls as CSS `box-shadow`. Blur is the on/off switch (0 turns
+  spread, colour and an opacity slider (0–100 %, so the shadow can be as faint as you like) — the same controls as CSS `box-shadow`. Blur is the on/off switch (0 turns
   it off); the offset/spread fields only appear once it's on. The border/corners stay crisp; only
   the shadow is soft.
 - **Text colour** — Text and Button: default, accent, muted, or a custom colour with an opacity

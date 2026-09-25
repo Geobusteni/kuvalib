@@ -29,17 +29,17 @@ export async function GET(request: NextRequest, ctx: Ctx) {
   const { id, trackId } = await ctx.params
 
   if (!(await verifyGalleryAccess(id))) {
-    return Response.json({ error: 'Unauthorized' }, { status: 401 })
+    return Response.json({ error: 'unauthorized' }, { status: 401 })
   }
 
   const track = await resolveTrack(id, trackId)
-  if (!track) return Response.json({ error: 'Not found' }, { status: 404 })
+  if (!track) return Response.json({ error: 'not_found' }, { status: 404 })
 
   let buffer: Buffer
   try {
     buffer = await fs.readFile(audioPath(id, track.filename))
   } catch {
-    return Response.json({ error: 'The track file is missing' }, { status: 404 })
+    return Response.json({ error: 'track_file_missing' }, { status: 404 })
   }
 
   const total = buffer.length
@@ -83,7 +83,7 @@ export async function DELETE(_req: NextRequest, ctx: Ctx) {
   const { id, trackId } = await ctx.params
 
   const track = await resolveTrack(id, trackId)
-  if (!track) return Response.json({ error: 'Not found' }, { status: 404 })
+  if (!track) return Response.json({ error: 'not_found' }, { status: 404 })
 
   await deleteAudioFile(id, track.filename).catch(() => {})
   await deleteTrack(track.id)

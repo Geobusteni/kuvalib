@@ -28,6 +28,7 @@ password or by their email address — where they can view and download delivere
 - **Iron Session** for cookie-based auth
 - **Sharp** for thumbnail generation
 - **fflate** for ZIP creation and extraction
+- **next-intl** — English and Romanian UI, no locale-prefixed URLs
 - **Craft.js**, **react-rnd**, **zustand** — the album-showcase builder only
 
 ---
@@ -252,6 +253,16 @@ move to the other without signing in again.
 
 **Create showcase** in the project's **Showcase** section opens the builder. Full guide:
 **[SHOWCASE.md](./SHOWCASE.md)**.
+
+### Language
+
+Kuvalib speaks English and Romanian. The first visit uses the browser's language (English when
+it is neither), and the **EN | RO** switcher (admin header, sign-in and setup pages) overrides it.
+The choice is remembered for a year in a `kuvalib_locale` cookie on that browser, so clients and
+admins each get their own. Gallery and showcase links do not change with the language.
+
+Contributors: `npm run i18n:check` verifies `messages/en.json` and `messages/ro.json` have the
+same keys.
 
 ### Client gallery
 

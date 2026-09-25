@@ -6,60 +6,76 @@ import { getPhoto, getProject, incrementDownload } from '@/lib/projects'
 import { archivePath, photosDir } from '@/lib/storage'
 import path from 'path'
 import fs from 'fs/promises'
+import { createReadStream } from 'fs'
+import { Readable } from 'stream'
+import { parseRange } from '@/lib/http-range'
+import { attachment } from '@/lib/content-disposition'
 import { zipSync } from 'fflate'
 
 type Ctx = { params: Promise<{ id: string }> }
-
-function attachmentName(name: string): string {
-  // Strip quotes and control characters that would break the header.
-  return name.replace(/["\r\n]/g, '').trim() || 'download.zip'
-}
 
 /**
  * The full archive is whatever the admin uploaded — it is never assembled from the
  * photos. Only a client's own selection is zipped on the fly.
  */
-export async function GET(_req: Request, ctx: Ctx) {
+export async function GET(request: Request, ctx: Ctx) {
   const { id } = await ctx.params
   const project = await getProject(id)
-  if (!project) return Response.json({ error: 'Not found' }, { status: 404 })
+  if (!project) return Response.json({ error: 'download_not_found' }, { status: 404 })
   if (!project.zipEnabled || !project.archiveName) {
-    return Response.json({ error: 'No archive is available for this gallery' }, { status: 404 })
+    return Response.json({ error: 'download_no_archive' }, { status: 404 })
   }
   if (!(await verifyGalleryAccess(id))) {
-    return Response.json({ error: 'Unauthorized' }, { status: 401 })
+    return Response.json({ error: 'download_unauthorized' }, { status: 401 })
   }
 
-  let buffer: Buffer
+  let size: number
   try {
-    buffer = await fs.readFile(archivePath(id))
+    size = (await fs.stat(archivePath(id))).size
   } catch {
-    return Response.json({ error: 'The archive file is missing' }, { status: 404 })
+    return Response.json({ error: 'download_archive_missing' }, { status: 404 })
   }
 
-  await incrementDownload(id)
+  const headers: Record<string, string> = {
+    'Content-Type': 'application/zip',
+    'Content-Disposition': attachment(project.archiveName, 'download.zip'),
+    'Accept-Ranges': 'bytes',
+  }
 
-  return new Response(new Uint8Array(buffer), {
-    headers: {
-      'Content-Type': 'application/zip',
-      'Content-Disposition': `attachment; filename="${attachmentName(project.archiveName)}"`,
-      'Content-Length': String(buffer.length),
-    },
-  })
+  const rangeHeader = request.headers.get('range')
+  let start = 0
+  let end = size - 1
+  let status = 200
+  const range = rangeHeader ? parseRange(rangeHeader, size) : null
+  if (range === 'unsatisfiable') {
+    return new Response(null, { status: 416, headers: { 'Content-Range': `bytes */${size}` } })
+  }
+  if (range) {
+    ;({ start, end } = range)
+    status = 206
+    headers['Content-Range'] = `bytes ${start}-${end}/${size}`
+  }
+  headers['Content-Length'] = String(end - start + 1)
+
+  // Only a request for the whole archive counts; resumed or probing ranges do not.
+  if (start === 0 && end === size - 1) await incrementDownload(id)
+
+  const stream = createReadStream(archivePath(id), { start, end })
+  return new Response(Readable.toWeb(stream) as ReadableStream, { status, headers })
 }
 
 /** Zips exactly the photos the client selected, under their original names. */
 export async function POST(request: Request, ctx: Ctx) {
   const { id } = await ctx.params
   const project = await getProject(id)
-  if (!project) return Response.json({ error: 'Not found' }, { status: 404 })
+  if (!project) return Response.json({ error: 'download_not_found' }, { status: 404 })
   if (!(await verifyGalleryAccess(id))) {
-    return Response.json({ error: 'Unauthorized' }, { status: 401 })
+    return Response.json({ error: 'download_unauthorized' }, { status: 401 })
   }
 
   const body = await request.json().catch(() => null)
   if (!Array.isArray(body?.photoIds) || body.photoIds.length === 0) {
-    return Response.json({ error: 'photoIds required' }, { status: 400 })
+    return Response.json({ error: 'download_photo_ids_required' }, { status: 400 })
   }
 
   const dir = photosDir(id)
@@ -87,7 +103,7 @@ export async function POST(request: Request, ctx: Ctx) {
   }
 
   if (Object.keys(files).length === 0) {
-    return Response.json({ error: 'No valid photos' }, { status: 400 })
+    return Response.json({ error: 'download_no_valid_photos' }, { status: 400 })
   }
 
   const data = zipSync(files, { level: 1 })
@@ -96,7 +112,7 @@ export async function POST(request: Request, ctx: Ctx) {
   return new Response(new Uint8Array(data), {
     headers: {
       'Content-Type': 'application/zip',
-      'Content-Disposition': `attachment; filename="${attachmentName(`${project.title}-selection.zip`)}"`,
+      'Content-Disposition': attachment(`${project.title}-selection.zip`),
       'Content-Length': String(data.length),
     },
   })

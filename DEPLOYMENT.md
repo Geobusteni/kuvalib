@@ -191,6 +191,8 @@ or `./scripts/restart-app.sh`. `update-from-github.sh` detects PM2 and a plain
 server {
     listen 80;
     server_name kuvalib.example.com;
+    # Archive uploads arrive as 32 MB chunks; photo uploads (JPEG/ZIP) still go
+    # through one request each, so keep this at the largest of those.
     client_max_body_size 500M;
 
     location / {
@@ -203,6 +205,12 @@ server {
         proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
         proxy_set_header X-Forwarded-Proto $scheme;
         proxy_cache_bypass $http_upgrade;
+
+        # Stream uploads and downloads instead of spooling them to disk.
+        proxy_request_buffering off;
+        proxy_buffering off;
+        proxy_read_timeout 600s;
+        proxy_send_timeout 600s;
     }
 }
 ```

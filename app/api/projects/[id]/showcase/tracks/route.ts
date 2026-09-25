@@ -20,7 +20,7 @@ export async function GET(_req: NextRequest, ctx: Ctx) {
   const { id } = await ctx.params
 
   const showcase = await getShowcaseByProject(id)
-  if (!showcase) return Response.json({ error: 'Not found' }, { status: 404 })
+  if (!showcase) return Response.json({ error: 'not_found' }, { status: 404 })
 
   const tracks = await listTracks(showcase.id)
   return Response.json({
@@ -33,23 +33,23 @@ export async function POST(request: NextRequest, ctx: Ctx) {
   const { id } = await ctx.params
 
   const showcase = await getShowcaseByProject(id)
-  if (!showcase) return Response.json({ error: 'Not found' }, { status: 404 })
+  if (!showcase) return Response.json({ error: 'not_found' }, { status: 404 })
 
   if ((await listTracks(showcase.id)).length >= MAX_TRACKS) {
-    return Response.json({ error: `A showcase can hold at most ${MAX_TRACKS} tracks` }, { status: 400 })
+    return Response.json({ error: 'too_many_tracks', max: MAX_TRACKS }, { status: 400 })
   }
 
   const formData = await request.formData()
   const file = formData.get('file') as File | null
-  if (!file) return Response.json({ error: 'No file provided' }, { status: 400 })
+  if (!file) return Response.json({ error: 'no_file' }, { status: 400 })
   if (file.size > MAX_BYTES) {
-    return Response.json({ error: 'That audio file is larger than 20 MB' }, { status: 400 })
+    return Response.json({ error: 'audio_too_large', maxMb: MAX_BYTES / (1024 * 1024) }, { status: 400 })
   }
 
   const buffer = Buffer.from(await file.arrayBuffer())
   const ext = sniffAudio(buffer)
   if (!ext) {
-    return Response.json({ error: 'Upload an MP3, M4A, OGG or WAV file' }, { status: 400 })
+    return Response.json({ error: 'unsupported_audio_type' }, { status: 400 })
   }
 
   const filename = `${crypto.randomUUID()}.${ext}`
@@ -69,6 +69,6 @@ export async function POST(request: NextRequest, ctx: Ctx) {
   } catch (error) {
     console.error('[showcase-tracks] upload failed:', error)
     await fs.rm(audioPath(id, filename), { force: true }).catch(() => {})
-    return Response.json({ error: 'Could not store the track' }, { status: 500 })
+    return Response.json({ error: 'track_store_failed' }, { status: 500 })
   }
 }

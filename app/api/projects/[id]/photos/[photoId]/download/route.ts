@@ -5,6 +5,7 @@ import { verifyGalleryAccess } from '@/lib/gallery-auth'
 import { getPhoto, getProject, incrementDownload } from '@/lib/projects'
 import { photosDir, thumbsDir } from '@/lib/storage'
 import { shareThumbFilename } from '@/lib/images'
+import { attachment } from '@/lib/content-disposition'
 import fs from 'fs/promises'
 import path from 'path'
 
@@ -42,11 +43,10 @@ export async function GET(req: Request, ctx: Ctx) {
 
   await incrementDownload(id)
 
-  const name = photo.originalName.replace(/["\r\n]/g, '')
   return new Response(new Uint8Array(buffer), {
     headers: {
       'Content-Type': 'image/jpeg',
-      'Content-Disposition': `attachment; filename="${name}"`,
+      'Content-Disposition': attachment(photo.originalName, 'photo.jpg'),
       'Content-Length': String(buffer.length),
     },
   })

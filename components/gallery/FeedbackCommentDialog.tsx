@@ -3,6 +3,7 @@
 
 'use client'
 
+import { useTranslations } from 'next-intl'
 import { useEffect, useMemo, useRef, useState } from 'react'
 import { useFocusTrap } from '@/hooks/useFocusTrap'
 import { useKeyboard } from '@/hooks/useKeyboard'
@@ -17,6 +18,7 @@ interface FeedbackCommentDialogProps {
 }
 
 export default function FeedbackCommentDialog({ onSubmit, onClose }: FeedbackCommentDialogProps) {
+  const t = useTranslations('gallery.commentDialog')
   const dialogRef = useRef<HTMLDivElement>(null)
   const textareaRef = useRef<HTMLTextAreaElement>(null)
   const trapFocus = useFocusTrap(dialogRef)
@@ -44,7 +46,7 @@ export default function FeedbackCommentDialog({ onSubmit, onClose }: FeedbackCom
     try {
       await onSubmit(text.trim())
     } catch {
-      setPhase({ kind: 'error', message: 'Could not send your comment. Please try again.' })
+      setPhase({ kind: 'error', message: t('sendError') })
     }
   }
 
@@ -60,12 +62,12 @@ export default function FeedbackCommentDialog({ onSubmit, onClose }: FeedbackCom
     >
       <div className="w-full max-w-sm rounded-2xl bg-zinc-900 p-6 text-white">
         <h2 id="feedback-comment-heading" className="text-base font-semibold">
-          Add a comment
+          {t('title')}
         </h2>
-        <p className="mt-1 text-xs text-zinc-400">You can only comment once on this photo.</p>
+        <p className="mt-1 text-xs text-zinc-400">{t('onlyOnce')}</p>
 
         <label htmlFor="feedback-comment-text" className="sr-only">
-          Your comment
+          {t('label')}
         </label>
         <textarea
           id="feedback-comment-text"
@@ -90,14 +92,14 @@ export default function FeedbackCommentDialog({ onSubmit, onClose }: FeedbackCom
             disabled={busy || !text.trim()}
             className="flex h-11 flex-1 items-center justify-center rounded-xl bg-white text-sm font-medium text-zinc-900 focus:outline-none focus-visible:ring-2 focus-visible:ring-white/50 disabled:opacity-40"
           >
-            {busy ? 'Sending…' : 'Send comment'}
+            {busy ? t('sending') : t('send')}
           </button>
           <button
             onClick={onClose}
             disabled={busy}
             className="flex h-11 items-center justify-center rounded-xl px-4 text-sm font-medium text-zinc-400 focus:outline-none focus-visible:ring-2 focus-visible:ring-white/50"
           >
-            Cancel
+            {t('cancel')}
           </button>
         </div>
       </div>

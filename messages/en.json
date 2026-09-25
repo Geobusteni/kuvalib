@@ -1,0 +1,718 @@
+{
+  "common": {
+    "appName": "Kuvalib",
+    "save": "Save",
+    "cancel": "Cancel",
+    "delete": "Delete",
+    "close": "Close",
+    "tryAgain": "Try again",
+    "notFound": "Page not found",
+    "goToProjects": "Go to projects",
+    "somethingWrong": "Something went wrong."
+  },
+  "language": {
+    "label": "Language",
+    "switchTo": "Switch language to {language}",
+    "names": {
+      "en": "English",
+      "ro": "Romanian"
+    }
+  },
+  "admin": {
+    "nav": {
+      "label": "Main",
+      "projects": "Projects",
+      "users": "Users"
+    },
+    "accessType": {
+      "password": "Password",
+      "email": "Email",
+      "emailBased": "Email based"
+    },
+    "roles": {
+      "admin": "Admin",
+      "user": "User",
+      "guest": "Guest"
+    },
+    "projects": {
+      "metaTitle": "Projects",
+      "title": "Projects",
+      "newProject": "New project",
+      "empty": "No projects yet.",
+      "emptyAssigned": "You have not been assigned to any projects.",
+      "createFirst": "Create your first project",
+      "columns": {
+        "title": "Title",
+        "access": "Access",
+        "date": "Date",
+        "photos": "Photos",
+        "visits": "Visits",
+        "downloads": "Downloads",
+        "lastAccess": "Last access"
+      }
+    },
+    "newProject": {
+      "metaTitle": "New project",
+      "title": "New project"
+    },
+    "users": {
+      "metaTitle": "Users",
+      "title": "Users",
+      "description": "Admins have full access. Users can only see projects they are assigned to. Guests need no password and are identified by email on email-based galleries."
+    },
+    "userManager": {
+      "columns": {
+        "email": "Email",
+        "name": "Name",
+        "username": "Username",
+        "role": "Role",
+        "actions": "Actions"
+      },
+      "delete": "Delete",
+      "addUser": "Add user",
+      "adding": "Adding…",
+      "cancel": "Cancel",
+      "role": "Role",
+      "roleOptions": {
+        "admin": "Admin — full access",
+        "user": "User — assigned projects only",
+        "guest": "Guest — read only, email identified"
+      },
+      "email": "Email",
+      "name": "Name",
+      "username": "Username",
+      "password": "Password",
+      "passwordHint": "At least 8 characters"
+    },
+    "project": {
+      "metaTitle": "Project",
+      "viewGallery": "View gallery ↗",
+      "stats": {
+        "photos": "Photos",
+        "access": "Access",
+        "galleryPassword": "Gallery password",
+        "visits": "Gallery visits",
+        "downloads": "Downloads",
+        "lastAccess": "Last access"
+      },
+      "sections": {
+        "photos": "Photos",
+        "people": "People",
+        "feedback": "Feedback",
+        "settings": "Settings",
+        "dangerZone": "Danger zone"
+      },
+      "peopleHint": "Assign users who may manage this project, and guests who may view it by email.",
+      "dangerText": "Deleting this project will permanently remove all photos and data."
+    },
+    "photoGrid": {
+      "deletePhoto": "Delete photo {name}"
+    },
+    "passwordReveal": {
+      "show": "Show",
+      "hide": "Hide",
+      "copy": "Copy",
+      "copied": "Copied",
+      "copiedStatus": "Password copied to clipboard"
+    },
+    "feedback": {
+      "off": "Feedback is off for this gallery. Turn it on in Settings below to let clients like, dislike, and comment on photos.",
+      "counts": "{likes, plural, one {# like} other {# likes}} · {dislikes, plural, one {# dislike} other {# dislikes}} · {comments, plural, one {# comment} other {# comments}}",
+      "reset": "Reset feedback",
+      "resetConfirm": "This deletes every like, dislike, and comment, and lets clients react again. This cannot be undone.",
+      "yesReset": "Yes, reset",
+      "resetting": "Resetting…",
+      "cancel": "Cancel",
+      "none": "No feedback yet.",
+      "viewLarger": "View a larger version of {name}",
+      "closePreview": "Close preview"
+    },
+    "assignments": {
+      "nobody": "Nobody is assigned to this project yet.",
+      "remove": "Remove",
+      "removeLabel": "Remove {email} from this project",
+      "selectLabel": "Select a person to assign",
+      "choose": "Choose a person…",
+      "option": "{email} ({role})",
+      "assign": "Assign"
+    },
+    "showcaseManager": {
+      "title": "Showcase",
+      "description": "A designed, page-by-page slideshow built from this project’s photos, shared on its own link. It uses the same access and password as the gallery — a client who opens one can move to the other without signing in again.",
+      "pages": "{count, plural, one {# page} other {# pages}}",
+      "openBuilder": "Open builder",
+      "view": "View showcase ↗",
+      "copyLink": "Copy client link",
+      "copied": "Link copied ✓",
+      "copyFailed": "Could not copy the link",
+      "deleteConfirm": "Delete the whole showcase?",
+      "delete": "Delete",
+      "keep": "Keep",
+      "create": "Create showcase",
+      "creating": "Creating…"
+    },
+    "showcasePage": {
+      "metaTitle": "Showcase",
+      "metaTitleWithProject": "Showcase · {title}"
+    }
+  },
+  "gallery": {
+    "metaTitle": "Gallery",
+    "notFound": {
+      "message": "Gallery not found."
+    },
+    "expired": "This gallery has expired.",
+    "downloadAll": "Download All (Original ZIP)",
+    "selectedCount": "{count, plural, one {# photo selected} other {# photos selected}}",
+    "gate": {
+      "title": "This gallery is private",
+      "emailPrompt": "Enter the email address the gallery was shared with.",
+      "passwordPrompt": "Enter the password you were given.",
+      "emailLabel": "Email address",
+      "emailPlaceholder": "you@example.com",
+      "passwordLabel": "Gallery password",
+      "checking": "Checking…",
+      "submit": "View gallery"
+    },
+    "toolbar": {
+      "viewShowcase": "View showcase",
+      "select": "Select",
+      "cancel": "Cancel",
+      "download": "Download",
+      "downloadCount": "Download ({count})"
+    },
+    "tile": {
+      "open": "Open photo {index} of {total}",
+      "select": "Select photo {index} of {total}",
+      "deselect": "Deselect photo {index} of {total}",
+      "liked": ", liked",
+      "disliked": ", disliked",
+      "commented": ", commented"
+    },
+    "feedback": {
+      "group": "React to this photo",
+      "like": {
+        "action": "Like this photo",
+        "done": "Liked",
+        "locked": "Like (unavailable — you already reacted to this photo)"
+      },
+      "dislike": {
+        "action": "Dislike this photo",
+        "done": "Disliked",
+        "locked": "Dislike (unavailable — you already reacted to this photo)"
+      },
+      "comment": {
+        "action": "Comment on this photo",
+        "done": "Commented",
+        "locked": "Comment (unavailable — you already reacted to this photo)"
+      },
+      "undo": "Undo your reaction"
+    },
+    "commentDialog": {
+      "title": "Add a comment",
+      "onlyOnce": "You can only comment once on this photo.",
+      "label": "Your comment",
+      "send": "Send comment",
+      "sending": "Sending…",
+      "cancel": "Cancel",
+      "sendError": "Could not send your comment. Please try again."
+    },
+    "downloadDialog": {
+      "title": "{count, plural, one {Download # photo} other {Download # photos}}",
+      "zip": "Download as ZIP",
+      "share": "Share photos",
+      "individually": "Download individually",
+      "cancel": "Cancel",
+      "back": "Back",
+      "preparing": "Preparing your download…",
+      "preparingLabel": "Preparing your download",
+      "fetching": "Fetching photo {done} of {total}…",
+      "fetchingLabel": "Fetching photo {done} of {total}",
+      "zipError": "Could not build the ZIP archive. Please try again.",
+      "shareError": "Could not share the photos. Please try again.",
+      "fetchOneError": "Could not fetch the photo. Please try again.",
+      "fetchAllError": "Could not fetch all photos. Please try again."
+    }
+  },
+  "lightbox": {
+    "counter": "{index} / {total}",
+    "dialogLabel": "Photo viewer: image {index} of {total}",
+    "photoAlt": "Photo {index} of {total}",
+    "download": "Download image",
+    "enterFullscreen": "Enter fullscreen",
+    "exitFullscreen": "Exit fullscreen",
+    "close": "Close viewer",
+    "previous": "Previous image",
+    "next": "Next image",
+    "cancel": "Cancel"
+  },
+  "showcaseBuilder": {
+    "defaults": {
+      "heading": "Heading",
+      "text": "Add your text here.",
+      "buttonLabel": "View gallery",
+      "albumTitle": "Album title",
+      "eventDate": "Event date"
+    },
+    "blockTypes": {
+      "image": "Image",
+      "title": "Headline",
+      "text": "Text",
+      "button": "Button",
+      "group": "Group"
+    },
+    "options": {
+      "radius": {
+        "none": "Square",
+        "md": "Rounded",
+        "pill": "Pill"
+      },
+      "linkType": {
+        "custom": "Custom URL",
+        "zip": "ZIP archive",
+        "gallery": "Back to gallery"
+      },
+      "textSize": {
+        "small": "Small",
+        "normal": "Normal",
+        "medium": "Medium",
+        "large": "Large",
+        "huge": "Huge"
+      },
+      "borderStyle": {
+        "none": "None",
+        "solid": "Solid",
+        "dashed": "Dashed",
+        "dotted": "Dotted"
+      },
+      "kenBurns": {
+        "none": "None",
+        "zoom-in": "Zoom in",
+        "slide-left": "Slide left",
+        "slide-right": "Slide right",
+        "slide-up": "Slide up",
+        "slide-down": "Slide down"
+      },
+      "align": {
+        "left": "Left",
+        "center": "Center",
+        "right": "Right"
+      },
+      "bgSwatch": {
+        "none": "None",
+        "surface": "Surface",
+        "deep": "Deep",
+        "accentTint": "Accent tint",
+        "accentSolid": "Accent",
+        "custom": "Custom colour",
+        "gradient": "Gradient"
+      },
+      "textSwatch": {
+        "default": "Default",
+        "accent": "Accent",
+        "muted": "Muted",
+        "custom": "Custom colour"
+      },
+      "buttonStyle": {
+        "primary": "Primary",
+        "secondary": "Secondary"
+      },
+      "animation": {
+        "TURN": "Turn",
+        "FADE": "Fade",
+        "ZOOM": "Zoom",
+        "ROTATE": "Rotate"
+      },
+      "eventType": {
+        "WEDDING": "Wedding",
+        "BIRTHDAY": "Birthday",
+        "CHRISTENING": "Christening",
+        "CORPORATE": "Corporate",
+        "GENERIC": "Generic"
+      },
+      "albumBg": {
+        "NEUTRAL": "Neutral",
+        "DEEP": "Deep",
+        "ACCENT": "Accent tint"
+      },
+      "headingLevel": "H{level}"
+    },
+    "canvas": {},
+    "addBlockMenu": {
+      "add": "+ Add block",
+      "cover": "Cover (image + caption)"
+    },
+    "blockTree": {
+      "empty": "No blocks on this page yet.",
+      "heading": "Blocks",
+      "arrange": "Arrange",
+      "arrangeHint": "Drag a handle to reorder. Drag right to move a block into the group above it, left to move it out. From the keyboard: focus a handle, press Space, then Up or Down to move, Right or Left to move into or out of a group, Space to drop, Escape to cancel.",
+      "moveHandle": "Move {name}",
+      "drop": {
+        "reorder": "Reorder",
+        "nest": "Move into group",
+        "outdent": "Move out of group"
+      },
+      "position": "Position {position} of {total}",
+      "pickedUp": "{name} picked up.",
+      "dropped": "{name} dropped.",
+      "cancelled": "Move cancelled."
+    },
+    "pageRail": {
+      "heading": "Pages",
+      "selectPage": "Page {number}",
+      "deletePage": "Delete page {number}",
+      "addPage": "+ Add page"
+    },
+    "shell": {
+      "backToProject": "← Project",
+      "albumSettings": "Album settings",
+      "copyLink": "Copy link",
+      "linkCopied": "Link copied",
+      "undo": "Undo",
+      "undoTitle": "Undo (Ctrl/Cmd+Z)",
+      "redo": "Redo",
+      "redoTitle": "Redo (Ctrl/Cmd+Shift+Z)",
+      "saving": "Saving…",
+      "unsaved": "Unsaved changes",
+      "saved": "Saved",
+      "save": "Save",
+      "build": "Build",
+      "preview": "Preview",
+      "blocks": "Blocks"
+    },
+    "settingsPanel": {
+      "outOfRange": "Must be between {min} and {max} — saved as {value}",
+      "background": "Background",
+      "reset": "Reset",
+      "opacity": "Opacity {value}%",
+      "from": "From",
+      "to": "To",
+      "angle": "Angle {value}°",
+      "border": "Border",
+      "widthPx": "Width (px)",
+      "colour": "Colour",
+      "pageHint": "Select a block on the canvas to edit it. Drag to move it; drag a corner to resize. These settings apply to the current page when nothing is selected.",
+      "thisPage": "This page",
+      "inGroup": " · in group",
+      "deleteBlock": "Delete block",
+      "bringToFront": "Bring to front",
+      "sendToBack": "Send to back",
+      "alignInGroup": "Align in group",
+      "detachHint": "Drag it out of the group box to detach it.",
+      "axis": {
+        "x": "X %",
+        "y": "Y %",
+        "w": "W %",
+        "h": "H %"
+      },
+      "photo": "Photo",
+      "uploadFirst": "Upload photos to the project first.",
+      "content": "Content",
+      "align": "Align",
+      "style": "Style",
+      "bold": "Bold",
+      "italic": "Italic",
+      "underline": "Underline",
+      "level": "Level",
+      "customSizeHeading": "Custom size (px, 8–200) — overrides the level default",
+      "albumDefault": "Album default",
+      "size": "Size",
+      "customSizePreset": "Custom size (px, 8–200) — overrides the preset",
+      "presetDefault": "Preset default",
+      "label": "Label",
+      "link": "Link",
+      "urlPlaceholder": "https://…",
+      "zipHint": "Opens the download dialog (ZIP of originals), if downloads are enabled for the project.",
+      "galleryHint": "Links to the full gallery this showcase was built from.",
+      "appearance": "Appearance",
+      "corners": "Corners",
+      "kenBurns": "Ken Burns",
+      "effect": "Effect",
+      "speed": "Speed — {value}s",
+      "cappedToAutoplay": "Capped to the {seconds}s autoplay interval.",
+      "blur": "Blur (glass effect) — {value}px",
+      "shadowBlur": "Shadow blur — {value}px (0 = off)",
+      "offsetX": "Offset X — {value}px",
+      "offsetY": "Offset Y — {value}px",
+      "spread": "Spread — {value}px",
+      "textColour": "Text colour",
+      "titleSolidHint": "Headline text is always solid — no transparency.",
+      "arrangeChildren": "Arrange children",
+      "stackDown": "Stack ↓",
+      "stackRight": "Stack →",
+      "alignLeft": "Left",
+      "alignCenter": "Center",
+      "alignRight": "Right",
+      "alignTop": "Top",
+      "alignMiddle": "Middle",
+      "alignBottom": "Bottom",
+      "addInside": "Add inside this group",
+      "addChild": "+ {type}"
+    },
+    "albumSettings": {
+      "title": "Album settings",
+      "albumTitle": "Title",
+      "date": "Date",
+      "eventType": "Event type",
+      "albumBackground": "Album background",
+      "musicPlaylist": "Music playlist",
+      "removeTrack": "Remove {name}",
+      "noTracks": "No tracks yet.",
+      "uploading": "Uploading…",
+      "addTrack": "+ Add track",
+      "loopPlaylist": "Loop the playlist while viewing",
+      "autoplayMusic": "Autoplay music",
+      "musicAutoplayOn": "Slides autoplay, so music always starts with them — this is checked for you.",
+      "musicAutoplayOff": "Starts music automatically (only a mute button is shown). Off, the viewer gets a play button for music instead.",
+      "slideshow": "Slideshow",
+      "pageTransition": "Page transition",
+      "autoplay": "Autoplay",
+      "secondsPerPage": "Seconds per page",
+      "seconds": "{n}s",
+      "headingSizes": "Heading sizes",
+      "headingSizesHint": "Default px size for each Headline level. A block can override its own size.",
+      "textSizes": "Text sizes",
+      "textSizesHint": "Default px size for each Text block preset. A block can override its own size.",
+      "fonts": "Fonts",
+      "fontsHint": "A Google Font for every Headline and every Text block, album-wide.",
+      "headingFont": "Heading font",
+      "textFont": "Text font",
+      "defaultFont": "Default",
+      "colorPresets": "Color presets",
+      "colorPresetsHint": "Your own palette — offered as quick-pick swatches everywhere a custom colour is chosen in the builder, so you don’t have to reopen a colour picker each time.",
+      "removePreset": "Remove preset colour {hex}",
+      "addPreset": "Add a preset colour",
+      "pageDots": "Page dots",
+      "showDots": "Show the page-position dots (top left) in the viewer",
+      "active": "Active",
+      "inactive": "Inactive",
+      "reset": "Reset",
+      "dotsHint": "Blank uses the event colour for the active dot and a translucent white for the rest.",
+      "customCss": "Custom CSS",
+      "hideCssRef": "Hide the CSS class reference",
+      "showCssRef": "Show the CSS class reference",
+      "cssScopeHint": "Applied only inside this showcase’s public viewer.",
+      "cssLegendIntro": "The classes available to target in the public viewer:",
+      "cssLegend": {
+        "viewer": "The whole viewer — full-bleed background behind everything.",
+        "stage": "Positioning wrapper around the current page (holds the 3D perspective for the Turn transition).",
+        "page": "The page itself — background, border, and where the page transition animates.",
+        "block": "Every block’s wrapper. Combine with a type below to target just one kind.",
+        "blockTypes": "One block type’s wrapper.",
+        "controls": "The floating top-right controls pill.",
+        "dots": "The left-side page-dot column. `.sc-dot` is one dot, `.sc-dot-active` the current page’s.",
+        "thumbnails": "The bottom thumbnail strip. `.sc-thumbnail` is one preview, `.sc-thumbnail-active` the current page’s."
+      },
+      "cancel": "Cancel",
+      "done": "Done",
+      "saving": "Saving…"
+    }
+  },
+  "showcaseViewer": {
+    "metadata": {
+      "fallbackTitle": "Showcase"
+    },
+    "page": {
+      "expired": "This showcase has expired."
+    },
+    "block": {
+      "pickPhoto": "Pick a photo",
+      "defaultButtonLabel": "Button"
+    },
+    "stage": {
+      "pageStatus": "Page {current} of {total}"
+    },
+    "nav": {
+      "previousPage": "Previous page",
+      "nextPage": "Next page",
+      "goToPage": "Go to page {page}"
+    },
+    "controls": {
+      "backToEditor": "← Edit",
+      "pauseSlideshow": "Pause slideshow",
+      "playSlideshow": "Play slideshow",
+      "togglePageThumbnails": "Toggle page thumbnails",
+      "toggleFullscreen": "Toggle fullscreen",
+      "copyLink": "Copy showcase link",
+      "downloadAlbum": "Download album"
+    },
+    "music": {
+      "mute": "Mute music",
+      "unmute": "Unmute music",
+      "pause": "Pause music",
+      "play": "Play music"
+    },
+    "toast": {
+      "linkCopiedWithPassword": "Link copied — this showcase needs a password too, so send that along. Don't know it? Ask the admin or whoever sent you this link.",
+      "linkCopied": "Showcase link copied",
+      "copyFailed": "Could not copy the link"
+    },
+    "download": {
+      "title": "Download this album",
+      "preparing": "Preparing your download…",
+      "summary": "{count, plural, one {# photo} other {# photos}} · {title}",
+      "confirm": "Download as ZIP (originals)",
+      "cancel": "Cancel",
+      "fallbackName": "album"
+    }
+  },
+  "errors": {
+    "generic": "Something went wrong. Please try again.",
+    "missing_credentials": "Enter your username or email and your password.",
+    "invalid_credentials": "Invalid username, email or password.",
+    "title_required": "A title is required.",
+    "password_required_for_project": "A password is required for password-protected projects.",
+    "not_found": "Not found.",
+    "invalid_body": "The request was not valid.",
+    "user_id_required": "Choose a user.",
+    "too_many_attempts": "Too many attempts. Try again later.",
+    "valid_email_required": "Enter a valid email address.",
+    "email_no_access": "This email address does not have access.",
+    "password_required": "Enter the password.",
+    "incorrect_password": "Incorrect password.",
+    "unauthorized": "You do not have access to this.",
+    "track_file_missing": "The track file is missing.",
+    "no_file": "No file was provided.",
+    "audio_too_large": "That audio file is larger than {maxMb} MB.",
+    "unsupported_audio_type": "Upload an MP3, M4A, OGG or WAV file.",
+    "track_store_failed": "Could not store the track.",
+    "too_many_tracks": "A showcase can hold at most {max} tracks.",
+    "showcase_exists": "This project already has a showcase.",
+    "invalid_event_date": "The event date is not valid.",
+    "pages_required": "At least one page is required.",
+    "too_many_pages": "There are too many pages.",
+    "cannot_demote_last_admin": "The only administrator cannot be demoted.",
+    "cannot_delete_last_admin": "The only administrator cannot be deleted.",
+    "cannot_delete_self": "You cannot delete your own account.",
+    "user_exists": "A user with that email or username already exists.",
+    "feedback_disabled": "Feedback is not enabled for this gallery.",
+    "visitor_id_required": "A visitor id is required.",
+    "invalid_feedback_type": "That feedback type is not valid.",
+    "comment_required": "Write a comment first.",
+    "comment_too_long": "The comment is too long.",
+    "feedback_already_given": "You have already given feedback on this photo.",
+    "invalid_jpeg": "That file is not a valid JPEG.",
+    "no_jpegs_in_archive": "No JPEG images were found in the archive.",
+    "unsupported_upload_type": "Only JPEG images and ZIP archives are accepted.",
+    "upload_failed": "The upload failed. Please try again.",
+    "setup_completed": "Setup has already been completed.",
+    "setup_fields_required": "Email, username and password are required.",
+    "password_too_short": "The password must be at least 8 characters.",
+    "email_and_role_required": "An email address and a valid role are required.",
+    "username_required": "A username is required for administrators and users.",
+    "archive_not_zip": "The archive must be a ZIP file.",
+    "archive_store_failed": "Could not store the archive.",
+    "archive_not_found": "Not found.",
+    "archive_name_size_required": "A file name and size are required.",
+    "archive_start_failed": "Could not start the upload.",
+    "archive_invalid_size": "The file size is invalid.",
+    "archive_name_too_long": "The file name is too long (255 characters at most).",
+    "archive_upload_not_found": "This upload was not found. Start it again.",
+    "archive_offset_mismatch": "The upload got out of sync. Try again.",
+    "archive_chunk_too_large": "A chunk was larger than allowed.",
+    "archive_incomplete": "The upload is incomplete.",
+    "archive_empty_chunk": "The uploaded chunk was empty.",
+    "archive_chunk_failed": "Could not store the uploaded chunk.",
+    "archive_resume_failed": "Could not resume the upload.",
+    "archive_upload_failed": "Upload failed.",
+    "archive_connection_failed": "The connection kept failing. Try again.",
+    "archive_network": "Network error during upload.",
+    "archive_timeout": "The upload timed out.",
+    "archive_aborted": "The upload was cancelled.",
+    "download_not_found": "Not found.",
+    "download_no_archive": "No archive is available for this gallery.",
+    "download_unauthorized": "You do not have access to this gallery.",
+    "download_archive_missing": "The archive file is missing.",
+    "download_photo_ids_required": "Select at least one photo.",
+    "download_no_valid_photos": "None of the selected photos could be found."
+  },
+  "upload": {
+    "size": {
+      "kb": "{value} KB",
+      "mb": "{value} MB",
+      "gb": "{value} GB"
+    },
+    "archive": {
+      "title": "Download archive",
+      "description": "Clients only see a “Download ZIP” button when you upload an archive here. Kuvalib never builds a full archive on its own — clients can still zip their own selection.",
+      "replace": "Replace",
+      "remove": "Remove",
+      "upload": "Upload archive",
+      "uploading": "Uploading…",
+      "progress": "Uploading {sent} of {total} ({percent})",
+      "progressLabel": "Archive upload progress"
+    },
+    "zone": {
+      "ariaLabel": "Upload photos. Click to choose files, or drop JPEG images or a ZIP archive here.",
+      "drop": "Drop photos or a ZIP here",
+      "hint": "Original filenames are kept. A ZIP dropped here is unpacked into photos.",
+      "onlyAccepted": "Only JPEG images and ZIP archives are accepted.",
+      "status": "Uploading {current} of {count}: {name}",
+      "statusPercent": "{status} — {percent}",
+      "uploadingLabel": "Uploading",
+      "totalProgress": "Total — {sent} of {total} ({percent})",
+      "totalLabel": "Total",
+      "couldNotUpload": "Could not upload {name}",
+      "conflictTitle": "{count, plural, one {# photo already exists} other {# photos already exist}}",
+      "conflictMore": "{names} and {count} more",
+      "keepBoth": "Keep both",
+      "replaceExisting": "Replace existing",
+      "cancel": "Cancel"
+    }
+  },
+  "auth": {
+    "login": {
+      "metaTitle": "Sign in",
+      "identifier": "Username or email",
+      "password": "Password",
+      "submit": "Sign in",
+      "submitting": "Signing in…"
+    },
+    "setup": {
+      "metaTitle": "Setup",
+      "welcome": "Welcome to Kuvalib",
+      "intro": "Create the first administrator account to get started.",
+      "name": "Name",
+      "email": "Email",
+      "username": "Username",
+      "password": "Password",
+      "passwordHint": "At least 8 characters",
+      "submit": "Create admin account",
+      "submitting": "Creating account…"
+    }
+  },
+  "ui": {
+    "logout": {
+      "signOut": "Sign out"
+    },
+    "deleteProject": {
+      "delete": "Delete project",
+      "irreversible": "This cannot be undone.",
+      "confirm": "Yes, delete",
+      "deleting": "Deleting…",
+      "cancel": "Cancel"
+    },
+    "projectForm": {
+      "passwordRequired": "A gallery password is required for password-protected projects",
+      "title": "Title",
+      "eventDate": "Event date",
+      "accessType": "Access type",
+      "accessHint": "Password galleries are shared with one password. Email galleries only admit guests whose email you have assigned.",
+      "passwordOption": "Password protected",
+      "emailOption": "Email based",
+      "galleryPassword": "Gallery password",
+      "newGalleryPassword": "New gallery password",
+      "keepPasswordHint": "Leave blank to keep the current password",
+      "expiresAt": "Expiration date",
+      "expiresHint": "The gallery becomes inaccessible after this date",
+      "zipEnabled": "Offer the uploaded archive for download",
+      "dlEnabled": "Allow individual image downloads",
+      "feedbackEnabled": "Allow clients to like, dislike, and comment on photos",
+      "saving": "Saving…",
+      "create": "Create project",
+      "save": "Save changes",
+      "cancel": "Cancel"
+    }
+  }
+}

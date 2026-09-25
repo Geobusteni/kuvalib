@@ -17,30 +17,30 @@ export async function POST(request: NextRequest, ctx: Ctx) {
 
   const ip = request.headers.get('x-forwarded-for')?.split(',')[0].trim() ?? 'unknown'
   if (!checkRateLimit(`gallery-auth:${ip}:${id}`).allowed) {
-    return Response.json({ error: 'Too many attempts. Try again later.' }, { status: 429 })
+    return Response.json({ error: 'too_many_attempts' }, { status: 429 })
   }
 
   const project = await getProject(id)
-  if (!project) return Response.json({ error: 'Not found' }, { status: 404 })
+  if (!project) return Response.json({ error: 'not_found' }, { status: 404 })
 
   const body = await request.json().catch(() => null)
 
   if (project.accessType === 'EMAIL') {
     if (typeof body?.email !== 'string' || !body.email.includes('@')) {
-      return Response.json({ error: 'A valid email is required' }, { status: 400 })
+      return Response.json({ error: 'valid_email_required' }, { status: 400 })
     }
     if (!(await verifyEmailAccess(id, body.email))) {
-      return Response.json({ error: 'This email does not have access' }, { status: 401 })
+      return Response.json({ error: 'email_no_access' }, { status: 401 })
     }
     await grantGalleryAccess(id, body.email.toLowerCase().trim())
     return Response.json({ ok: true })
   }
 
   if (typeof body?.password !== 'string' || !body.password) {
-    return Response.json({ error: 'Password required' }, { status: 400 })
+    return Response.json({ error: 'password_required' }, { status: 400 })
   }
   if (!project.password || !verifyPasswordAccess(body.password, project.password)) {
-    return Response.json({ error: 'Incorrect password' }, { status: 401 })
+    return Response.json({ error: 'incorrect_password' }, { status: 401 })
   }
 
   await grantGalleryAccess(id)

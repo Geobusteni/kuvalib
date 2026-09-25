@@ -3,7 +3,9 @@
 
 'use client'
 
+import { useTranslations } from 'next-intl'
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
+import { useErrorMessage } from '@/hooks/useErrorMessage'
 import { useFocusTrap } from '@/hooks/useFocusTrap'
 import { useKeyboard } from '@/hooks/useKeyboard'
 import ProgressBar from '@/components/ui/ProgressBar'
@@ -63,6 +65,8 @@ export default function DownloadOptionsDialog({
   title,
   onClose,
 }: DownloadOptionsDialogProps) {
+  const t = useTranslations('gallery.downloadDialog')
+  const errorMessage = useErrorMessage()
   const dialogRef = useRef<HTMLDivElement>(null)
   const zipButtonRef = useRef<HTMLButtonElement>(null)
   const trapFocus = useFocusTrap(dialogRef)
@@ -108,14 +112,18 @@ export default function DownloadOptionsDialog({
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ photoIds: photos.map((p) => p.id) }),
       })
-      if (!res.ok) throw new Error('zip failed')
+      if (!res.ok) {
+        const body = await res.json().catch(() => ({}))
+        setPhase({ kind: 'error', message: body.error ? errorMessage(body) : t('zipError') })
+        return
+      }
       const blob = await res.blob()
       downloadBlob(blob, `${title}.zip`)
       onClose()
     } catch {
-      setPhase({ kind: 'error', message: 'Could not build the ZIP archive. Please try again.' })
+      setPhase({ kind: 'error', message: t('zipError') })
     }
-  }, [photos, projectId, title, onClose])
+  }, [photos, projectId, title, onClose, t, errorMessage])
 
   // Single-photo path (the lightbox's only usage): consumes the eager
   // prefetch so navigator.share() runs immediately off the click, keeping
@@ -138,7 +146,7 @@ export default function DownloadOptionsDialog({
           if (err instanceof Error && err.name === 'AbortError') {
             setPhase({ kind: 'choosing' })
           } else {
-            setPhase({ kind: 'error', message: 'Could not share the photos. Please try again.' })
+            setPhase({ kind: 'error', message: t('shareError') })
           }
         }
         return
@@ -147,9 +155,9 @@ export default function DownloadOptionsDialog({
       downloadBlob(file, file.name)
       onClose()
     } catch {
-      setPhase({ kind: 'error', message: 'Could not fetch the photo. Please try again.' })
+      setPhase({ kind: 'error', message: t('fetchOneError') })
     }
-  }, [downloadable, onClose])
+  }, [downloadable, onClose, t])
 
   // Consumes the eager prefetch (kicked off in parallel when the dialog
   // opened) so navigator.share() runs as close to the click as possible —
@@ -180,7 +188,7 @@ export default function DownloadOptionsDialog({
           if (err instanceof Error && err.name === 'AbortError') {
             setPhase({ kind: 'choosing' })
           } else {
-            setPhase({ kind: 'error', message: 'Could not share the photos. Please try again.' })
+            setPhase({ kind: 'error', message: t('shareError') })
           }
         }
         return
@@ -192,9 +200,9 @@ export default function DownloadOptionsDialog({
       files.forEach((file) => downloadBlob(file, file.name))
       onClose()
     } catch {
-      setPhase({ kind: 'error', message: 'Could not fetch all photos. Please try again.' })
+      setPhase({ kind: 'error', message: t('fetchAllError') })
     }
-  }, [downloadable, onClose])
+  }, [downloadable, onClose, t])
 
   const handleIndividual = useCallback(async () => {
     if (downloadable.length === 0) return
@@ -217,7 +225,7 @@ export default function DownloadOptionsDialog({
     >
       <div className="w-full max-w-sm rounded-2xl bg-zinc-900 p-6 text-white">
         <h2 id="download-options-heading" className="text-base font-semibold">
-          Download {photos.length} photo{photos.length === 1 ? '' : 's'}
+          {t('title', { count: photos.length })}
         </h2>
 
         {phase.kind === 'choosing' && (
@@ -227,39 +235,39 @@ export default function DownloadOptionsDialog({
               onClick={handleZip}
               className="flex h-11 items-center justify-center rounded-xl bg-white text-sm font-medium text-zinc-900 focus:outline-none focus-visible:ring-2 focus-visible:ring-white/50"
             >
-              Download as ZIP
+              {t('zip')}
             </button>
             <button
               onClick={handleIndividual}
               disabled={downloadable.length === 0}
               className="flex h-11 items-center justify-center rounded-xl border border-white/30 text-sm font-medium text-white focus:outline-none focus-visible:ring-2 focus-visible:ring-white/50 disabled:opacity-40"
             >
-              {shareCapable ? 'Share photos' : 'Download individually'}
+              {shareCapable ? t('share') : t('individually')}
             </button>
             <button
               onClick={onClose}
               className="flex h-11 items-center justify-center rounded-xl text-sm font-medium text-zinc-400 focus:outline-none focus-visible:ring-2 focus-visible:ring-white/50"
             >
-              Cancel
+              {t('cancel')}
             </button>
           </div>
         )}
 
         {phase.kind === 'zipping' && (
           <div className="mt-4" aria-live="polite">
-            <p className="mb-2 text-sm text-zinc-300">Preparing your download…</p>
-            <ProgressBar label="Preparing your download" />
+            <p className="mb-2 text-sm text-zinc-300">{t('preparing')}</p>
+            <ProgressBar label={t('preparingLabel')} />
           </div>
         )}
 
         {phase.kind === 'fetching' && (
           <div className="mt-4" aria-live="polite">
             <p className="mb-2 text-sm text-zinc-300">
-              Fetching photo {phase.done} of {phase.total}…
+              {t('fetching', { done: phase.done, total: phase.total })}
             </p>
             <ProgressBar
               value={(phase.done / phase.total) * 100}
-              label={`Fetching photo ${phase.done} of ${phase.total}`}
+              label={t('fetchingLabel', { done: phase.done, total: phase.total })}
             />
           </div>
         )}
@@ -273,7 +281,7 @@ export default function DownloadOptionsDialog({
               onClick={() => setPhase({ kind: 'choosing' })}
               className="mt-3 flex h-11 items-center justify-center rounded-xl border border-white/30 px-4 text-sm font-medium text-white focus:outline-none focus-visible:ring-2 focus-visible:ring-white/50"
             >
-              Back
+              {t('back')}
             </button>
           </div>
         )}

@@ -10,6 +10,77 @@ adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html). While the
 
 ## [Unreleased]
 
+## [1.12.0] - 2026-09-25
+
+### Added
+
+- **Blocks now stick to their neighbours while you drag.** When a block's edge comes close to the
+  opposite edge of another block at the same level (both top-level, or both inside the same
+  group), it is held flush against it. Push it about 12 px further into the neighbour and it lets
+  go, so you can still overlap blocks deliberately. A block inside a group is never pulled toward
+  blocks outside that group.
+- **Arrange mode in the showcase builder's Blocks list.** An **Arrange** button gives every row a
+  drag handle: drag a block up or down to change its stacking order, drag it right to move it into
+  the group above, or left to move it out. It also works from the keyboard (focus a handle, Space
+  to pick up, arrow keys to move, Space to drop, Escape to cancel) and by touch, and each drop is a
+  single undo step. Moving a block into a group nudges it (and, if needed, shrinks it) so it sits
+  inside that group's box.
+- **The Blocks list is taller** (up to 55 % of the window) so several rows fit while arranging.
+- **Opacity for a Group's shadow** — a slider next to the shadow colour, from fully transparent to
+  solid. Existing shadows stay as they were (fully opaque colour).
+
+### Changed
+
+- Snapping to other blocks is no longer applied only when you let go; the page-edge and centre
+  alignment on drop is unchanged.
+
+## [1.11.0] - 2026-09-25
+
+### Added
+
+- **English and Romanian interface language.** The first visit follows the browser's language
+  (English otherwise); an **EN | RO** switcher in the admin header and on the sign-in and setup
+  pages changes it, and the choice is remembered for a year. Gallery and showcase links are
+  unchanged. Every screen is translated — admin, sign-in, gallery, lightbox, showcase viewer and
+  builder — and the server's error messages are translated too. The Romanian text has not had a
+  native review yet.
+- **Overall progress when uploading photos** — a second "Total" bar shows bytes sent across the
+  whole batch, next to the existing per-file bar.
+- **The admin navigation links now have 44 px touch targets.**
+- **Byte counts on the archive upload** — the archive uploader now shows a progress bar with
+  bytes sent, total and percentage.
+
+### Changed
+
+- **The client-facing ZIP archive uploads in 32 MB chunks** and resumes after a dropped
+  connection, so archives of 5 GB and more are possible. **Action required (nginx):** archives of
+  this size need the streaming settings in `DEPLOYMENT.md` section 4 (`proxy_request_buffering
+  off`, `proxy_buffering off`, 600 s proxy timeouts); the existing `client_max_body_size 500M`
+  is enough.
+- **Archive upload sessions**: only one upload per project is kept at a time (starting a new one
+  discards the previous partial file), file names over 255 characters are refused, and a failed
+  upload cleans up its partial file on the server.
+- **Only a download of the whole archive counts** towards the download count; range probes and
+  resumed downloads no longer do.
+
+### Fixed
+
+- **Downloading a large archive no longer loads it into server memory**; it is streamed and
+  supports resuming (HTTP Range).
+- **Archives larger than 2 GiB can be stored.** The archive size is now a 64-bit column.
+  **Action required:** apply the schema change on upgrade (`prisma db push`, which
+  `update-from-github.sh` runs, or `prisma migrate deploy`); existing values are kept.
+- **Downloads no longer fail for names with non-Latin-1 characters** (for example "Nuntă Ștefan"
+  or emoji); the browser receives the full name.
+- **A failed database update no longer leaves a half-finished archive upload**: the previous
+  archive stays in place until the new one is recorded.
+- Two chunks of the same upload can no longer overwrite each other after a retry.
+- Malformed or multi-range `Range` headers on the archive download are ignored instead of
+  answered with an error.
+- Error messages that mention a limit (for example the maximum audio size) now show the limit.
+- Download failures show the server's reason instead of a fixed message, and the admin header no
+  longer overflows on 400 px screens in Romanian.
+
 ## [1.10.0] - 2026-09-13
 
 ### Added

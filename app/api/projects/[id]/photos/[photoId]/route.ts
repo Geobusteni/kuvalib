@@ -13,7 +13,7 @@ export async function DELETE(_req: Request, ctx: Ctx) {
 
   const photo = await getPhoto(photoId)
   if (!photo || photo.projectId !== id) {
-    return Response.json({ error: 'Not found' }, { status: 404 })
+    return Response.json({ error: 'not_found' }, { status: 404 })
   }
 
   await deletePhoto(photoId)

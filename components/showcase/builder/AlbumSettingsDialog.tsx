@@ -3,41 +3,40 @@
 
 'use client'
 
+import { useTranslations } from 'next-intl'
 import { useEffect, useRef, useState } from 'react'
 import {
   ShowcaseAnimation,
   ShowcaseBg,
   ShowcaseEventType,
 } from '@/lib/generated/prisma/client'
-import { ALBUM_BG_LABELS, EVENT_TYPE_LABELS } from '@/lib/showcase-theme'
 import { GOOGLE_FONTS, HEADING_SIZE_DEFAULTS, TEXT_SIZE_DEFAULTS, type HeadingLevel, type TextSizePreset } from '@/lib/showcase-blocks'
+import { useErrorMessage } from '@/hooks/useErrorMessage'
 import { useFocusTrap } from '@/hooks/useFocusTrap'
 import { useShowcaseStore, type AlbumSettings } from '../store'
 import { PresetSwatchRow } from './PresetSwatchRow'
 
-const EVENT_TYPES = Object.keys(EVENT_TYPE_LABELS) as ShowcaseEventType[]
-const BGS = Object.keys(ALBUM_BG_LABELS) as ShowcaseBg[]
-const ANIMATIONS: { value: ShowcaseAnimation; label: string }[] = [
-  { value: 'TURN', label: 'Turn' },
-  { value: 'FADE', label: 'Fade' },
-  { value: 'ZOOM', label: 'Zoom' },
-  { value: 'ROTATE', label: 'Rotate' },
-]
+const EVENT_TYPES: ShowcaseEventType[] = ['WEDDING', 'BIRTHDAY', 'CHRISTENING', 'CORPORATE', 'GENERIC']
+const BGS: ShowcaseBg[] = ['NEUTRAL', 'DEEP', 'ACCENT']
+const ANIMATIONS: ShowcaseAnimation[] = ['TURN', 'FADE', 'ZOOM', 'ROTATE']
 const SECONDS = [3, 5, 8]
 const HEADING_LEVELS: HeadingLevel[] = [1, 2, 3, 4, 5, 6]
 const TEXT_SIZE_PRESETS: TextSizePreset[] = ['small', 'normal', 'medium', 'large', 'huge']
 
 /** The stable class names the public viewer renders (components/showcase/viewer/*),
  *  for admins writing Custom CSS. Keep in sync with where each is applied. */
-const CSS_CLASS_LEGEND: { selector: string; description: string }[] = [
-  { selector: '.sc-viewer', description: "The whole viewer — full-bleed background behind everything." },
-  { selector: '.sc-stage', description: 'Positioning wrapper around the current page (holds the 3D perspective for the Turn transition).' },
-  { selector: '.sc-page', description: 'The page itself — background, border, and where the page transition animates.' },
-  { selector: '.sc-block', description: 'Every block’s wrapper. Combine with a type below to target just one kind.' },
-  { selector: '.sc-block-image / -title / -text / -button / -group', description: 'One block type’s wrapper.' },
-  { selector: '.sc-controls', description: 'The floating top-right controls pill.' },
-  { selector: '.sc-dots', description: 'The left-side page-dot column. `.sc-dot` is one dot, `.sc-dot-active` the current page’s.' },
-  { selector: '.sc-thumbnails', description: 'The bottom thumbnail strip. `.sc-thumbnail` is one preview, `.sc-thumbnail-active` the current page’s.' },
+const CSS_CLASS_LEGEND: {
+  selector: string
+  key: 'viewer' | 'stage' | 'page' | 'block' | 'blockTypes' | 'controls' | 'dots' | 'thumbnails'
+}[] = [
+  { selector: '.sc-viewer', key: 'viewer' },
+  { selector: '.sc-stage', key: 'stage' },
+  { selector: '.sc-page', key: 'page' },
+  { selector: '.sc-block', key: 'block' },
+  { selector: '.sc-block-image / -title / -text / -button / -group', key: 'blockTypes' },
+  { selector: '.sc-controls', key: 'controls' },
+  { selector: '.sc-dots', key: 'dots' },
+  { selector: '.sc-thumbnails', key: 'thumbnails' },
 ]
 
 const fieldLabel = 'text-xs font-medium text-zinc-500'
@@ -45,6 +44,9 @@ const input =
   'h-9 w-full rounded-lg border border-zinc-300 bg-white px-2 text-sm dark:border-zinc-700 dark:bg-zinc-900'
 
 export function AlbumSettingsDialog({ onClose }: { onClose: () => void }) {
+  const t = useTranslations('showcaseBuilder.albumSettings')
+  const tOpt = useTranslations('showcaseBuilder.options')
+  const errorMessage = useErrorMessage()
   const dialogRef = useRef<HTMLDivElement>(null)
   const trapFocus = useFocusTrap(dialogRef)
 
@@ -98,7 +100,7 @@ export function AlbumSettingsDialog({ onClose }: { onClose: () => void }) {
     const data = await res.json().catch(() => ({}))
     setTrackBusy(false)
     if (!res.ok) {
-      setTrackError(data.error ?? 'Upload failed')
+      setTrackError(errorMessage(data))
       return
     }
     setTracks([...tracks, data.track])
@@ -108,7 +110,7 @@ export function AlbumSettingsDialog({ onClose }: { onClose: () => void }) {
     setTrackBusy(true)
     await fetch(`/api/projects/${projectId}/showcase/tracks/${trackId}`, { method: 'DELETE' })
     setTrackBusy(false)
-    setTracks(tracks.filter((t) => t.id !== trackId))
+    setTracks(tracks.filter((track) => track.id !== trackId))
   }
 
   return (
@@ -117,19 +119,19 @@ export function AlbumSettingsDialog({ onClose }: { onClose: () => void }) {
         ref={dialogRef}
         role="dialog"
         aria-modal="true"
-        aria-label="Album settings"
+        aria-label={t('title')}
         onKeyDown={trapFocus}
         className="flex max-h-[85vh] w-full max-w-md flex-col gap-4 overflow-y-auto rounded-xl bg-white p-5 text-zinc-900 shadow-xl dark:bg-zinc-900 dark:text-zinc-100"
       >
-        <h2 className="text-base font-semibold">Album settings</h2>
+        <h2 className="text-base font-semibold">{t('title')}</h2>
 
         <label className="flex flex-col gap-1">
-          <span className={fieldLabel}>Title</span>
+          <span className={fieldLabel}>{t('albumTitle')}</span>
           <input className={input} value={settings.title} onChange={(e) => patch({ title: e.target.value })} />
         </label>
 
         <label className="flex flex-col gap-1">
-          <span className={fieldLabel}>Date</span>
+          <span className={fieldLabel}>{t('date')}</span>
           <input
             type="date"
             className={input}
@@ -139,7 +141,7 @@ export function AlbumSettingsDialog({ onClose }: { onClose: () => void }) {
         </label>
 
         <div className="flex flex-col gap-1">
-          <span className={fieldLabel}>Event type</span>
+          <span className={fieldLabel}>{t('eventType')}</span>
           <div className="flex flex-wrap gap-1.5">
             {EVENT_TYPES.map((et) => (
               <button
@@ -152,14 +154,14 @@ export function AlbumSettingsDialog({ onClose }: { onClose: () => void }) {
                     : 'border-zinc-300 dark:border-zinc-700'
                 }`}
               >
-                {EVENT_TYPE_LABELS[et]}
+                {tOpt(`eventType.${et}`)}
               </button>
             ))}
           </div>
         </div>
 
         <div className="flex flex-col gap-1">
-          <span className={fieldLabel}>Album background</span>
+          <span className={fieldLabel}>{t('albumBackground')}</span>
           <div className="flex gap-1.5">
             {BGS.map((bg) => (
               <button
@@ -172,14 +174,14 @@ export function AlbumSettingsDialog({ onClose }: { onClose: () => void }) {
                     : 'border-zinc-300 dark:border-zinc-700'
                 }`}
               >
-                {ALBUM_BG_LABELS[bg]}
+                {tOpt(`albumBg.${bg}`)}
               </button>
             ))}
           </div>
         </div>
 
         <div className="h-px bg-zinc-200 dark:bg-zinc-800" />
-        <span className="text-xs font-semibold uppercase tracking-wide text-zinc-500">Music playlist</span>
+        <span className="text-xs font-semibold uppercase tracking-wide text-zinc-500">{t('musicPlaylist')}</span>
         <ul className="flex flex-col gap-1.5">
           {tracks.map((track) => (
             <li key={track.id} className="flex items-center gap-2 text-sm">
@@ -188,14 +190,14 @@ export function AlbumSettingsDialog({ onClose }: { onClose: () => void }) {
                 type="button"
                 onClick={() => removeTrack(track.id)}
                 disabled={trackBusy}
-                aria-label={`Remove ${track.originalName}`}
+                aria-label={t('removeTrack', { name: track.originalName })}
                 className="rounded p-1 text-zinc-400 hover:bg-red-50 hover:text-red-600 disabled:opacity-50 dark:hover:bg-red-950/40"
               >
                 ×
               </button>
             </li>
           ))}
-          {tracks.length === 0 && <li className="text-xs text-zinc-500">No tracks yet.</li>}
+          {tracks.length === 0 && <li className="text-xs text-zinc-500">{t('noTracks')}</li>}
         </ul>
         <input
           ref={fileRef}
@@ -215,7 +217,7 @@ export function AlbumSettingsDialog({ onClose }: { onClose: () => void }) {
           disabled={trackBusy}
           className="self-start rounded-lg border border-zinc-300 px-3 py-1.5 text-xs font-medium hover:bg-zinc-100 disabled:opacity-50 dark:border-zinc-700 dark:hover:bg-zinc-800"
         >
-          {trackBusy ? 'Uploading…' : '+ Add track'}
+          {trackBusy ? t('uploading') : t('addTrack')}
         </button>
         {trackError && <p role="alert" className="text-xs text-red-600 dark:text-red-400">{trackError}</p>}
         <label className="flex items-center gap-2 text-sm">
@@ -224,7 +226,7 @@ export function AlbumSettingsDialog({ onClose }: { onClose: () => void }) {
             checked={settings.playlistLoop}
             onChange={(e) => patch({ playlistLoop: e.target.checked })}
           />
-          Loop the playlist while viewing
+          {t('loopPlaylist')}
         </label>
         <label className={`flex items-center gap-2 text-sm ${settings.autoplay ? 'opacity-60' : ''}`}>
           <input
@@ -233,42 +235,42 @@ export function AlbumSettingsDialog({ onClose }: { onClose: () => void }) {
             disabled={settings.autoplay}
             onChange={(e) => patch({ musicAutoplay: e.target.checked })}
           />
-          Autoplay music
+          {t('autoplayMusic')}
         </label>
         <p className="text-[11px] text-zinc-400">
           {settings.autoplay
-            ? 'Slides autoplay, so music always starts with them — this is checked for you.'
-            : 'Starts music automatically (only a mute button is shown). Off, the viewer gets a play button for music instead.'}
+            ? t('musicAutoplayOn')
+            : t('musicAutoplayOff')}
         </p>
 
         <div className="h-px bg-zinc-200 dark:bg-zinc-800" />
-        <span className="text-xs font-semibold uppercase tracking-wide text-zinc-500">Slideshow</span>
+        <span className="text-xs font-semibold uppercase tracking-wide text-zinc-500">{t('slideshow')}</span>
         <div className="flex flex-col gap-1">
-          <span className={fieldLabel}>Page transition</span>
+          <span className={fieldLabel}>{t('pageTransition')}</span>
           <div className="flex gap-1.5">
             {ANIMATIONS.map((a) => (
               <button
-                key={a.value}
+                key={a}
                 type="button"
-                onClick={() => patch({ animationStyle: a.value })}
+                onClick={() => patch({ animationStyle: a })}
                 className={`flex-1 rounded-lg border px-2 py-1.5 text-xs font-medium ${
-                  settings.animationStyle === a.value
+                  settings.animationStyle === a
                     ? 'border-zinc-900 bg-zinc-900 text-white dark:border-zinc-100 dark:bg-zinc-100 dark:text-zinc-900'
                     : 'border-zinc-300 dark:border-zinc-700'
                 }`}
               >
-                {a.label}
+                {tOpt(`animation.${a}`)}
               </button>
             ))}
           </div>
         </div>
         <label className="flex items-center gap-2 text-sm">
           <input type="checkbox" checked={settings.autoplay} onChange={(e) => patch({ autoplay: e.target.checked })} />
-          Autoplay
+          {t('autoplay')}
         </label>
         {settings.autoplay && (
           <div className="flex flex-col gap-1">
-            <span className={fieldLabel}>Seconds per page</span>
+            <span className={fieldLabel}>{t('secondsPerPage')}</span>
             <div className="flex gap-1.5">
               {SECONDS.map((n) => (
                 <button
@@ -281,7 +283,7 @@ export function AlbumSettingsDialog({ onClose }: { onClose: () => void }) {
                       : 'border-zinc-300 dark:border-zinc-700'
                   }`}
                 >
-                  {n}s
+                  {t('seconds', { n })}
                 </button>
               ))}
             </div>
@@ -289,14 +291,14 @@ export function AlbumSettingsDialog({ onClose }: { onClose: () => void }) {
         )}
 
         <div className="h-px bg-zinc-200 dark:bg-zinc-800" />
-        <span className="text-xs font-semibold uppercase tracking-wide text-zinc-500">Heading sizes</span>
+        <span className="text-xs font-semibold uppercase tracking-wide text-zinc-500">{t('headingSizes')}</span>
         <p className="text-[11px] text-zinc-400">
-          Default px size for each Headline level. A block can override its own size.
+          {t('headingSizesHint')}
         </p>
         <div className="grid grid-cols-3 gap-2">
           {HEADING_LEVELS.map((level) => (
             <label key={level} className="flex flex-col gap-1 text-xs font-medium text-zinc-500">
-              H{level}
+              {tOpt('headingLevel', { level })}
               <input
                 type="number"
                 min={8}
@@ -313,14 +315,14 @@ export function AlbumSettingsDialog({ onClose }: { onClose: () => void }) {
           ))}
         </div>
 
-        <span className="text-xs font-semibold uppercase tracking-wide text-zinc-500">Text sizes</span>
+        <span className="text-xs font-semibold uppercase tracking-wide text-zinc-500">{t('textSizes')}</span>
         <p className="text-[11px] text-zinc-400">
-          Default px size for each Text block preset. A block can override its own size.
+          {t('textSizesHint')}
         </p>
         <div className="grid grid-cols-3 gap-2">
           {TEXT_SIZE_PRESETS.map((preset) => (
-            <label key={preset} className="flex flex-col gap-1 text-xs font-medium capitalize text-zinc-500">
-              {preset}
+            <label key={preset} className="flex flex-col gap-1 text-xs font-medium text-zinc-500">
+              {tOpt(`textSize.${preset}`)}
               <input
                 type="number"
                 min={8}
@@ -338,32 +340,32 @@ export function AlbumSettingsDialog({ onClose }: { onClose: () => void }) {
         </div>
 
         <div className="h-px bg-zinc-200 dark:bg-zinc-800" />
-        <span className="text-xs font-semibold uppercase tracking-wide text-zinc-500">Fonts</span>
+        <span className="text-xs font-semibold uppercase tracking-wide text-zinc-500">{t('fonts')}</span>
         <p className="text-[11px] text-zinc-400">
-          A Google Font for every Headline and every Text block, album-wide.
+          {t('fontsHint')}
         </p>
         <div className="flex gap-3">
           <label className="flex flex-1 flex-col gap-1 text-xs font-medium text-zinc-500">
-            Heading font
+            {t('headingFont')}
             <select
               className={input}
               value={settings.headingFont ?? ''}
               onChange={(e) => patch({ headingFont: e.target.value || null })}
             >
-              <option value="">Default</option>
+              <option value="">{t('defaultFont')}</option>
               {GOOGLE_FONTS.map((f) => (
                 <option key={f.name} value={f.name}>{f.name}</option>
               ))}
             </select>
           </label>
           <label className="flex flex-1 flex-col gap-1 text-xs font-medium text-zinc-500">
-            Text font
+            {t('textFont')}
             <select
               className={input}
               value={settings.textFont ?? ''}
               onChange={(e) => patch({ textFont: e.target.value || null })}
             >
-              <option value="">Default</option>
+              <option value="">{t('defaultFont')}</option>
               {GOOGLE_FONTS.map((f) => (
                 <option key={f.name} value={f.name}>{f.name}</option>
               ))}
@@ -372,10 +374,9 @@ export function AlbumSettingsDialog({ onClose }: { onClose: () => void }) {
         </div>
 
         <div className="h-px bg-zinc-200 dark:bg-zinc-800" />
-        <span className="text-xs font-semibold uppercase tracking-wide text-zinc-500">Color presets</span>
+        <span className="text-xs font-semibold uppercase tracking-wide text-zinc-500">{t('colorPresets')}</span>
         <p className="text-[11px] text-zinc-400">
-          Your own palette — offered as quick-pick swatches everywhere a custom colour is chosen
-          in the builder, so you don&rsquo;t have to reopen a colour picker each time.
+          {t('colorPresetsHint')}
         </p>
         <div className="flex flex-wrap gap-2">
           {settings.colorPresets.map((hex, i) => (
@@ -393,7 +394,7 @@ export function AlbumSettingsDialog({ onClose }: { onClose: () => void }) {
               <button
                 type="button"
                 onClick={() => patch({ colorPresets: settings.colorPresets.filter((_, j) => j !== i) })}
-                aria-label={`Remove preset colour ${hex}`}
+                aria-label={t('removePreset', { hex })}
                 className="absolute -right-1.5 -top-1.5 flex h-4 w-4 items-center justify-center rounded-full bg-zinc-700 text-[10px] leading-none text-white hover:bg-red-600"
               >
                 ×
@@ -404,7 +405,7 @@ export function AlbumSettingsDialog({ onClose }: { onClose: () => void }) {
             <button
               type="button"
               onClick={() => patch({ colorPresets: [...settings.colorPresets, '#888888'] })}
-              aria-label="Add a preset colour"
+              aria-label={t('addPreset')}
               className="flex h-8 w-8 items-center justify-center rounded border border-dashed border-zinc-400 text-zinc-400 hover:border-zinc-300 hover:text-zinc-300"
             >
               +
@@ -413,20 +414,20 @@ export function AlbumSettingsDialog({ onClose }: { onClose: () => void }) {
         </div>
 
         <div className="h-px bg-zinc-200 dark:bg-zinc-800" />
-        <span className="text-xs font-semibold uppercase tracking-wide text-zinc-500">Page dots</span>
+        <span className="text-xs font-semibold uppercase tracking-wide text-zinc-500">{t('pageDots')}</span>
         <label className="flex items-center gap-2 text-sm">
           <input
             type="checkbox"
             checked={settings.dotsEnabled}
             onChange={(e) => patch({ dotsEnabled: e.target.checked })}
           />
-          Show the page-position dots (top left) in the viewer
+          {t('showDots')}
         </label>
         {settings.dotsEnabled && (
           <>
             <div className="flex gap-3">
               <label className="flex flex-1 flex-col gap-1 text-xs font-medium text-zinc-500">
-                Active
+                {t('active')}
                 <div className="flex gap-1.5">
                   <input
                     type="color"
@@ -436,14 +437,14 @@ export function AlbumSettingsDialog({ onClose }: { onClose: () => void }) {
                   />
                   {settings.dotColorActive && (
                     <button type="button" onClick={() => patch({ dotColorActive: null })} className="shrink-0 text-[11px] text-zinc-400 underline">
-                      Reset
+                      {t('reset')}
                     </button>
                   )}
                 </div>
                 <PresetSwatchRow presets={settings.colorPresets} onPick={(hex) => patch({ dotColorActive: hex })} />
               </label>
               <label className="flex flex-1 flex-col gap-1 text-xs font-medium text-zinc-500">
-                Inactive
+                {t('inactive')}
                 <div className="flex gap-1.5">
                   <input
                     type="color"
@@ -453,7 +454,7 @@ export function AlbumSettingsDialog({ onClose }: { onClose: () => void }) {
                   />
                   {settings.dotColorInactive && (
                     <button type="button" onClick={() => patch({ dotColorInactive: null })} className="shrink-0 text-[11px] text-zinc-400 underline">
-                      Reset
+                      {t('reset')}
                     </button>
                   )}
                 </div>
@@ -461,20 +462,20 @@ export function AlbumSettingsDialog({ onClose }: { onClose: () => void }) {
               </label>
             </div>
             <p className="text-[11px] text-zinc-400">
-              Blank uses the event colour for the active dot and a translucent white for the rest.
+              {t('dotsHint')}
             </p>
           </>
         )}
 
         <div className="h-px bg-zinc-200 dark:bg-zinc-800" />
         <div className="flex items-center gap-1.5">
-          <span className="text-xs font-semibold uppercase tracking-wide text-zinc-500">Custom CSS</span>
+          <span className="text-xs font-semibold uppercase tracking-wide text-zinc-500">{t('customCss')}</span>
           <button
             type="button"
             onClick={() => setLegendOpen((v) => !v)}
             aria-expanded={legendOpen}
             aria-controls="sc-css-legend"
-            aria-label={legendOpen ? 'Hide the CSS class reference' : 'Show the CSS class reference'}
+            aria-label={legendOpen ? t('hideCssRef') : t('showCssRef')}
             className="flex h-5 w-5 items-center justify-center rounded-full text-zinc-400 hover:bg-zinc-100 hover:text-zinc-700 dark:hover:bg-zinc-800 dark:hover:text-zinc-200"
           >
             <svg width="14" height="14" viewBox="0 0 20 20" fill="none" stroke="currentColor" strokeWidth="1.6">
@@ -484,15 +485,15 @@ export function AlbumSettingsDialog({ onClose }: { onClose: () => void }) {
             </svg>
           </button>
         </div>
-        <p className="text-[11px] text-zinc-400">Applied only inside this showcase&rsquo;s public viewer.</p>
+        <p className="text-[11px] text-zinc-400">{t('cssScopeHint')}</p>
         {legendOpen && (
           <div id="sc-css-legend" className="flex flex-col gap-2 rounded-lg border border-zinc-200 bg-zinc-50 p-2.5 dark:border-zinc-800 dark:bg-zinc-950">
-            <p className="text-[11px] text-zinc-500">The classes available to target in the public viewer:</p>
+            <p className="text-[11px] text-zinc-500">{t('cssLegendIntro')}</p>
             <dl className="flex flex-col gap-1.5">
               {CSS_CLASS_LEGEND.map((row) => (
                 <div key={row.selector} className="flex flex-col gap-0.5">
                   <dt className="font-mono text-[11px] text-zinc-700 dark:text-zinc-300">{row.selector}</dt>
-                  <dd className="text-[11px] text-zinc-500">{row.description}</dd>
+                  <dd className="text-[11px] text-zinc-500">{t(`cssLegend.${row.key}`)}</dd>
                 </div>
               ))}
             </dl>
@@ -508,7 +509,7 @@ export function AlbumSettingsDialog({ onClose }: { onClose: () => void }) {
 
         <div className="mt-2 flex justify-end gap-2">
           <button type="button" onClick={onClose} className="rounded-lg px-4 py-2 text-sm font-medium hover:bg-zinc-100 dark:hover:bg-zinc-800">
-            Cancel
+            {t('cancel')}
           </button>
           <button
             type="button"
@@ -516,7 +517,7 @@ export function AlbumSettingsDialog({ onClose }: { onClose: () => void }) {
             disabled={saving}
             className="rounded-lg bg-zinc-900 px-4 py-2 text-sm font-medium text-white hover:bg-zinc-700 disabled:opacity-50 dark:bg-zinc-100 dark:text-zinc-900"
           >
-            {saving ? 'Saving…' : 'Done'}
+            {saving ? t('saving') : t('done')}
           </button>
         </div>
       </div>

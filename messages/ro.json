@@ -1,0 +1,718 @@
+{
+  "common": {
+    "appName": "Kuvalib",
+    "save": "Salvează",
+    "cancel": "Anulează",
+    "delete": "Șterge",
+    "close": "Închide",
+    "tryAgain": "Încearcă din nou",
+    "notFound": "Pagina nu a fost găsită",
+    "goToProjects": "Mergi la proiecte",
+    "somethingWrong": "Ceva nu a funcționat."
+  },
+  "language": {
+    "label": "Limbă",
+    "switchTo": "Schimbă limba în {language}",
+    "names": {
+      "en": "engleză",
+      "ro": "română"
+    }
+  },
+  "admin": {
+    "nav": {
+      "label": "Principal",
+      "projects": "Proiecte",
+      "users": "Utilizatori"
+    },
+    "accessType": {
+      "password": "Parolă",
+      "email": "E-mail",
+      "emailBased": "Pe bază de e-mail"
+    },
+    "roles": {
+      "admin": "Administrator",
+      "user": "Utilizator",
+      "guest": "Invitat"
+    },
+    "projects": {
+      "metaTitle": "Proiecte",
+      "title": "Proiecte",
+      "newProject": "Proiect nou",
+      "empty": "Niciun proiect încă.",
+      "emptyAssigned": "Nu ai fost alocat niciunui proiect.",
+      "createFirst": "Creează primul proiect",
+      "columns": {
+        "title": "Titlu",
+        "access": "Acces",
+        "date": "Data",
+        "photos": "Fotografii",
+        "visits": "Vizite",
+        "downloads": "Descărcări",
+        "lastAccess": "Ultimul acces"
+      }
+    },
+    "newProject": {
+      "metaTitle": "Proiect nou",
+      "title": "Proiect nou"
+    },
+    "users": {
+      "metaTitle": "Utilizatori",
+      "title": "Utilizatori",
+      "description": "Administratorii au acces complet. Utilizatorii văd doar proiectele la care sunt alocați. Invitații nu au nevoie de parolă și sunt identificați prin e-mail în galeriile cu acces pe bază de e-mail."
+    },
+    "userManager": {
+      "columns": {
+        "email": "E-mail",
+        "name": "Nume",
+        "username": "Nume de utilizator",
+        "role": "Rol",
+        "actions": "Acțiuni"
+      },
+      "delete": "Șterge",
+      "addUser": "Adaugă utilizator",
+      "adding": "Se adaugă…",
+      "cancel": "Anulează",
+      "role": "Rol",
+      "roleOptions": {
+        "admin": "Administrator — acces complet",
+        "user": "Utilizator — doar proiectele alocate",
+        "guest": "Invitat — doar citire, identificat prin e-mail"
+      },
+      "email": "E-mail",
+      "name": "Nume",
+      "username": "Nume de utilizator",
+      "password": "Parolă",
+      "passwordHint": "Cel puțin 8 caractere"
+    },
+    "project": {
+      "metaTitle": "Proiect",
+      "viewGallery": "Vezi galeria ↗",
+      "stats": {
+        "photos": "Fotografii",
+        "access": "Acces",
+        "galleryPassword": "Parola galeriei",
+        "visits": "Vizite în galerie",
+        "downloads": "Descărcări",
+        "lastAccess": "Ultimul acces"
+      },
+      "sections": {
+        "photos": "Fotografii",
+        "people": "Persoane",
+        "feedback": "Feedback",
+        "settings": "Setări",
+        "dangerZone": "Zonă periculoasă"
+      },
+      "peopleHint": "Alocă utilizatorii care pot administra acest proiect și invitații care îl pot vedea pe bază de e-mail.",
+      "dangerText": "Ștergerea acestui proiect va elimina definitiv toate fotografiile și datele."
+    },
+    "photoGrid": {
+      "deletePhoto": "Șterge fotografia {name}"
+    },
+    "passwordReveal": {
+      "show": "Arată",
+      "hide": "Ascunde",
+      "copy": "Copiază",
+      "copied": "Copiat",
+      "copiedStatus": "Parola a fost copiată în clipboard"
+    },
+    "feedback": {
+      "off": "Feedback-ul este dezactivat pentru această galerie. Activează-l în Setări, mai jos, pentru a le permite clienților să aprecieze, să neaprecieze și să comenteze fotografiile.",
+      "counts": "{likes, plural, one {# apreciere} few {# aprecieri} other {# de aprecieri}} · {dislikes, plural, one {# neapreciere} few {# neaprecieri} other {# de neaprecieri}} · {comments, plural, one {# comentariu} few {# comentarii} other {# de comentarii}}",
+      "reset": "Resetează feedback-ul",
+      "resetConfirm": "Se șterg toate aprecierile, neaprecierile și comentariile, iar clienții pot reacționa din nou. Acțiunea nu poate fi anulată.",
+      "yesReset": "Da, resetează",
+      "resetting": "Se resetează…",
+      "cancel": "Anulează",
+      "none": "Niciun feedback încă.",
+      "viewLarger": "Vezi o versiune mai mare a fotografiei {name}",
+      "closePreview": "Închide previzualizarea"
+    },
+    "assignments": {
+      "nobody": "Nicio persoană nu este alocată încă acestui proiect.",
+      "remove": "Elimină",
+      "removeLabel": "Elimină {email} din acest proiect",
+      "selectLabel": "Alege o persoană de alocat",
+      "choose": "Alege o persoană…",
+      "option": "{email} ({role})",
+      "assign": "Alocă"
+    },
+    "showcaseManager": {
+      "title": "Prezentare",
+      "description": "O prezentare grafică, pagină cu pagină, creată din fotografiile acestui proiect și partajată la propriul link. Folosește același acces și aceeași parolă ca galeria — un client care deschide una poate trece la cealaltă fără să se autentifice din nou.",
+      "pages": "{count, plural, one {# pagină} few {# pagini} other {# de pagini}}",
+      "openBuilder": "Deschide editorul",
+      "view": "Vezi prezentarea ↗",
+      "copyLink": "Copiază linkul pentru client",
+      "copied": "Link copiat ✓",
+      "copyFailed": "Linkul nu a putut fi copiat",
+      "deleteConfirm": "Ștergi întreaga prezentare?",
+      "delete": "Șterge",
+      "keep": "Păstrează",
+      "create": "Creează prezentarea",
+      "creating": "Se creează…"
+    },
+    "showcasePage": {
+      "metaTitle": "Prezentare",
+      "metaTitleWithProject": "Prezentare · {title}"
+    }
+  },
+  "gallery": {
+    "metaTitle": "Galerie",
+    "notFound": {
+      "message": "Galeria nu a fost găsită."
+    },
+    "expired": "Această galerie a expirat.",
+    "downloadAll": "Descarcă tot (ZIP original)",
+    "selectedCount": "{count, plural, one {# fotografie selectată} few {# fotografii selectate} other {# de fotografii selectate}}",
+    "gate": {
+      "title": "Această galerie este privată",
+      "emailPrompt": "Introdu adresa de e-mail cu care a fost partajată galeria.",
+      "passwordPrompt": "Introdu parola primită.",
+      "emailLabel": "Adresă de e-mail",
+      "emailPlaceholder": "tu@exemplu.ro",
+      "passwordLabel": "Parola galeriei",
+      "checking": "Se verifică…",
+      "submit": "Vezi galeria"
+    },
+    "toolbar": {
+      "viewShowcase": "Vezi prezentarea",
+      "select": "Selectează",
+      "cancel": "Anulează",
+      "download": "Descarcă",
+      "downloadCount": "Descarcă ({count})"
+    },
+    "tile": {
+      "open": "Deschide fotografia {index} din {total}",
+      "select": "Selectează fotografia {index} din {total}",
+      "deselect": "Deselectează fotografia {index} din {total}",
+      "liked": ", apreciată",
+      "disliked": ", neapreciată",
+      "commented": ", comentată"
+    },
+    "feedback": {
+      "group": "Reacționează la această fotografie",
+      "like": {
+        "action": "Apreciază această fotografie",
+        "done": "Apreciată",
+        "locked": "Apreciază (indisponibil — ai reacționat deja la această fotografie)"
+      },
+      "dislike": {
+        "action": "Nu-mi place această fotografie",
+        "done": "Neapreciată",
+        "locked": "Nu-mi place (indisponibil — ai reacționat deja la această fotografie)"
+      },
+      "comment": {
+        "action": "Comentează această fotografie",
+        "done": "Comentată",
+        "locked": "Comentează (indisponibil — ai reacționat deja la această fotografie)"
+      },
+      "undo": "Anulează reacția"
+    },
+    "commentDialog": {
+      "title": "Adaugă un comentariu",
+      "onlyOnce": "Poți comenta o singură dată la această fotografie.",
+      "label": "Comentariul tău",
+      "send": "Trimite comentariul",
+      "sending": "Se trimite…",
+      "cancel": "Anulează",
+      "sendError": "Comentariul nu a putut fi trimis. Încearcă din nou."
+    },
+    "downloadDialog": {
+      "title": "{count, plural, one {Descarcă # fotografie} few {Descarcă # fotografii} other {Descarcă # de fotografii}}",
+      "zip": "Descarcă ZIP",
+      "share": "Partajează fotografiile",
+      "individually": "Descarcă individual",
+      "cancel": "Anulează",
+      "back": "Înapoi",
+      "preparing": "Se pregătește descărcarea…",
+      "preparingLabel": "Se pregătește descărcarea",
+      "fetching": "Se preia fotografia {done} din {total}…",
+      "fetchingLabel": "Se preia fotografia {done} din {total}",
+      "zipError": "Arhiva ZIP nu a putut fi creată. Încearcă din nou.",
+      "shareError": "Fotografiile nu au putut fi partajate. Încearcă din nou.",
+      "fetchOneError": "Fotografia nu a putut fi preluată. Încearcă din nou.",
+      "fetchAllError": "Nu toate fotografiile au putut fi preluate. Încearcă din nou."
+    }
+  },
+  "lightbox": {
+    "counter": "{index} / {total}",
+    "dialogLabel": "Vizualizator foto: imaginea {index} din {total}",
+    "photoAlt": "Fotografia {index} din {total}",
+    "download": "Descarcă imaginea",
+    "enterFullscreen": "Intră în ecran complet",
+    "exitFullscreen": "Ieși din ecran complet",
+    "close": "Închide vizualizatorul",
+    "previous": "Imaginea anterioară",
+    "next": "Imaginea următoare",
+    "cancel": "Anulează"
+  },
+  "showcaseBuilder": {
+    "defaults": {
+      "heading": "Titlu",
+      "text": "Adaugă textul tău aici.",
+      "buttonLabel": "Vezi galeria",
+      "albumTitle": "Titlul albumului",
+      "eventDate": "Data evenimentului"
+    },
+    "blockTypes": {
+      "image": "Imagine",
+      "title": "Titlu",
+      "text": "Text",
+      "button": "Buton",
+      "group": "Grup"
+    },
+    "options": {
+      "radius": {
+        "none": "Pătrate",
+        "md": "Rotunjite",
+        "pill": "Capsulă"
+      },
+      "linkType": {
+        "custom": "URL propriu",
+        "zip": "Arhivă ZIP",
+        "gallery": "Înapoi la galerie"
+      },
+      "textSize": {
+        "small": "Mic",
+        "normal": "Normal",
+        "medium": "Mediu",
+        "large": "Mare",
+        "huge": "Foarte mare"
+      },
+      "borderStyle": {
+        "none": "Fără",
+        "solid": "Continuă",
+        "dashed": "Întreruptă",
+        "dotted": "Punctată"
+      },
+      "kenBurns": {
+        "none": "Fără",
+        "zoom-in": "Apropiere",
+        "slide-left": "Spre stânga",
+        "slide-right": "Spre dreapta",
+        "slide-up": "În sus",
+        "slide-down": "În jos"
+      },
+      "align": {
+        "left": "Stânga",
+        "center": "Centru",
+        "right": "Dreapta"
+      },
+      "bgSwatch": {
+        "none": "Fără",
+        "surface": "Suprafață",
+        "deep": "Închis",
+        "accentTint": "Nuanță de accent",
+        "accentSolid": "Accent",
+        "custom": "Culoare personalizată",
+        "gradient": "Gradient"
+      },
+      "textSwatch": {
+        "default": "Implicit",
+        "accent": "Accent",
+        "muted": "Estompat",
+        "custom": "Culoare personalizată"
+      },
+      "buttonStyle": {
+        "primary": "Principal",
+        "secondary": "Secundar"
+      },
+      "animation": {
+        "TURN": "Întoarcere",
+        "FADE": "Estompare",
+        "ZOOM": "Zoom",
+        "ROTATE": "Rotire"
+      },
+      "eventType": {
+        "WEDDING": "Nuntă",
+        "BIRTHDAY": "Zi de naștere",
+        "CHRISTENING": "Botez",
+        "CORPORATE": "Corporate",
+        "GENERIC": "General"
+      },
+      "albumBg": {
+        "NEUTRAL": "Neutru",
+        "DEEP": "Închis",
+        "ACCENT": "Nuanță de accent"
+      },
+      "headingLevel": "H{level}"
+    },
+    "canvas": {},
+    "addBlockMenu": {
+      "add": "+ Adaugă bloc",
+      "cover": "Copertă (imagine + legendă)"
+    },
+    "blockTree": {
+      "empty": "Nu există încă blocuri pe această pagină.",
+      "heading": "Blocuri",
+      "arrange": "Aranjează",
+      "arrangeHint": "Trage un mâner pentru a reordona. Trage spre dreapta ca să muți un bloc în grupul de deasupra, spre stânga ca să-l scoți din grup. De la tastatură: focalizează un mâner, apasă Spațiu, apoi Sus sau Jos pentru a muta, Dreapta sau Stânga pentru a intra într-un grup sau a ieși din el, Spațiu pentru a plasa, Escape pentru a anula.",
+      "moveHandle": "Mută {name}",
+      "drop": {
+        "reorder": "Reordonează",
+        "nest": "Mută în grup",
+        "outdent": "Scoate din grup"
+      },
+      "position": "Poziția {position} din {total}",
+      "pickedUp": "{name} este gata de mutare.",
+      "dropped": "{name} a fost plasat.",
+      "cancelled": "Mutare anulată."
+    },
+    "pageRail": {
+      "heading": "Pagini",
+      "selectPage": "Pagina {number}",
+      "deletePage": "Șterge pagina {number}",
+      "addPage": "+ Adaugă pagină"
+    },
+    "shell": {
+      "backToProject": "← Proiect",
+      "albumSettings": "Setări album",
+      "copyLink": "Copiază linkul",
+      "linkCopied": "Link copiat",
+      "undo": "Anulează",
+      "undoTitle": "Anulează (Ctrl/Cmd+Z)",
+      "redo": "Refă",
+      "redoTitle": "Refă (Ctrl/Cmd+Shift+Z)",
+      "saving": "Se salvează…",
+      "unsaved": "Modificări nesalvate",
+      "saved": "Salvat",
+      "save": "Salvează",
+      "build": "Construire",
+      "preview": "Previzualizare",
+      "blocks": "Blocuri"
+    },
+    "settingsPanel": {
+      "outOfRange": "Trebuie să fie între {min} și {max} — se salvează ca {value}",
+      "background": "Fundal",
+      "reset": "Resetează",
+      "opacity": "Opacitate {value}%",
+      "from": "De la",
+      "to": "Până la",
+      "angle": "Unghi {value}°",
+      "border": "Contur",
+      "widthPx": "Grosime (px)",
+      "colour": "Culoare",
+      "pageHint": "Selectează un bloc pe canvas pentru a-l edita. Trage-l pentru a-l muta; trage de un colț pentru a-l redimensiona. Aceste setări se aplică paginii curente când nu este selectat nimic.",
+      "thisPage": "Această pagină",
+      "inGroup": " · în grup",
+      "deleteBlock": "Șterge blocul",
+      "bringToFront": "Adu în față",
+      "sendToBack": "Trimite în spate",
+      "alignInGroup": "Aliniază în grup",
+      "detachHint": "Trage-l în afara grupului pentru a-l detașa.",
+      "axis": {
+        "x": "X %",
+        "y": "Y %",
+        "w": "L %",
+        "h": "Î %"
+      },
+      "photo": "Fotografie",
+      "uploadFirst": "Încarcă mai întâi fotografii în proiect.",
+      "content": "Conținut",
+      "align": "Aliniere",
+      "style": "Stil",
+      "bold": "Aldin",
+      "italic": "Cursiv",
+      "underline": "Subliniat",
+      "level": "Nivel",
+      "customSizeHeading": "Dimensiune personalizată (px, 8–200) — înlocuiește valoarea implicită a nivelului",
+      "albumDefault": "Implicit album",
+      "size": "Dimensiune",
+      "customSizePreset": "Dimensiune personalizată (px, 8–200) — înlocuiește presetarea",
+      "presetDefault": "Implicit presetare",
+      "label": "Etichetă",
+      "link": "Link",
+      "urlPlaceholder": "https://…",
+      "zipHint": "Deschide fereastra de descărcare (ZIP cu originalele), dacă descărcările sunt activate pentru proiect.",
+      "galleryHint": "Trimite la galeria completă din care a fost creată această prezentare.",
+      "appearance": "Aspect",
+      "corners": "Colțuri",
+      "kenBurns": "Ken Burns",
+      "effect": "Efect",
+      "speed": "Viteză — {value} s",
+      "cappedToAutoplay": "Limitat la intervalul de redare automată de {seconds} s.",
+      "blur": "Estompare (efect de sticlă) — {value}px",
+      "shadowBlur": "Estompare umbră — {value}px (0 = oprită)",
+      "offsetX": "Decalaj X — {value}px",
+      "offsetY": "Decalaj Y — {value}px",
+      "spread": "Extindere — {value}px",
+      "textColour": "Culoare text",
+      "titleSolidHint": "Textul titlului este întotdeauna opac — fără transparență.",
+      "arrangeChildren": "Aranjează elementele",
+      "stackDown": "Stivuiește ↓",
+      "stackRight": "Stivuiește →",
+      "alignLeft": "Stânga",
+      "alignCenter": "Centru",
+      "alignRight": "Dreapta",
+      "alignTop": "Sus",
+      "alignMiddle": "Mijloc",
+      "alignBottom": "Jos",
+      "addInside": "Adaugă în acest grup",
+      "addChild": "+ {type}"
+    },
+    "albumSettings": {
+      "title": "Setări album",
+      "albumTitle": "Titlu",
+      "date": "Dată",
+      "eventType": "Tipul evenimentului",
+      "albumBackground": "Fundalul albumului",
+      "musicPlaylist": "Listă de muzică",
+      "removeTrack": "Elimină {name}",
+      "noTracks": "Nicio piesă încă.",
+      "uploading": "Se încarcă…",
+      "addTrack": "+ Adaugă piesă",
+      "loopPlaylist": "Repetă lista de muzică în timpul vizionării",
+      "autoplayMusic": "Redare automată a muzicii",
+      "musicAutoplayOn": "Diapozitivele se redau automat, deci muzica pornește întotdeauna odată cu ele — această opțiune este bifată pentru tine.",
+      "musicAutoplayOff": "Pornește muzica automat (se afișează doar un buton de oprire a sunetului). Dacă este dezactivată, vizitatorul primește un buton de redare pentru muzică.",
+      "slideshow": "Prezentare",
+      "pageTransition": "Tranziția dintre pagini",
+      "autoplay": "Redare automată",
+      "secondsPerPage": "Secunde pe pagină",
+      "seconds": "{n} s",
+      "headingSizes": "Dimensiuni titluri",
+      "headingSizesHint": "Dimensiunea implicită în px pentru fiecare nivel de titlu. Un bloc își poate înlocui propria dimensiune.",
+      "textSizes": "Dimensiuni text",
+      "textSizesHint": "Dimensiunea implicită în px pentru fiecare presetare a blocurilor de text. Un bloc își poate înlocui propria dimensiune.",
+      "fonts": "Fonturi",
+      "fontsHint": "Un font Google pentru toate titlurile și toate blocurile de text, la nivelul întregului album.",
+      "headingFont": "Font titluri",
+      "textFont": "Font text",
+      "defaultFont": "Implicit",
+      "colorPresets": "Culori presetate",
+      "colorPresetsHint": "Paleta ta proprie — oferită ca mostre de alegere rapidă oriunde se alege o culoare personalizată în editor, ca să nu trebuiască să redeschizi de fiecare dată selectorul de culori.",
+      "removePreset": "Elimină culoarea presetată {hex}",
+      "addPreset": "Adaugă o culoare presetată",
+      "pageDots": "Puncte de pagină",
+      "showDots": "Afișează în vizualizator punctele de poziție a paginii (stânga sus)",
+      "active": "Activ",
+      "inactive": "Inactiv",
+      "reset": "Resetează",
+      "dotsHint": "Dacă e gol, punctul activ folosește culoarea evenimentului, iar restul un alb translucid.",
+      "customCss": "CSS personalizat",
+      "hideCssRef": "Ascunde referința claselor CSS",
+      "showCssRef": "Arată referința claselor CSS",
+      "cssScopeHint": "Se aplică doar în vizualizatorul public al acestei prezentări.",
+      "cssLegendIntro": "Clasele disponibile pentru țintire în vizualizatorul public:",
+      "cssLegend": {
+        "viewer": "Întregul vizualizator — fundalul pe toată suprafața, în spatele tuturor elementelor.",
+        "stage": "Containerul de poziționare din jurul paginii curente (păstrează perspectiva 3D pentru tranziția Întoarcere).",
+        "page": "Pagina propriu-zisă — fundalul, conturul și elementul pe care se animă tranziția dintre pagini.",
+        "block": "Containerul fiecărui bloc. Combină-l cu un tip de mai jos pentru a ținti doar un anumit fel de bloc.",
+        "blockTypes": "Containerul unui singur tip de bloc.",
+        "controls": "Bara plutitoare de comenzi din dreapta sus.",
+        "dots": "Coloana de puncte de pagină din stânga. `.sc-dot` este un punct, `.sc-dot-active` cel al paginii curente.",
+        "thumbnails": "Banda de miniaturi de jos. `.sc-thumbnail` este o previzualizare, `.sc-thumbnail-active` cea a paginii curente."
+      },
+      "cancel": "Anulează",
+      "done": "Gata",
+      "saving": "Se salvează…"
+    }
+  },
+  "showcaseViewer": {
+    "metadata": {
+      "fallbackTitle": "Prezentare"
+    },
+    "page": {
+      "expired": "Această prezentare a expirat."
+    },
+    "block": {
+      "pickPhoto": "Alege o fotografie",
+      "defaultButtonLabel": "Buton"
+    },
+    "stage": {
+      "pageStatus": "Pagina {current} din {total}"
+    },
+    "nav": {
+      "previousPage": "Pagina anterioară",
+      "nextPage": "Pagina următoare",
+      "goToPage": "Mergi la pagina {page}"
+    },
+    "controls": {
+      "backToEditor": "← Editează",
+      "pauseSlideshow": "Oprește prezentarea",
+      "playSlideshow": "Pornește prezentarea",
+      "togglePageThumbnails": "Afișează sau ascunde miniaturile paginilor",
+      "toggleFullscreen": "Activează sau dezactivează ecranul complet",
+      "copyLink": "Copiază linkul prezentării",
+      "downloadAlbum": "Descarcă albumul"
+    },
+    "music": {
+      "mute": "Oprește sunetul muzicii",
+      "unmute": "Pornește sunetul muzicii",
+      "pause": "Pune muzica pe pauză",
+      "play": "Redă muzica"
+    },
+    "toast": {
+      "linkCopiedWithPassword": "Linkul a fost copiat — această prezentare necesită și o parolă, așa că trimite-o împreună cu linkul. Nu o știi? Cere-o administratorului sau persoanei care ți-a trimis linkul.",
+      "linkCopied": "Linkul prezentării a fost copiat",
+      "copyFailed": "Linkul nu a putut fi copiat"
+    },
+    "download": {
+      "title": "Descarcă acest album",
+      "preparing": "Se pregătește descărcarea…",
+      "summary": "{count, plural, one {# fotografie} few {# fotografii} other {# de fotografii}} · {title}",
+      "confirm": "Descarcă ZIP (originale)",
+      "cancel": "Anulează",
+      "fallbackName": "album"
+    }
+  },
+  "errors": {
+    "generic": "Ceva nu a funcționat. Încearcă din nou.",
+    "missing_credentials": "Introdu numele de utilizator sau e-mailul și parola.",
+    "invalid_credentials": "Nume de utilizator, e-mail sau parolă incorecte.",
+    "title_required": "Titlul este obligatoriu.",
+    "password_required_for_project": "Proiectele protejate cu parolă necesită o parolă.",
+    "not_found": "Nu a fost găsit.",
+    "invalid_body": "Cererea nu este validă.",
+    "user_id_required": "Alege un utilizator.",
+    "too_many_attempts": "Prea multe încercări. Încearcă din nou mai târziu.",
+    "valid_email_required": "Introdu o adresă de e-mail validă.",
+    "email_no_access": "Această adresă de e-mail nu are acces.",
+    "password_required": "Introdu parola.",
+    "incorrect_password": "Parolă incorectă.",
+    "unauthorized": "Nu ai acces la aceasta.",
+    "track_file_missing": "Fișierul piesei lipsește.",
+    "no_file": "Nu a fost furnizat niciun fișier.",
+    "audio_too_large": "Fișierul audio depășește {maxMb} MB.",
+    "unsupported_audio_type": "Încarcă un fișier MP3, M4A, OGG sau WAV.",
+    "track_store_failed": "Piesa nu a putut fi salvată.",
+    "too_many_tracks": "O prezentare poate conține cel mult {max} piese.",
+    "showcase_exists": "Acest proiect are deja o prezentare.",
+    "invalid_event_date": "Data evenimentului nu este validă.",
+    "pages_required": "Este necesară cel puțin o pagină.",
+    "too_many_pages": "Sunt prea multe pagini.",
+    "cannot_demote_last_admin": "Singurul administrator nu poate fi retrogradat.",
+    "cannot_delete_last_admin": "Singurul administrator nu poate fi șters.",
+    "cannot_delete_self": "Nu îți poți șterge propriul cont.",
+    "user_exists": "Există deja un utilizator cu acest e-mail sau nume de utilizator.",
+    "feedback_disabled": "Reacțiile nu sunt activate pentru această galerie.",
+    "visitor_id_required": "Este necesar un identificator de vizitator.",
+    "invalid_feedback_type": "Acest tip de reacție nu este valid.",
+    "comment_required": "Scrie mai întâi un comentariu.",
+    "comment_too_long": "Comentariul este prea lung.",
+    "feedback_already_given": "Ai reacționat deja la această fotografie.",
+    "invalid_jpeg": "Acest fișier nu este un JPEG valid.",
+    "no_jpegs_in_archive": "Nu au fost găsite imagini JPEG în arhivă.",
+    "unsupported_upload_type": "Sunt acceptate doar imagini JPEG și arhive ZIP.",
+    "upload_failed": "Încărcarea a eșuat. Încearcă din nou.",
+    "setup_completed": "Configurarea a fost deja finalizată.",
+    "setup_fields_required": "E-mailul, numele de utilizator și parola sunt obligatorii.",
+    "password_too_short": "Parola trebuie să aibă cel puțin 8 caractere.",
+    "email_and_role_required": "Sunt necesare o adresă de e-mail și un rol valid.",
+    "username_required": "Numele de utilizator este obligatoriu pentru administratori și utilizatori.",
+    "archive_not_zip": "Arhiva trebuie să fie un fișier ZIP.",
+    "archive_store_failed": "Arhiva nu a putut fi salvată.",
+    "archive_not_found": "Nu a fost găsit.",
+    "archive_name_size_required": "Numele și dimensiunea fișierului sunt obligatorii.",
+    "archive_start_failed": "Încărcarea nu a putut fi pornită.",
+    "archive_invalid_size": "Dimensiunea fișierului nu este validă.",
+    "archive_name_too_long": "Numele fișierului este prea lung (cel mult 255 de caractere).",
+    "archive_upload_not_found": "Această încărcare nu a fost găsită. Începe din nou.",
+    "archive_offset_mismatch": "Încărcarea s-a desincronizat. Încearcă din nou.",
+    "archive_chunk_too_large": "O parte a fost mai mare decât este permis.",
+    "archive_incomplete": "Încărcarea este incompletă.",
+    "archive_empty_chunk": "Partea încărcată era goală.",
+    "archive_chunk_failed": "Partea încărcată nu a putut fi salvată.",
+    "archive_resume_failed": "Încărcarea nu a putut fi reluată.",
+    "archive_upload_failed": "Încărcarea a eșuat.",
+    "archive_connection_failed": "Conexiunea a eșuat în mod repetat. Încearcă din nou.",
+    "archive_network": "Eroare de rețea în timpul încărcării.",
+    "archive_timeout": "Încărcarea a expirat.",
+    "archive_aborted": "Încărcarea a fost anulată.",
+    "download_not_found": "Nu a fost găsit.",
+    "download_no_archive": "Nicio arhivă nu este disponibilă pentru această galerie.",
+    "download_unauthorized": "Nu ai acces la această galerie.",
+    "download_archive_missing": "Fișierul arhivă lipsește.",
+    "download_photo_ids_required": "Selectează cel puțin o fotografie.",
+    "download_no_valid_photos": "Niciuna dintre fotografiile selectate nu a fost găsită."
+  },
+  "upload": {
+    "size": {
+      "kb": "{value} KB",
+      "mb": "{value} MB",
+      "gb": "{value} GB"
+    },
+    "archive": {
+      "title": "Arhivă de descărcat",
+      "description": "Clienții văd butonul „Descarcă ZIP” doar dacă încarci aici o arhivă. Kuvalib nu creează niciodată singur o arhivă completă — clienții își pot totuși comprima propria selecție.",
+      "replace": "Înlocuiește",
+      "remove": "Elimină",
+      "upload": "Încarcă arhiva",
+      "uploading": "Se încarcă…",
+      "progress": "Se încarcă {sent} din {total} ({percent})",
+      "progressLabel": "Progresul încărcării arhivei"
+    },
+    "zone": {
+      "ariaLabel": "Încarcă fotografii. Fă clic pentru a alege fișiere sau trage aici imagini JPEG ori o arhivă ZIP.",
+      "drop": "Trage aici fotografii sau o arhivă ZIP",
+      "hint": "Numele originale ale fișierelor sunt păstrate. Un ZIP tras aici este despachetat în fotografii.",
+      "onlyAccepted": "Sunt acceptate doar imagini JPEG și arhive ZIP.",
+      "status": "Se încarcă {current} din {count}: {name}",
+      "statusPercent": "{status} — {percent}",
+      "uploadingLabel": "Se încarcă",
+      "totalProgress": "Total — {sent} din {total} ({percent})",
+      "totalLabel": "Total",
+      "couldNotUpload": "Nu s-a putut încărca {name}",
+      "conflictTitle": "{count, plural, one {# fotografie există deja} few {# fotografii există deja} other {# de fotografii există deja}}",
+      "conflictMore": "{names} și încă {count}",
+      "keepBoth": "Păstrează ambele",
+      "replaceExisting": "Înlocuiește cele existente",
+      "cancel": "Anulează"
+    }
+  },
+  "auth": {
+    "login": {
+      "metaTitle": "Autentificare",
+      "identifier": "Nume de utilizator sau e-mail",
+      "password": "Parolă",
+      "submit": "Autentificare",
+      "submitting": "Se autentifică…"
+    },
+    "setup": {
+      "metaTitle": "Configurare",
+      "welcome": "Bun venit în Kuvalib",
+      "intro": "Creează primul cont de administrator pentru a începe.",
+      "name": "Nume",
+      "email": "E-mail",
+      "username": "Nume de utilizator",
+      "password": "Parolă",
+      "passwordHint": "Cel puțin 8 caractere",
+      "submit": "Creează contul de administrator",
+      "submitting": "Se creează contul…"
+    }
+  },
+  "ui": {
+    "logout": {
+      "signOut": "Deconectare"
+    },
+    "deleteProject": {
+      "delete": "Șterge proiectul",
+      "irreversible": "Acțiunea nu poate fi anulată.",
+      "confirm": "Da, șterge",
+      "deleting": "Se șterge…",
+      "cancel": "Anulează"
+    },
+    "projectForm": {
+      "passwordRequired": "Pentru proiectele protejate prin parolă este necesară o parolă a galeriei",
+      "title": "Titlu",
+      "eventDate": "Data evenimentului",
+      "accessType": "Tip de acces",
+      "accessHint": "Galeriile cu parolă se partajează cu o singură parolă. Galeriile pe bază de e-mail îi admit doar pe invitații ale căror adrese de e-mail le-ai alocat.",
+      "passwordOption": "Protejat prin parolă",
+      "emailOption": "Pe bază de e-mail",
+      "galleryPassword": "Parola galeriei",
+      "newGalleryPassword": "Parolă nouă a galeriei",
+      "keepPasswordHint": "Lasă gol pentru a păstra parola curentă",
+      "expiresAt": "Data expirării",
+      "expiresHint": "Galeria devine inaccesibilă după această dată",
+      "zipEnabled": "Oferă arhiva încărcată spre descărcare",
+      "dlEnabled": "Permite descărcarea fotografiilor individuale",
+      "feedbackEnabled": "Permite clienților să aprecieze, să neaprecieze și să comenteze fotografiile",
+      "saving": "Se salvează…",
+      "create": "Creează proiectul",
+      "save": "Salvează modificările",
+      "cancel": "Anulează"
+    }
+  }
+}

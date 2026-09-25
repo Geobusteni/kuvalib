@@ -2,6 +2,7 @@
 // Copyright (C) 2026 Alexandru Negoita
 
 import { NextRequest } from 'next/server'
+import { getTranslations } from 'next-intl/server'
 import { requireAdmin } from '@/lib/auth'
 import { getProject } from '@/lib/projects'
 import {
@@ -33,13 +34,20 @@ export async function POST(_req: NextRequest, ctx: Ctx) {
   const { id } = await ctx.params
 
   const project = await getProject(id)
-  if (!project) return Response.json({ error: 'Not found' }, { status: 404 })
+  if (!project) return Response.json({ error: 'not_found' }, { status: 404 })
 
   if (await getShowcaseByProject(id)) {
-    return Response.json({ error: 'This project already has a showcase' }, { status: 409 })
+    return Response.json({ error: 'showcase_exists' }, { status: 409 })
   }
 
-  const showcase = await createShowcase(project)
+  const t = await getTranslations('showcaseBuilder.defaults')
+  const showcase = await createShowcase(project, {
+    heading: t('heading'),
+    text: t('text'),
+    buttonLabel: t('buttonLabel'),
+    albumTitle: t('albumTitle'),
+    eventDate: t('eventDate'),
+  })
   return Response.json({ showcaseId: showcase.id }, { status: 201 })
 }
 
@@ -48,11 +56,11 @@ export async function PUT(request: NextRequest, ctx: Ctx) {
   const { id } = await ctx.params
 
   const showcase = await getShowcaseByProject(id)
-  if (!showcase) return Response.json({ error: 'Not found' }, { status: 404 })
+  if (!showcase) return Response.json({ error: 'not_found' }, { status: 404 })
 
   const body = await request.json().catch(() => null)
   if (!body || typeof body !== 'object') {
-    return Response.json({ error: 'Invalid body' }, { status: 400 })
+    return Response.json({ error: 'invalid_body' }, { status: 400 })
   }
 
   const data: ShowcaseSettingsData = {}
@@ -61,7 +69,7 @@ export async function PUT(request: NextRequest, ctx: Ctx) {
   if ('eventDate' in body) {
     data.eventDate = body.eventDate ? new Date(body.eventDate) : null
     if (data.eventDate && Number.isNaN(data.eventDate.getTime())) {
-      return Response.json({ error: 'Invalid eventDate' }, { status: 400 })
+      return Response.json({ error: 'invalid_event_date' }, { status: 400 })
     }
   }
   if (body.eventType in ShowcaseEventType) data.eventType = body.eventType
@@ -94,7 +102,7 @@ export async function DELETE(_req: NextRequest, ctx: Ctx) {
   const { id } = await ctx.params
 
   const showcase = await getShowcaseByProject(id)
-  if (!showcase) return Response.json({ error: 'Not found' }, { status: 404 })
+  if (!showcase) return Response.json({ error: 'not_found' }, { status: 404 })
 
   await Promise.all(
     showcase.tracks.map((track) => deleteAudioFile(id, track.filename).catch(() => {})),

@@ -4,6 +4,8 @@
 'use client'
 
 import { useEffect, useRef, useState } from 'react'
+import { useTranslations } from 'next-intl'
+import { useErrorMessage } from '@/hooks/useErrorMessage'
 import { useFocusTrap } from '@/hooks/useFocusTrap'
 
 const REVOKE_DELAY_MS = 1000
@@ -34,9 +36,12 @@ export function ShowcaseDownloadDialog({
   photoIds: string[]
   onClose: () => void
 }) {
+  const t = useTranslations('showcaseViewer.download')
+  const errorMessage = useErrorMessage()
   const dialogRef = useRef<HTMLDivElement>(null)
   const trapFocus = useFocusTrap(dialogRef)
   const [phase, setPhase] = useState<'choosing' | 'preparing' | 'error'>('choosing')
+  const [errorBody, setErrorBody] = useState<unknown>(undefined)
 
   // Mount-only — see AlbumSettingsDialog for why `onClose` (a fresh function
   // on every parent render) must not be a dependency here.
@@ -59,10 +64,11 @@ export function ShowcaseDownloadDialog({
         body: JSON.stringify({ photoIds }),
       })
       if (!res.ok) {
+        setErrorBody(await res.json().catch(() => undefined))
         setPhase('error')
         return
       }
-      downloadBlob(await res.blob(), `${title || 'album'}.zip`)
+      downloadBlob(await res.blob(), `${title || t('fallbackName')}.zip`)
       onClose()
     } catch {
       setPhase('error')
@@ -75,22 +81,22 @@ export function ShowcaseDownloadDialog({
         ref={dialogRef}
         role="dialog"
         aria-modal="true"
-        aria-label="Download this album"
+        aria-label={t('title')}
         onKeyDown={trapFocus}
         className="w-full max-w-sm rounded-xl bg-zinc-900 p-5 text-zinc-100 shadow-xl"
       >
-        <h2 className="text-base font-semibold">Download this album</h2>
+        <h2 className="text-base font-semibold">{t('title')}</h2>
         {phase === 'preparing' ? (
-          <p className="mt-3 text-sm text-zinc-400">Preparing your download…</p>
+          <p className="mt-3 text-sm text-zinc-400">{t('preparing')}</p>
         ) : (
           <>
             {phase === 'error' && (
               <p role="alert" className="mt-3 text-sm text-red-400">
-                Something went wrong. Please try again.
+                {errorMessage(errorBody as Parameters<typeof errorMessage>[0])}
               </p>
             )}
             <p className="mt-2 text-sm text-zinc-400">
-              {photoIds.length} {photoIds.length === 1 ? 'photo' : 'photos'} · {title}
+              {t('summary', { count: photoIds.length, title })}
             </p>
             <div className="mt-4 flex flex-col gap-2">
               <button
@@ -99,14 +105,14 @@ export function ShowcaseDownloadDialog({
                 disabled={photoIds.length === 0}
                 className="h-10 rounded-lg bg-zinc-100 text-sm font-medium text-zinc-900 hover:bg-white disabled:opacity-50"
               >
-                Download as ZIP (originals)
+                {t('confirm')}
               </button>
               <button
                 type="button"
                 onClick={onClose}
                 className="h-10 rounded-lg border border-zinc-700 text-sm font-medium hover:bg-zinc-800"
               >
-                Cancel
+                {t('cancel')}
               </button>
             </div>
           </>

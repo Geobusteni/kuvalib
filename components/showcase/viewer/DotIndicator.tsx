@@ -3,6 +3,8 @@
 
 'use client'
 
+import { useTranslations } from 'next-intl'
+
 /** Top-left page indicator — replaces a numeric "1 / 3" counter with dots the
  *  album can colour to match the event. Each dot is a full 44×44 touch target
  *  around a small visual mark, laid out in a horizontal row with a fixed gap
@@ -22,6 +24,7 @@ export function DotIndicator({
   activeColor: string
   inactiveColor: string
 }) {
+  const t = useTranslations('showcaseViewer.nav')
   return (
     <div className="sc-dots pointer-events-auto absolute left-1 top-2 z-10 flex flex-row items-center gap-0.5 sm:left-2 sm:top-3">
       {Array.from({ length: total }, (_, i) => {
@@ -31,7 +34,7 @@ export function DotIndicator({
             key={i}
             type="button"
             onClick={() => onSelect(i)}
-            aria-label={`Go to page ${i + 1}`}
+            aria-label={t('goToPage', { page: i + 1 })}
             aria-current={active ? 'true' : undefined}
             className="flex h-11 w-11 items-center justify-center focus:outline-none focus-visible:ring-2 focus-visible:ring-white/70"
           >

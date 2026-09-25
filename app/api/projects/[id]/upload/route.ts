@@ -120,13 +120,13 @@ export async function POST(request: Request, ctx: Ctx) {
   const { id } = await ctx.params
 
   const project = await getProject(id)
-  if (!project) return Response.json({ error: 'Not found' }, { status: 404 })
+  if (!project) return Response.json({ error: 'not_found' }, { status: 404 })
 
   await ensureProjectDirs(id)
 
   const formData = await request.formData()
   const file = formData.get('file') as File | null
-  if (!file) return Response.json({ error: 'No file provided' }, { status: 400 })
+  if (!file) return Response.json({ error: 'no_file' }, { status: 400 })
 
   const requested = String(formData.get('strategy') ?? 'ask')
   const strategy: Strategy = (['overwrite', 'rename', 'skip'] as const).includes(
@@ -147,7 +147,7 @@ export async function POST(request: Request, ctx: Ctx) {
   try {
     if (ALLOWED_MIME.has(file.type) || JPEG_EXTS.has(ext)) {
       if (!isJpegBuffer(buffer)) {
-        return Response.json({ error: 'File is not a valid JPEG' }, { status: 400 })
+        return Response.json({ error: 'invalid_jpeg' }, { status: 400 })
       }
       await storePhoto(id, buffer, file.name, strategy, outcome)
     } else if (isZip) {
@@ -158,18 +158,17 @@ export async function POST(request: Request, ctx: Ctx) {
         await storePhoto(id, Buffer.from(data), entryPath, strategy, outcome)
       }
       if (outcome.added === 0 && outcome.conflicts.length === 0 && outcome.skipped === 0) {
-        return Response.json({ error: 'No JPEG images found in the archive' }, { status: 400 })
+        return Response.json({ error: 'no_jpegs_in_archive' }, { status: 400 })
       }
     } else {
       return Response.json(
-        { error: 'Only JPEG images and ZIP archives are accepted' },
+        { error: 'unsupported_upload_type' },
         { status: 400 }
       )
     }
   } catch (error) {
     console.error('[upload] failed:', error)
-    const message = error instanceof Error ? error.message : 'Upload failed'
-    return Response.json({ error: message }, { status: 500 })
+    return Response.json({ error: 'upload_failed' }, { status: 500 })
   }
 
   // 409 asks the client how to resolve; it is not a failure.

@@ -73,7 +73,7 @@ model Project {
   /// The client-facing ZIP is uploaded by the admin, never generated from the
   /// photos. No archive means no "Download ZIP" button.
   archiveName String?
-  archiveSize Int?
+  archiveSize BigInt?
 
   expiresAt  DateTime?
   zipEnabled Boolean   @default(true)

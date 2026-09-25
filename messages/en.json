@@ -106,7 +106,10 @@
       "dangerText": "Deleting this project will permanently remove all photos and data."
     },
     "photoGrid": {
-      "deletePhoto": "Delete photo {name}"
+      "deletePhoto": "Delete photo {name}",
+      "count": "{count, plural, one {# photo uploaded} other {# photos uploaded}}",
+      "expand": "Show photos",
+      "collapse": "Hide photos"
     },
     "passwordReveal": {
       "show": "Show",

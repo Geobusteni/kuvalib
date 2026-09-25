@@ -106,7 +106,10 @@
       "dangerText": "Ștergerea acestui proiect va elimina definitiv toate fotografiile și datele."
     },
     "photoGrid": {
-      "deletePhoto": "Șterge fotografia {name}"
+      "deletePhoto": "Șterge fotografia {name}",
+      "count": "{count, plural, one {# fotografie încărcată} few {# fotografii încărcate} other {# de fotografii încărcate}}",
+      "expand": "Arată fotografiile",
+      "collapse": "Ascunde fotografiile"
     },
     "passwordReveal": {
       "show": "Arată",

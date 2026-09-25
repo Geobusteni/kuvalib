@@ -4,8 +4,10 @@
 'use client'
 
 import { useState } from 'react'
+import { useTranslations } from 'next-intl'
 
 export default function PasswordReveal({ password }: { password: string }) {
+  const t = useTranslations('admin.passwordReveal')
   const [visible, setVisible] = useState(false)
   const [copied, setCopied] = useState(false)
 
@@ -30,16 +32,16 @@ export default function PasswordReveal({ password }: { password: string }) {
         aria-pressed={visible}
         className="rounded px-1.5 py-1 text-xs font-medium text-zinc-600 hover:bg-zinc-100 hover:text-zinc-900 focus:outline-none focus-visible:ring-2 focus-visible:ring-zinc-500 dark:text-zinc-400 dark:hover:bg-zinc-800 dark:hover:text-zinc-100"
       >
-        {visible ? 'Hide' : 'Show'}
+        {visible ? t('hide') : t('show')}
       </button>
       <button
         onClick={copy}
         className="rounded px-1.5 py-1 text-xs font-medium text-zinc-600 hover:bg-zinc-100 hover:text-zinc-900 focus:outline-none focus-visible:ring-2 focus-visible:ring-zinc-500 dark:text-zinc-400 dark:hover:bg-zinc-800 dark:hover:text-zinc-100"
       >
-        {copied ? 'Copied' : 'Copy'}
+        {copied ? t('copied') : t('copy')}
       </button>
       <span role="status" aria-live="polite" className="sr-only">
-        {copied ? 'Password copied to clipboard' : ''}
+        {copied ? t('copiedStatus') : ''}
       </span>
     </div>
   )

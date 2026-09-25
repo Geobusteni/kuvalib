@@ -2,6 +2,7 @@
 // Copyright (C) 2026 Alexandru Negoita
 
 import { notFound, redirect } from 'next/navigation'
+import { getTranslations } from 'next-intl/server'
 import { requireAuth } from '@/lib/auth'
 import prisma from '@/lib/prisma'
 import { getProject, listPhotos } from '@/lib/projects'
@@ -22,7 +23,10 @@ type Props = { params: Promise<{ id: string }> }
 export async function generateMetadata({ params }: Props) {
   const { id } = await params
   const project = await getProject(id)
-  return { title: project ? `Showcase · ${project.title}` : 'Showcase' }
+  const t = await getTranslations('admin.showcasePage')
+  return {
+    title: project ? t('metaTitleWithProject', { title: project.title }) : t('metaTitle'),
+  }
 }
 
 export default async function ShowcaseBuilderPage({ params }: Props) {

@@ -10,6 +10,8 @@ adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html). While the
 
 ## [Unreleased]
 
+## [1.12.0] - 2026-09-25
+
 ### Added
 
 - **Blocks now stick to their neighbours while you drag.** When a block's edge comes close to the

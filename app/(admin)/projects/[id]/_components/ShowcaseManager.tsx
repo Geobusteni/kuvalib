@@ -41,7 +41,7 @@ export default function ShowcaseManager({ projectId, showcase }: Props) {
     const data = await res.json().catch(() => ({}))
     setBusy(false)
     if (!res.ok) {
-      setError(msg(data.error))
+      setError(msg(data))
       return
     }
     router.push(`/projects/${projectId}/showcase`)

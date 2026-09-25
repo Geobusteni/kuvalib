@@ -5,6 +5,7 @@
 
 import { useTranslations } from 'next-intl'
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
+import { useErrorMessage } from '@/hooks/useErrorMessage'
 import { useFocusTrap } from '@/hooks/useFocusTrap'
 import { useKeyboard } from '@/hooks/useKeyboard'
 import ProgressBar from '@/components/ui/ProgressBar'
@@ -65,6 +66,7 @@ export default function DownloadOptionsDialog({
   onClose,
 }: DownloadOptionsDialogProps) {
   const t = useTranslations('gallery.downloadDialog')
+  const errorMessage = useErrorMessage()
   const dialogRef = useRef<HTMLDivElement>(null)
   const zipButtonRef = useRef<HTMLButtonElement>(null)
   const trapFocus = useFocusTrap(dialogRef)
@@ -110,14 +112,18 @@ export default function DownloadOptionsDialog({
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ photoIds: photos.map((p) => p.id) }),
       })
-      if (!res.ok) throw new Error('zip failed')
+      if (!res.ok) {
+        const body = await res.json().catch(() => ({}))
+        setPhase({ kind: 'error', message: body.error ? errorMessage(body) : t('zipError') })
+        return
+      }
       const blob = await res.blob()
       downloadBlob(blob, `${title}.zip`)
       onClose()
     } catch {
       setPhase({ kind: 'error', message: t('zipError') })
     }
-  }, [photos, projectId, title, onClose, t])
+  }, [photos, projectId, title, onClose, t, errorMessage])
 
   // Single-photo path (the lightbox's only usage): consumes the eager
   // prefetch so navigator.share() runs immediately off the click, keeping

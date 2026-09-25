@@ -153,7 +153,7 @@ export default function FeedbackPanel({
                     {s.comments.map((c) => (
                       <li key={c.id}>
                         &ldquo;{c.comment}&rdquo; —{' '}
-                        <time dateTime={c.createdAt}>{format.dateTime(new Date(c.createdAt), { dateStyle: 'medium', timeStyle: 'medium' })}</time>
+                        <time dateTime={c.createdAt} suppressHydrationWarning>{format.dateTime(new Date(c.createdAt), { dateStyle: 'medium', timeStyle: 'medium' })}</time>
                       </li>
                     ))}
                   </ul>

@@ -103,7 +103,7 @@ export default function UploadZone({ projectId }: { projectId: string }) {
         continue
       }
       if (!res.ok) {
-        setError(data.error ? msg(data.error) : t('couldNotUpload', { name: file.name }))
+        setError(data.error ? msg(data) : t('couldNotUpload', { name: file.name }))
         setStatus(null)
         setProgress(null)
         setOverall(null)

@@ -41,6 +41,7 @@ export function ShowcaseDownloadDialog({
   const dialogRef = useRef<HTMLDivElement>(null)
   const trapFocus = useFocusTrap(dialogRef)
   const [phase, setPhase] = useState<'choosing' | 'preparing' | 'error'>('choosing')
+  const [errorBody, setErrorBody] = useState<unknown>(undefined)
 
   // Mount-only — see AlbumSettingsDialog for why `onClose` (a fresh function
   // on every parent render) must not be a dependency here.
@@ -63,6 +64,7 @@ export function ShowcaseDownloadDialog({
         body: JSON.stringify({ photoIds }),
       })
       if (!res.ok) {
+        setErrorBody(await res.json().catch(() => undefined))
         setPhase('error')
         return
       }
@@ -90,7 +92,7 @@ export function ShowcaseDownloadDialog({
           <>
             {phase === 'error' && (
               <p role="alert" className="mt-3 text-sm text-red-400">
-                {errorMessage(undefined)}
+                {errorMessage(errorBody as Parameters<typeof errorMessage>[0])}
               </p>
             )}
             <p className="mt-2 text-sm text-zinc-400">

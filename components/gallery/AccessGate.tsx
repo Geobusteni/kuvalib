@@ -44,7 +44,7 @@ export default function AccessGate({
       }
 
       const data = await res.json().catch(() => ({}))
-      setError(errorMessage(data.error))
+      setError(errorMessage(data))
       inputRef.current?.focus()
       inputRef.current?.select()
     } catch {

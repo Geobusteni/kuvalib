@@ -100,7 +100,7 @@ export function AlbumSettingsDialog({ onClose }: { onClose: () => void }) {
     const data = await res.json().catch(() => ({}))
     setTrackBusy(false)
     if (!res.ok) {
-      setTrackError(errorMessage(data.error))
+      setTrackError(errorMessage(data))
       return
     }
     setTracks([...tracks, data.track])

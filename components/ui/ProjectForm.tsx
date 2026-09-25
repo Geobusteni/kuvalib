@@ -83,7 +83,7 @@ export default function ProjectForm({ mode, projectId, defaults }: ProjectFormPr
       )
 
       if (!res.ok) {
-        setError(msg((await res.json()).error))
+        setError(msg(await res.json().catch(() => ({}))))
         return
       }
 

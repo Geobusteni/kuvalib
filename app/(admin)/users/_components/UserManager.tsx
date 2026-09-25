@@ -65,7 +65,7 @@ export default function UserManager({
     setLoading(false)
 
     if (!res.ok) {
-      setError(msg((await res.json()).error))
+      setError(msg(await res.json().catch(() => ({}))))
       return
     }
 
@@ -77,7 +77,7 @@ export default function UserManager({
   async function handleDelete(id: string) {
     const res = await fetch(`/api/users/${id}`, { method: 'DELETE' })
     if (!res.ok) {
-      setError(msg((await res.json()).error))
+      setError(msg(await res.json().catch(() => ({}))))
       return
     }
     router.refresh()

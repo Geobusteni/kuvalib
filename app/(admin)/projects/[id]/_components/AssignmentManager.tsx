@@ -51,7 +51,7 @@ export default function AssignmentManager({
       body: JSON.stringify({ userId: selected }),
     })
     if (!res.ok) {
-      setError(msg((await res.json()).error))
+      setError(msg(await res.json().catch(() => ({}))))
       return
     }
     setSelected('')
@@ -65,7 +65,7 @@ export default function AssignmentManager({
       body: JSON.stringify({ userId }),
     })
     if (!res.ok) {
-      setError(msg((await res.json()).error))
+      setError(msg(await res.json().catch(() => ({}))))
       return
     }
     router.refresh()

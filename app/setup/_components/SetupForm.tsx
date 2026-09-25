@@ -43,8 +43,8 @@ export default function SetupForm() {
         router.push('/projects')
         router.refresh()
       } else {
-        const data = await res.json()
-        setError(msg(data.error))
+        const data = await res.json().catch(() => ({}))
+        setError(msg(data))
       }
     } catch {
       setError(msg(null))

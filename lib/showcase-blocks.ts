@@ -49,6 +49,8 @@ export interface Block {
    *  always did. See blockShadowCss in showcase-theme.ts. */
   shadow?: number
   shadowColor?: string
+  /** 0–100 opacity of `shadowColor`; unset = fully opaque, like older data. */
+  shadowAlpha?: number
   shadowOffsetX?: number
   shadowOffsetY?: number
   shadowSpread?: number
@@ -508,6 +510,7 @@ export function sanitizeBlock(raw: unknown, depth = 0): Block | null {
     if (Number.isFinite(r.blur)) block.blur = num(r.blur, 0, 0, 40)
     if (Number.isFinite(r.shadow)) block.shadow = num(r.shadow, 0, 0, 60)
     block.shadowColor = hexColor(r.shadowColor) ?? '#000000'
+    if (Number.isFinite(r.shadowAlpha)) block.shadowAlpha = num(r.shadowAlpha, 100, 0, 100)
     if (Number.isFinite(r.shadowOffsetX)) block.shadowOffsetX = num(r.shadowOffsetX, 0, -60, 60)
     if (Number.isFinite(r.shadowOffsetY)) block.shadowOffsetY = num(r.shadowOffsetY, 0, -60, 60)
     if (Number.isFinite(r.shadowSpread)) block.shadowSpread = num(r.shadowSpread, 0, -20, 40)

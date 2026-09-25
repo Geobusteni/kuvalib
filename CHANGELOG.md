@@ -10,6 +10,11 @@ adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html). While the
 
 ## [Unreleased]
 
+### Added
+
+- **Opacity for a Group's shadow** — a slider next to the shadow colour, from fully transparent to
+  solid. Existing shadows stay as they were (fully opaque colour).
+
 ## [1.11.0] - 2026-09-25
 
 ### Added

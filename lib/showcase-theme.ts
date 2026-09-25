@@ -132,14 +132,14 @@ export function blockFontSizeCss(
  *  (a soft shadow straight down, no spread), so a block saved before these
  *  existed still renders identically. */
 export function blockShadowCss(
-  block: Pick<Block, 'shadow' | 'shadowColor' | 'shadowOffsetX' | 'shadowOffsetY' | 'shadowSpread'>,
+  block: Pick<Block, 'shadow' | 'shadowColor' | 'shadowAlpha' | 'shadowOffsetX' | 'shadowOffsetY' | 'shadowSpread'>,
 ): string {
   const blur = block.shadow ?? 0
   if (blur <= 0) return 'none'
   const offsetX = block.shadowOffsetX ?? 0
   const offsetY = block.shadowOffsetY ?? Math.round(blur / 2)
   const spread = block.shadowSpread ?? 0
-  const color = block.shadowColor || '#000000'
+  const color = withAlpha(block.shadowColor || '#000000', block.shadowAlpha)
   return `${offsetX}px ${offsetY}px ${blur}px ${spread}px ${color}`
 }
 

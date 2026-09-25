@@ -773,6 +773,17 @@ export function SettingsPanel() {
                       className="h-8 w-full cursor-pointer rounded"
                     />
                     <PresetSwatchRow presets={colorPresets} onPick={(hex) => update({ shadowColor: hex })} />
+                    <label className="text-[11px] text-zinc-400">
+                      {t('opacity', { value: block.shadowAlpha ?? 100 })}
+                      <input
+                        type="range"
+                        min={0}
+                        max={100}
+                        value={block.shadowAlpha ?? 100}
+                        onChange={(e) => update({ shadowAlpha: parseInt(e.target.value, 10) })}
+                        className="w-full"
+                      />
+                    </label>
                   </div>
                 </>
               )}

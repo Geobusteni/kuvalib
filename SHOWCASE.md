@@ -108,7 +108,7 @@ title-and-button pair.
 - **Blur** (Group only) — a backdrop blur behind the group, for a glass-panel effect over a
   photo.
 - **Shadow** (Group only) — a drop shadow behind the group's box: blur, offset X, offset Y,
-  spread, and colour — the same controls as CSS `box-shadow`. Blur is the on/off switch (0 turns
+  spread, colour and an opacity slider (0–100 %, so the shadow can be as faint as you like) — the same controls as CSS `box-shadow`. Blur is the on/off switch (0 turns
   it off); the offset/spread fields only appear once it's on. The border/corners stay crisp; only
   the shadow is soft.
 - **Text colour** — Text and Button: default, accent, muted, or a custom colour with an opacity

@@ -344,7 +344,19 @@
     },
     "blockTree": {
       "empty": "Nu există încă blocuri pe această pagină.",
-      "heading": "Blocuri"
+      "heading": "Blocuri",
+      "arrange": "Aranjează",
+      "arrangeHint": "Trage un mâner pentru a reordona. Trage spre dreapta ca să muți un bloc în grupul de deasupra, spre stânga ca să-l scoți din grup. De la tastatură: focalizează un mâner, apasă Spațiu, apoi Sus sau Jos pentru a muta, Dreapta sau Stânga pentru a intra într-un grup sau a ieși din el, Spațiu pentru a plasa, Escape pentru a anula.",
+      "moveHandle": "Mută {name}",
+      "drop": {
+        "reorder": "Reordonează",
+        "nest": "Mută în grup",
+        "outdent": "Scoate din grup"
+      },
+      "position": "Poziția {position} din {total}",
+      "pickedUp": "{name} este gata de mutare.",
+      "dropped": "{name} a fost plasat.",
+      "cancelled": "Mutare anulată."
     },
     "pageRail": {
       "heading": "Pagini",

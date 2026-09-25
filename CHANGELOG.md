@@ -10,6 +10,25 @@ adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html). While the
 
 ## [Unreleased]
 
+### Changed
+
+- **The showcase viewer's top bar now fits every screen size.** From 768px wide it is one pill
+  (autoplay, music, thumbnails, fullscreen, copy link, download, language) with 44px buttons; on
+  narrower screens Thumbnails, Fullscreen, Copy link, Download and Language fold into a "More"
+  menu, and the page dots become a compact "3 / 10" counter. Nothing overlaps at any width, and
+  the controls respect notches and rounded corners.
+- **The showcase language switcher is a single button** showing the current language (tap to
+  switch), inside the same pill, instead of a separate EN | RO pill under the dots.
+- The music play/pause button uses a speaker icon, so it no longer looks like the slideshow's
+  own play button next to it.
+
+### Fixed
+
+- The "link copied" message in the showcase viewer no longer lingers or is cut short by an
+  earlier message's timer; it disappears after about 3 seconds (5 for the password reminder).
+- Pressing Space or Enter on a focused showcase control no longer also toggles autoplay.
+- The showcase download dialog's buttons are now 44px tall and long album titles wrap inside it.
+
 ## [1.12.1] - 2026-09-25
 
 ### Changed

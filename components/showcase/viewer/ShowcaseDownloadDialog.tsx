@@ -83,9 +83,9 @@ export function ShowcaseDownloadDialog({
         aria-modal="true"
         aria-label={t('title')}
         onKeyDown={trapFocus}
-        className="w-full max-w-sm rounded-xl bg-zinc-900 p-5 text-zinc-100 shadow-xl"
+        className="max-h-full w-full max-w-sm overflow-y-auto rounded-xl bg-zinc-900 p-5 text-zinc-100 shadow-xl"
       >
-        <h2 className="text-base font-semibold">{t('title')}</h2>
+        <h2 className="break-words text-base font-semibold">{t('title')}</h2>
         {phase === 'preparing' ? (
           <p className="mt-3 text-sm text-zinc-400">{t('preparing')}</p>
         ) : (
@@ -95,7 +95,7 @@ export function ShowcaseDownloadDialog({
                 {errorMessage(errorBody as Parameters<typeof errorMessage>[0])}
               </p>
             )}
-            <p className="mt-2 text-sm text-zinc-400">
+            <p className="mt-2 break-words text-sm text-zinc-400">
               {t('summary', { count: photoIds.length, title })}
             </p>
             <div className="mt-4 flex flex-col gap-2">
@@ -103,14 +103,14 @@ export function ShowcaseDownloadDialog({
                 type="button"
                 onClick={confirm}
                 disabled={photoIds.length === 0}
-                className="h-10 rounded-lg bg-zinc-100 text-sm font-medium text-zinc-900 hover:bg-white disabled:opacity-50"
+                className="h-11 rounded-lg bg-zinc-100 text-sm font-medium text-zinc-900 hover:bg-white disabled:opacity-50"
               >
                 {t('confirm')}
               </button>
               <button
                 type="button"
                 onClick={onClose}
-                className="h-10 rounded-lg border border-zinc-700 text-sm font-medium hover:bg-zinc-800"
+                className="h-11 rounded-lg border border-zinc-700 text-sm font-medium hover:bg-zinc-800"
               >
                 {t('cancel')}
               </button>

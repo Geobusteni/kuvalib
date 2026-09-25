@@ -278,21 +278,32 @@ the whole browser window rather than sitting in a centred content column, so the
 gets all the available space.
 
 **Controls** float as one compact pill in the top-right corner, over the photo, instead of a
-full-width bar:
+full-width bar. From 768px wide up it holds, in order:
 
 - **Autoplay** toggle
+- **Music** (only when there are tracks) — see Music, above, for when it's mute/unmute vs.
+  play/pause
 - **Thumbnails** — a strip of scaled-down page previews to jump around
 - **Fullscreen** (hidden on browsers without Fullscreen support, e.g. iOS Safari)
-- **Copy link** (a copy icon; see Sharing and access above for the password reminder)
+- **Copy link** (see Sharing and access above for the password reminder). The confirmation
+  toast under the bar goes away by itself after about 3 seconds (5 for the longer
+  "send the password too" reminder).
 - **Download** — the showcase's photos as a ZIP of originals (when downloads are enabled)
+- **Language** — a single button showing the current code (EN / RO); tap to switch
 
-A separate, smaller pill below it holds the **music** control (only when there are tracks) — see
-Music, above, for when it's mute/unmute vs. play/pause.
+Below 768px only Autoplay, Music and a **More** (⋯) button remain in the pill; Thumbnails,
+Fullscreen, Copy link, Download and Language move into the More menu. The menu is a plain
+disclosure (`aria-expanded`): it opens with focus on its first item, Escape or a tap outside
+closes it, and Escape puts focus back on the More button without also exiting fullscreen.
+Space and Enter on a control activate that control and never trigger the viewer's Space shortcut.
+The bar respects the phone's safe-area insets and never overlaps the page indicator.
 
-A row of **dots** in the top-left corner shows the page position — the current page's dot is
-larger; click any dot to jump to that page. Shown or hidden, and coloured, by the Album settings'
+The **page indicator** sits top-left. From 768px it is a row of **dots** — the current page's
+dot is larger; click any dot to jump to that page; the row scrolls sideways (staying on the
+current page) when there are more pages than fit beside the controls. Below 768px it is a
+compact "3 / 10" counter instead. Shown or hidden, and coloured, by the Album settings'
 **Page dots** setting. A screen-reader-only "Page N of Total" announcement keeps the page count
-accessible regardless of whether the dots are shown.
+accessible regardless of whether it is shown.
 
 **Arrows** on the sides move between pages. In fullscreen the controls hide after a few seconds
 and return when the visitor moves the mouse or presses a key.

@@ -33,6 +33,8 @@ export function Canvas() {
       style={{
         ...showcaseThemeVars(eventType, albumBg),
         aspectRatio: '16 / 10',
+        // Frame-relative text sizing (cqw) — same formula as the viewer.
+        containerType: 'inline-size',
         // The page's own background/border (set in the panel when nothing is
         // selected) — previously only rendered in the live preview/public
         // viewer, never here, so a border added to a page was invisible while

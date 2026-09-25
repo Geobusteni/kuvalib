@@ -78,6 +78,7 @@ export function ThumbnailRail({
               transform: `scale(${scale})`,
               transformOrigin: 'top left',
               pointerEvents: 'none',
+              containerType: 'inline-size',
             }}
           >
             <BlockRenderer

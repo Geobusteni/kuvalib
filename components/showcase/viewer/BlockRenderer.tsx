@@ -5,7 +5,7 @@
 
 import type { CSSProperties } from 'react'
 import { flattenBlocks, type Block, type HeadingLevel, type TextSizePreset } from '@/lib/showcase-blocks'
-import { blockBackgroundCss, blockRadiusCss, blockShadowCss } from '@/lib/showcase-theme'
+import { blockBackgroundCss, blockRadiusCss, blockShadowCss, fluidPx } from '@/lib/showcase-theme'
 import { BlockContent } from '../BlockContent'
 import type { ShowcasePhoto } from '../photos-context'
 
@@ -64,7 +64,7 @@ export function BlockRenderer({
                   borderRadius: 'inherit',
                   overflow: 'hidden',
                   background: blockBackgroundCss(block),
-                  backdropFilter: block.blur ? `blur(${block.blur}px)` : undefined,
+                  backdropFilter: block.blur ? `blur(${fluidPx(block.blur)})` : undefined,
                 }}
               />
             ) : (

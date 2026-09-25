@@ -10,6 +10,17 @@ adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html). While the
 
 ## [Unreleased]
 
+### Changed
+
+- **Showcase text scales with the screen.** A size set in px is now the size on a page 1280 px
+  wide or wider; on narrower screens it shrinks in proportion, but never below a readable minimum
+  (14 px for text and buttons, 22 px down to 14 px for H1 to H6) and never above the size you
+  set. The padding, rounded corners, shadows and blur of blocks scale the same way. The builder
+  canvas uses the same rule, so text looks smaller there than on a real screen; Preview shows the
+  real result. Size labels in the settings now say "at full width".
+- **Showcase pages no longer squeeze on phones.** A page is never laid out narrower than 640 px;
+  on a narrower screen it starts centred and can be dragged sideways, with a brief hint.
+
 ## [1.12.1] - 2026-09-25
 
 ### Changed

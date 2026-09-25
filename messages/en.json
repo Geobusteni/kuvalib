@@ -418,10 +418,10 @@
       "italic": "Italic",
       "underline": "Underline",
       "level": "Level",
-      "customSizeHeading": "Custom size (px, 8–200) — overrides the level default",
+      "customSizeHeading": "Custom size (px at full width, 8–200) — overrides the level default",
       "albumDefault": "Album default",
       "size": "Size",
-      "customSizePreset": "Custom size (px, 8–200) — overrides the preset",
+      "customSizePreset": "Custom size (px at full width, 8–200) — overrides the preset",
       "presetDefault": "Preset default",
       "label": "Label",
       "link": "Link",
@@ -474,9 +474,9 @@
       "secondsPerPage": "Seconds per page",
       "seconds": "{n}s",
       "headingSizes": "Heading sizes",
-      "headingSizesHint": "Default px size for each Headline level. A block can override its own size.",
+      "headingSizesHint": "Default px size at full width (a 1280 px wide page) for each Headline level; smaller pages scale it down. A block can override its own size.",
       "textSizes": "Text sizes",
-      "textSizesHint": "Default px size for each Text block preset. A block can override its own size.",
+      "textSizesHint": "Default px size at full width (a 1280 px wide page) for each Text block preset; smaller pages scale it down. A block can override its own size.",
       "fonts": "Fonts",
       "fontsHint": "A Google Font for every Headline and every Text block, album-wide.",
       "headingFont": "Heading font",
@@ -524,7 +524,8 @@
       "defaultButtonLabel": "Button"
     },
     "stage": {
-      "pageStatus": "Page {current} of {total}"
+      "pageStatus": "Page {current} of {total}",
+      "panHint": "Swipe sideways to see the whole page"
     },
     "nav": {
       "previousPage": "Previous page",

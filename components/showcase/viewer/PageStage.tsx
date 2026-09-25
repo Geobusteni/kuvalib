@@ -3,10 +3,11 @@
 
 'use client'
 
-import type { CSSProperties } from 'react'
+import { useEffect, useRef, useState, type CSSProperties } from 'react'
+import { useTranslations } from 'next-intl'
 import type { ShowcaseAnimation } from '@/lib/generated/prisma/client'
 import type { Block, HeadingLevel, PageSettings, TextSizePreset } from '@/lib/showcase-blocks'
-import { blockBackgroundCss, blockBorderCss } from '@/lib/showcase-theme'
+import { MIN_FRAME_WIDTH, blockBackgroundCss, blockBorderCss } from '@/lib/showcase-theme'
 import type { AnimDir, AnimPhase } from './useSlideshow'
 import { BlockRenderer } from './BlockRenderer'
 import type { ShowcasePhoto } from '../photos-context'
@@ -71,39 +72,111 @@ export function PageStage({
   headingFont?: string | null
   textFont?: string | null
 }) {
+  const t = useTranslations('showcaseViewer.stage')
+  const panRef = useRef<HTMLDivElement>(null)
+  const centredAt = useRef(0)
+  const [hintVisible, setHintVisible] = useState(false)
+
+  // A frame narrower than MIN_FRAME_WIDTH is wider than the screen: centre it,
+  // and tell the visitor once that it pans. Re-centre on resize/rotation only
+  // while they have not panned themselves.
+  useEffect(() => {
+    const el = panRef.current
+    if (!el) return
+    const overflows = () => el.scrollWidth > el.clientWidth + 1
+    const centre = () => {
+      if (Math.abs(el.scrollLeft - centredAt.current) > 2) return
+      centredAt.current = Math.max(0, (el.scrollWidth - el.clientWidth) / 2)
+      el.scrollLeft = centredAt.current
+    }
+    centre()
+    setHintVisible(overflows())
+    const observer = new ResizeObserver(() => {
+      centre()
+      if (!overflows()) setHintVisible(false)
+    })
+    observer.observe(el)
+    return () => observer.disconnect()
+  }, [])
+
+  useEffect(() => {
+    if (!hintVisible) return
+    const id = setTimeout(() => setHintVisible(false), 4000)
+    return () => clearTimeout(id)
+  }, [hintVisible])
+
   return (
-    // Edge-to-edge: the page fills 100% of the viewer, not a fixed-aspect
-    // letterboxed card — a full-bleed Image block then genuinely covers the
-    // whole browser window instead of whatever the 16:10 ratio left over.
-    // `perspective` has to live on this outer, untransformed wrapper — it has
-    // no effect set on the same element that's being transformed below.
-    <div className="sc-stage" style={{ position: 'absolute', inset: 0, perspective: 2000 }}>
+    // The pan container: as wide as the screen, or the frame's minimum width
+    // when the screen is narrower — then it scrolls sideways natively.
+    <div
+      ref={panRef}
+      className="sc-pan"
+      onScroll={(e) => {
+        if (Math.abs(e.currentTarget.scrollLeft - centredAt.current) > 2) setHintVisible(false)
+      }}
+      style={{
+        position: 'absolute',
+        inset: 0,
+        overflowX: 'auto',
+        overflowY: 'hidden',
+        overscrollBehaviorX: 'contain',
+        scrollbarWidth: 'none',
+      }}
+    >
+      {/* The frame fills the viewer's height and its full width (never less
+          than MIN_FRAME_WIDTH), so a full-bleed Image block covers the whole
+          window. `perspective` lives on this outer, untransformed wrapper —
+          it has no effect on the element being transformed below. `overflow:
+          hidden` keeps a page-turn from extending the pan container's
+          scrollable area. */}
       <div
-        className="sc-page"
+        className="sc-stage"
         style={{
-          position: 'absolute',
-          inset: 0,
-          background: settings.bg === 'none' ? 'var(--sc-album-bg)' : blockBackgroundCss(settings),
-          border: blockBorderCss(settings),
-          // Always clipped — a slide's content never spills past its own frame.
+          position: 'relative',
+          width: '100%',
+          minWidth: MIN_FRAME_WIDTH,
+          height: '100%',
+          perspective: 2000,
           overflow: 'hidden',
-          boxSizing: 'border-box',
-          transformStyle: 'preserve-3d',
-          ...pageTransform(animationStyle, phase, dir),
         }}
       >
-        <BlockRenderer
-          key={pageId}
-          blocks={blocks}
-          photos={photos}
-          galleryHref={galleryHref}
-          onZipClick={onZipClick}
-          headingSizes={headingSizes}
-          textSizes={textSizes}
-          headingFont={headingFont}
-          textFont={textFont}
-        />
+        <div
+          className="sc-page"
+          style={{
+            position: 'absolute',
+            inset: 0,
+            containerType: 'inline-size',
+            background: settings.bg === 'none' ? 'var(--sc-album-bg)' : blockBackgroundCss(settings),
+            border: blockBorderCss(settings),
+            overflow: 'hidden',
+            boxSizing: 'border-box',
+            transformStyle: 'preserve-3d',
+            ...pageTransform(animationStyle, phase, dir),
+          }}
+        >
+          <BlockRenderer
+            key={pageId}
+            blocks={blocks}
+            photos={photos}
+            galleryHref={galleryHref}
+            onZipClick={onZipClick}
+            headingSizes={headingSizes}
+            textSizes={textSizes}
+            headingFont={headingFont}
+            textFont={textFont}
+          />
+        </div>
       </div>
+      {hintVisible && (
+        <div
+          role="status"
+          className="pointer-events-none fixed inset-x-0 bottom-4 z-10 flex justify-center"
+        >
+          <span className="rounded-full bg-black/60 px-3 py-1 text-xs font-medium text-white">
+            {t('panHint')}
+          </span>
+        </div>
+      )}
     </div>
   )
 }

@@ -73,8 +73,34 @@ export function withAlpha(hex: string, alpha: number | undefined): string {
   return a >= 100 ? hex : `color-mix(in srgb, ${hex} ${a}%, transparent)`
 }
 
+/**
+ * Fluid sizing. Authored px values are what the album looks like on a frame
+ * REF_FRAME_WIDTH wide; narrower frames scale them down linearly. The frame
+ * (viewer page, builder canvas, thumbnail preview) is a `container-type:
+ * inline-size` box, so `cqw` is a percent of its width — no JS measurement.
+ */
+export const REF_FRAME_WIDTH = 1280
+/** The viewer never lays a page out narrower than this; a narrower screen pans. */
+export const MIN_FRAME_WIDTH = 640
+const CQW_PER_PX = 100 / REF_FRAME_WIDTH
+
+/** A length of `px` authored pixels that shrinks with the frame; never larger than `px`. */
+export function fluidPx(px: number): string {
+  return `calc(${px} * min(1px, ${CQW_PER_PX}cqw))`
+}
+
+/** Fluid font size: scales like `fluidPx` but holds at `floor` (or at `px` itself when that is smaller). */
+export function fluidFontPx(px: number, floor: number): string {
+  return `max(${Math.min(px, floor)}px, ${fluidPx(px)})`
+}
+
+/** Smallest rendered size per role, in px. */
+const HEADING_FLOOR: Record<HeadingLevel, number> = { 1: 22, 2: 20, 3: 18, 4: 16, 5: 15, 6: 14 }
+export const TEXT_FLOOR = 14
+export const BUTTON_FONT_PX = 15
+
 export function blockRadiusCss(radius: BlockRadius | undefined): string {
-  return radius === 'md' ? '0.5rem' : radius === 'pill' ? '999px' : '0px'
+  return radius === 'md' ? fluidPx(8) : radius === 'pill' ? '999px' : '0px'
 }
 
 export function blockBackgroundCss(block: BackgroundLike): string {
@@ -116,13 +142,13 @@ export function blockFontSizeCss(
   headingSizes: Partial<Record<HeadingLevel, number>> | undefined,
   textSizes: Partial<Record<TextSizePreset, number>> | undefined,
 ): string {
-  if (typeof block.fontSize === 'number') return `${block.fontSize}px`
-  if (block.type === 'title') {
-    const level = block.level ?? 2
-    return `${headingSizes?.[level] ?? HEADING_SIZE_DEFAULTS[level]}px`
-  }
+  const level = block.level ?? 2
+  const isTitle = block.type === 'title'
+  const floor = isTitle ? HEADING_FLOOR[level] : TEXT_FLOOR
+  if (typeof block.fontSize === 'number') return fluidFontPx(block.fontSize, floor)
+  if (isTitle) return fluidFontPx(headingSizes?.[level] ?? HEADING_SIZE_DEFAULTS[level], floor)
   const preset = block.textSize ?? 'normal'
-  return `${textSizes?.[preset] ?? TEXT_SIZE_DEFAULTS[preset]}px`
+  return fluidFontPx(textSizes?.[preset] ?? TEXT_SIZE_DEFAULTS[preset], floor)
 }
 
 /** `box-shadow`, or 'none' when there's nothing to draw (group blocks only).
@@ -140,7 +166,7 @@ export function blockShadowCss(
   const offsetY = block.shadowOffsetY ?? Math.round(blur / 2)
   const spread = block.shadowSpread ?? 0
   const color = withAlpha(block.shadowColor || '#000000', block.shadowAlpha)
-  return `${offsetX}px ${offsetY}px ${blur}px ${spread}px ${color}`
+  return `${fluidPx(offsetX)} ${fluidPx(offsetY)} ${fluidPx(blur)} ${fluidPx(spread)} ${color}`
 }
 
 /** Bold/italic/underline toggles on a Headline/Text block, independent of

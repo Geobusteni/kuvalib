@@ -8,7 +8,7 @@ import { Rnd } from 'react-rnd'
 import { useCallback, useRef, type ReactNode } from 'react'
 import { clamp, type Block } from '@/lib/showcase-blocks'
 import { adhere, createAdhesion, type Adhesion, type SiblingRect } from '@/lib/showcase-snap'
-import { blockBackgroundCss, blockRadiusCss, blockShadowCss } from '@/lib/showcase-theme'
+import { blockBackgroundCss, blockRadiusCss, blockShadowCss, fluidPx } from '@/lib/showcase-theme'
 import { useFrameSize, pctToPx, pxToPct } from '../../frame-size'
 
 /**
@@ -324,7 +324,7 @@ export function BlockShell({
               borderRadius: 'inherit',
               overflow: 'hidden',
               background: blockBackgroundCss(block),
-              backdropFilter: block.blur ? `blur(${block.blur}px)` : undefined,
+              backdropFilter: block.blur ? `blur(${fluidPx(block.blur)})` : undefined,
             }}
           />
         )}

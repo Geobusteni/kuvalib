@@ -35,6 +35,15 @@ grabbing the showcase's public link without leaving the builder.
 The canvas is a 16:10 frame. A block's position and size are stored as **percentages** of the
 frame, so a layout you build on a laptop scales correctly on a phone or a projector.
 
+**Text and other pixel sizes scale with the page.** Every size you type or pick in px (Headline
+levels, Text presets, a custom size, and the padding, corner radius, shadow and blur that go with
+them) is the size **at full width**: a page 1280 px wide or wider shows exactly that. A narrower
+page scales it down in proportion, so a 68 px headline is 34 px on a 640 px page. Text never
+drops below a readable floor (Headlines 22 px for H1 down to 14 px for H6; Text and Button labels
+14 px) and never grows past the size you set; a size you set below its floor stays as set. The
+builder canvas is narrower than a real screen, so text looks proportionally smaller there than
+in the viewer; that is expected, and Preview shows the real result.
+
 Changes **autosave**. There is also an explicit **Save** button, and a status line that reads
 *Saving… / Unsaved changes / Saved*.
 
@@ -276,6 +285,12 @@ it.
 A page is exactly its blocks, shown as you laid them out. The viewer is full-width — it fills
 the whole browser window rather than sitting in a centred content column, so the photography
 gets all the available space.
+
+**On a narrow screen the page pans instead of squeezing.** The page is never laid out narrower
+than 640 px. On a phone in portrait (or any window under 640 px wide) the page keeps that width,
+starts centred, and can be dragged sideways with a finger; a short hint says so and fades after a
+few seconds. The page still fills the screen's height, and arrows, keys, dots and the thumbnail
+rail change pages as usual. Phones in landscape (about 640 px and wider) show the whole page.
 
 **Controls** float as one compact pill in the top-right corner, over the photo, instead of a
 full-width bar:

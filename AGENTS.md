@@ -307,6 +307,9 @@ hidden entirely rather than offered with nothing behind it.
 
 - A page is exactly its blocks, rendered as laid out (WYSIWYG) — no separate chapter/photo
   abstraction.
+- Pixel sizes (text, padding, radius, shadow, blur) are the size at a 1280 px wide frame and scale
+  down with the frame via container query units, with per-role minimums; the frame is never
+  narrower than 640 px, and a narrower screen pans it sideways natively.
 - Page transition is one of turn / fade / zoom (Album settings). All of it is gated by
   `prefers-reduced-motion`; with motion reduced the page swaps instantly and autoplay still
   advances.

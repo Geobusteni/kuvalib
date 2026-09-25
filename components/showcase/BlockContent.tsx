@@ -14,7 +14,11 @@ import {
   blockFontStyleCss,
   blockRadiusCss,
   blockTextColorCss,
+  BUTTON_FONT_PX,
+  fluidFontPx,
+  fluidPx,
   googleFontFamilyCss,
+  TEXT_FLOOR,
 } from '@/lib/showcase-theme'
 import type { ShowcasePhoto } from './photos-context'
 
@@ -138,7 +142,7 @@ export function BlockContent({
           color: blockTextColorCss(block),
           background: hasBg ? blockBackgroundCss(block) : undefined,
           borderRadius: blockRadiusCss(block.radius),
-          padding: hasBg ? '0.5rem 0.75rem' : 0,
+          padding: hasBg ? `${fluidPx(8)} ${fluidPx(12)}` : 0,
           boxSizing: 'border-box',
           // Wrap as much as fits the box, then clip the rest — never spill
           // outside it or push other blocks around.
@@ -166,11 +170,11 @@ export function BlockContent({
       alignItems: 'center',
       justifyContent: 'center',
       textAlign: 'center',
-      fontSize: 'clamp(12px, 1.4vw, 15px)',
+      fontSize: fluidFontPx(BUTTON_FONT_PX, TEXT_FLOOR),
       fontWeight: 600,
       textDecoration: 'none',
       boxSizing: 'border-box',
-      padding: '0 0.75rem',
+      padding: `0 ${fluidPx(12)}`,
       borderRadius: blockRadiusCss(block.radius),
       background: hasBg
         ? blockBackgroundCss(block)

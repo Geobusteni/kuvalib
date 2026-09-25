@@ -418,10 +418,10 @@
       "italic": "Cursiv",
       "underline": "Subliniat",
       "level": "Nivel",
-      "customSizeHeading": "Dimensiune personalizată (px, 8–200) — înlocuiește valoarea implicită a nivelului",
+      "customSizeHeading": "Dimensiune personalizată (px la lățime completă, 8–200) — înlocuiește valoarea implicită a nivelului",
       "albumDefault": "Implicit album",
       "size": "Dimensiune",
-      "customSizePreset": "Dimensiune personalizată (px, 8–200) — înlocuiește presetarea",
+      "customSizePreset": "Dimensiune personalizată (px la lățime completă, 8–200) — înlocuiește presetarea",
       "presetDefault": "Implicit presetare",
       "label": "Etichetă",
       "link": "Link",
@@ -474,9 +474,9 @@
       "secondsPerPage": "Secunde pe pagină",
       "seconds": "{n} s",
       "headingSizes": "Dimensiuni titluri",
-      "headingSizesHint": "Dimensiunea implicită în px pentru fiecare nivel de titlu. Un bloc își poate înlocui propria dimensiune.",
+      "headingSizesHint": "Dimensiunea implicită în px la lățime completă (o pagină de 1280 px) pentru fiecare nivel de titlu; paginile mai mici o micșorează. Un bloc își poate înlocui propria dimensiune.",
       "textSizes": "Dimensiuni text",
-      "textSizesHint": "Dimensiunea implicită în px pentru fiecare presetare a blocurilor de text. Un bloc își poate înlocui propria dimensiune.",
+      "textSizesHint": "Dimensiunea implicită în px la lățime completă (o pagină de 1280 px) pentru fiecare presetare a blocurilor de text; paginile mai mici o micșorează. Un bloc își poate înlocui propria dimensiune.",
       "fonts": "Fonturi",
       "fontsHint": "Un font Google pentru toate titlurile și toate blocurile de text, la nivelul întregului album.",
       "headingFont": "Font titluri",
@@ -524,7 +524,8 @@
       "defaultButtonLabel": "Buton"
     },
     "stage": {
-      "pageStatus": "Pagina {current} din {total}"
+      "pageStatus": "Pagina {current} din {total}",
+      "panHint": "Trage lateral pentru a vedea toată pagina"
     },
     "nav": {
       "previousPage": "Pagina anterioară",

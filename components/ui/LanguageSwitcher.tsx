@@ -8,7 +8,13 @@ import { useLocale, useTranslations } from 'next-intl'
 import { setLocale } from '@/app/actions/locale'
 import { locales, type Locale } from '@/lib/locales'
 
-export default function LanguageSwitcher({ className = '' }: { className?: string }) {
+export default function LanguageSwitcher({
+  className = '',
+  compact = false,
+}: {
+  className?: string
+  compact?: boolean
+}) {
   const t = useTranslations('language')
   const current = useLocale()
   const [pending, startTransition] = useTransition()
@@ -16,6 +22,23 @@ export default function LanguageSwitcher({ className = '' }: { className?: strin
   function choose(locale: Locale) {
     if (locale === current) return
     startTransition(() => setLocale(locale))
+  }
+
+  if (compact) {
+    const next = locales[(locales.indexOf(current as Locale) + 1) % locales.length]
+    return (
+      <button
+        type="button"
+        lang={current}
+        aria-label={t('switchTo', { language: t(`names.${next}`) })}
+        aria-busy={pending}
+        disabled={pending}
+        onClick={() => choose(next)}
+        className={`inline-flex min-h-11 min-w-11 items-center justify-center px-2 text-sm font-medium uppercase disabled:opacity-60 ${className}`}
+      >
+        {current}
+      </button>
+    )
   }
 
   return (

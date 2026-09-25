@@ -10,6 +10,14 @@ adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html). While the
 
 ## [Unreleased]
 
+## [1.12.1] - 2026-09-25
+
+### Changed
+
+- **The photo grid on a project's admin page is now a collapsed section.** A bar shows how many
+  photos are uploaded, with a down/up button to open it, so the settings below no longer get
+  pushed down. It starts closed every time the page loads.
+
 ## [1.12.0] - 2026-09-25
 
 ### Added

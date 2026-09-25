@@ -71,9 +71,19 @@ one, and a group's children are indented under it, in that same back-to-front or
 
 - **Click** a block to select it — the settings panel fills in.
 - **Drag** a block to move it; **drag a corner handle** (shown only on the selected block) to
-  resize it. While dragging, a block's edges and centre lightly snap to the page edges/centre and
-  to other blocks' edges/centres once you're close — a magnetic nudge on drop, not a hard
-  constraint, so you can still drag it fully over another block or leave it unaligned.
+  resize it.
+- **Snapping.** Two things happen while you drag:
+  - *Sibling adhesion (live).* A block's edge that comes within about 8 px of a neighbour's
+    opposite edge is held flush against it (touching, no gap). Keep pushing and, once you are
+    more than 12 px into the neighbour, it lets go and moves freely, so you can still overlap
+    blocks on purpose. It works from every side and on both axes, and a released block does not
+    grab again until it has left the pull zone. Only blocks at the same level attract each
+    other: top-level blocks with top-level blocks, and children of one group with the other
+    children of that group — never across a group boundary. Only neighbours that overlap the
+    dragged block along the other axis count, so a block far above or below does not pull.
+  - *Drop alignment.* On release, the block's edges and centre also nudge onto the page
+    edges/centre and other blocks' edges/centres within about 6 px.
+  Resizing does not snap.
 - **Bring to front / Send to back** in the panel changes stacking order.
 - The trash icon in the panel deletes the selected block.
 

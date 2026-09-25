@@ -7,6 +7,7 @@ import { useEditor, useNode } from '@craftjs/core'
 import { Rnd } from 'react-rnd'
 import { useCallback, useRef, type ReactNode } from 'react'
 import { clamp, type Block } from '@/lib/showcase-blocks'
+import { adhere, createAdhesion, type Adhesion, type SiblingRect } from '@/lib/showcase-snap'
 import { blockBackgroundCss, blockRadiusCss, blockShadowCss } from '@/lib/showcase-theme'
 import { useFrameSize, pctToPx, pxToPct } from '../../frame-size'
 
@@ -21,10 +22,9 @@ import { useFrameSize, pctToPx, pxToPct } from '../../frame-size'
 
 const MIN_PCT = 4
 
-// Magnetic edge snapping: purely a drop-time nudge, never a constraint — you
-// can still drag one block clean over another, it just settles into exact
-// alignment when you release close to a match. Doesn't touch onDrag, so the
-// drag itself stays exactly as fluid as it always was.
+// Drop-time alignment: a nudge onto the page edges/centre or another block's
+// edge/centre when released close to one. Separate from the live sibling
+// adhesion in lib/showcase-snap.ts, which holds edges flush while dragging.
 const SNAP_PX = 6
 
 /** Shift `pos` by the smallest delta that lines up its start, centre, or end
@@ -88,6 +88,16 @@ export function BlockShell({
   }))
 
   const dragStart = useRef<{ x: number; y: number } | null>(null)
+  const rndRef = useRef<Rnd>(null)
+  // react-draggable only ever adds pointer deltas to its own state, so the
+  // unsnapped pointer position is tracked here and the held position is pushed
+  // back into Rnd with updatePosition.
+  const drag = useRef<{
+    raw: { x: number; y: number }
+    held: { x: number; y: number }
+    adhesion: Adhesion
+    peers: SiblingRect[]
+  } | null>(null)
 
   const siblings = useCallback((): { id: string; block: Block; parentGroupId: string | null }[] => {
     const root = query.node('ROOT').get()
@@ -130,6 +140,7 @@ export function BlockShell({
   return (
     <Rnd
       size={{ width: px.w, height: px.h }}
+      ref={rndRef}
       position={{ x: px.x, y: px.y }}
       bounds="parent"
       enableResizing={{ bottomRight: true, bottomLeft: true, topRight: true, topLeft: true }}
@@ -138,11 +149,28 @@ export function BlockShell({
       onDragStart={() => {
         actions.selectNode(id)
         dragStart.current = { x: block.x, y: block.y }
+        drag.current = {
+          raw: { x: block.x, y: block.y },
+          held: { x: block.x, y: block.y },
+          adhesion: createAdhesion(),
+          peers: siblings()
+            .filter((s) => s.id !== id && s.parentGroupId === parentGroupId)
+            .map((s) => ({ id: s.id, x: s.block.x, y: s.block.y, w: s.block.w, h: s.block.h })),
+        }
       }}
       onDrag={(_e, d) => {
+        const live = drag.current
+        if (!live || frameW <= 0 || frameH <= 0) return
+        live.raw = {
+          x: clamp(live.raw.x + pxToPct(d.deltaX, frameW), 0, 100 - block.w),
+          y: clamp(live.raw.y + pxToPct(d.deltaY, frameH), 0, 100 - block.h),
+        }
+        const held = adhere(live.raw, block, live.peers, { width: frameW, height: frameH }, live.adhesion)
+        const nx = clamp(held.x, 0, 100 - block.w)
+        const ny = clamp(held.y, 0, 100 - block.h)
+        live.held = { x: nx, y: ny }
+        rndRef.current?.updatePosition({ x: pctToPx(nx, frameW), y: pctToPx(ny, frameH) })
         if (!isGroup || !dragStart.current) return
-        const nx = clamp(pxToPct(d.x, frameW), 0, 100 - block.w)
-        const ny = clamp(pxToPct(d.y, frameH), 0, 100 - block.h)
         const dx = nx - dragStart.current.x
         const dy = ny - dragStart.current.y
         for (const sib of siblings()) {
@@ -156,8 +184,10 @@ export function BlockShell({
         dragStart.current = { x: nx, y: ny }
       }}
       onDragStop={(_e, d) => {
-        const rawX = clamp(pxToPct(d.x, frameW), 0, 100 - block.w)
-        const rawY = clamp(pxToPct(d.y, frameH), 0, 100 - block.h)
+        const live = drag.current
+        drag.current = null
+        const rawX = live ? live.held.x : clamp(pxToPct(d.x, frameW), 0, 100 - block.w)
+        const rawY = live ? live.held.y : clamp(pxToPct(d.y, frameH), 0, 100 - block.h)
 
         // Snap to the page edges/centre and to other blocks' edges/centres —
         // whichever of this block's own start/centre/end is closest, within

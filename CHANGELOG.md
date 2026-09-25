@@ -12,8 +12,18 @@ adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html). While the
 
 ### Added
 
+- **Blocks now stick to their neighbours while you drag.** When a block's edge comes close to the
+  opposite edge of another block at the same level (both top-level, or both inside the same
+  group), it is held flush against it. Push it about 12 px further into the neighbour and it lets
+  go, so you can still overlap blocks deliberately. A block inside a group is never pulled toward
+  blocks outside that group.
 - **Opacity for a Group's shadow** — a slider next to the shadow colour, from fully transparent to
   solid. Existing shadows stay as they were (fully opaque colour).
+
+### Changed
+
+- Snapping to other blocks is no longer applied only when you let go; the page-edge and centre
+  alignment on drop is unchanged.
 
 ## [1.11.0] - 2026-09-25
 

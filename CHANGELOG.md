@@ -10,6 +10,8 @@ adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html). While the
 
 ## [Unreleased]
 
+## [1.13.0] - 2026-09-26
+
 ### Changed
 
 - **Showcase text scales with the screen.** A size set in px is now the size on a page 1280 px
@@ -19,7 +21,7 @@ adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html). While the
   canvas uses the same rule, so text looks smaller there than on a real screen; Preview shows the
   real result. Size labels in the settings now say "at full width".
 - **Showcase pages no longer squeeze on phones.** A page is never laid out narrower than 640 px;
-  on a narrower screen it starts centred and can be dragged sideways, with a brief hint.
+  on a narrower screen it starts at its left edge and can be dragged sideways, with a brief hint.
 - **The public gallery fits every screen width, from 240px up.** The title bar no longer pushes the
   page sideways on phones: a long title is cut with an ellipsis (the full title shows on hover),
   the buttons wrap to a second row when they do not fit, and every button is at least 44px tall.
@@ -34,7 +36,7 @@ adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html). While the
 - **The showcase viewer's top bar now fits every screen size.** From 768px wide it is one pill
   (autoplay, music, thumbnails, fullscreen, copy link, download, language) with 44px buttons; on
   narrower screens Thumbnails, Fullscreen, Copy link, Download and Language fold into a "More"
-  menu, and the page dots become a compact "3 / 10" counter. Nothing overlaps at any width, and
+  menu, and the page dots become a compact "3 / 10" counter below 1024px (a row of dots was clipped on tablets). Nothing overlaps at any width, and
   the controls respect notches and rounded corners.
 - **The showcase language switcher is a single button** showing the current language (tap to
   switch), inside the same pill, instead of a separate EN | RO pill under the dots.

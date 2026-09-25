@@ -40,7 +40,7 @@ export function DotIndicator({
     <>
       <div
         ref={rowRef}
-        className="sc-dots pointer-events-auto hidden w-fit max-w-full flex-row items-center gap-0.5 overflow-x-auto md:flex [scrollbar-width:none] [&::-webkit-scrollbar]:hidden"
+        className="sc-dots pointer-events-auto hidden w-fit max-w-full flex-row items-center gap-0.5 overflow-x-auto lg:flex [scrollbar-width:none] [&::-webkit-scrollbar]:hidden"
       >
         {Array.from({ length: total }, (_, i) => {
           const active = i === current
@@ -68,7 +68,7 @@ export function DotIndicator({
       <span
         data-counter
         aria-hidden="true"
-        className="sc-counter pointer-events-none inline-flex h-11 items-center whitespace-nowrap rounded-full bg-black/55 px-3 text-sm font-medium tabular-nums text-white backdrop-blur-sm md:hidden"
+        className="sc-counter pointer-events-none inline-flex h-11 items-center whitespace-nowrap rounded-full bg-black/55 px-3 text-sm font-medium tabular-nums text-white backdrop-blur-sm lg:hidden"
       >
         {current + 1} / {total}
       </span>

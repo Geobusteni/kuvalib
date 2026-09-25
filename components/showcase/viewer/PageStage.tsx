@@ -74,25 +74,23 @@ export function PageStage({
 }) {
   const t = useTranslations('showcaseViewer.stage')
   const panRef = useRef<HTMLDivElement>(null)
-  const centredAt = useRef(0)
   const [hintVisible, setHintVisible] = useState(false)
 
-  // A frame narrower than MIN_FRAME_WIDTH is wider than the screen: centre it,
-  // and tell the visitor once that it pans. Re-centre on resize/rotation only
-  // while they have not panned themselves.
+  // A frame narrower than MIN_FRAME_WIDTH is wider than the screen: start at its left
+  // edge, where text begins, and tell the visitor once that it pans. Reset on
+  // resize/rotation only while they have not panned themselves.
   useEffect(() => {
     const el = panRef.current
     if (!el) return
     const overflows = () => el.scrollWidth > el.clientWidth + 1
-    const centre = () => {
-      if (Math.abs(el.scrollLeft - centredAt.current) > 2) return
-      centredAt.current = Math.max(0, (el.scrollWidth - el.clientWidth) / 2)
-      el.scrollLeft = centredAt.current
+    const toStart = () => {
+      if (el.scrollLeft > 2) return
+      el.scrollLeft = 0
     }
-    centre()
+    toStart()
     setHintVisible(overflows())
     const observer = new ResizeObserver(() => {
-      centre()
+      toStart()
       if (!overflows()) setHintVisible(false)
     })
     observer.observe(el)
@@ -112,7 +110,7 @@ export function PageStage({
       ref={panRef}
       className="sc-pan"
       onScroll={(e) => {
-        if (Math.abs(e.currentTarget.scrollLeft - centredAt.current) > 2) setHintVisible(false)
+        if (e.currentTarget.scrollLeft > 2) setHintVisible(false)
       }}
       style={{
         position: 'absolute',

@@ -288,7 +288,7 @@ gets all the available space.
 
 **On a narrow screen the page pans instead of squeezing.** The page is never laid out narrower
 than 640 px. On a phone in portrait (or any window under 640 px wide) the page keeps that width,
-starts centred, and can be dragged sideways with a finger; a short hint says so and fades after a
+starts at its left edge (where text begins), and can be dragged sideways with a finger; a short hint says so and fades after a
 few seconds. The page still fills the screen's height, and arrows, keys, dots and the thumbnail
 rail change pages as usual. Phones in landscape (about 640 px and wider) show the whole page.
 
@@ -313,9 +313,9 @@ closes it, and Escape puts focus back on the More button without also exiting fu
 Space and Enter on a control activate that control and never trigger the viewer's Space shortcut.
 The bar respects the phone's safe-area insets and never overlaps the page indicator.
 
-The **page indicator** sits top-left. From 768px it is a row of **dots** — the current page's
+The **page indicator** sits top-left. From 1024px it is a row of **dots** — the current page's
 dot is larger; click any dot to jump to that page; the row scrolls sideways (staying on the
-current page) when there are more pages than fit beside the controls. Below 768px it is a
+current page) when there are more pages than fit beside the controls. Below 1024px it is a
 compact "3 / 10" counter instead. Shown or hidden, and coloured, by the Album settings'
 **Page dots** setting. A screen-reader-only "Page N of Total" announcement keeps the page count
 accessible regardless of whether it is shown.

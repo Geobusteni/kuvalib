@@ -9,14 +9,10 @@ import fs from 'fs/promises'
 import { createReadStream } from 'fs'
 import { Readable } from 'stream'
 import { parseRange } from '@/lib/http-range'
+import { attachment } from '@/lib/content-disposition'
 import { zipSync } from 'fflate'
 
 type Ctx = { params: Promise<{ id: string }> }
-
-function attachmentName(name: string): string {
-  // Strip quotes and control characters that would break the header.
-  return name.replace(/["\r\n]/g, '').trim() || 'download.zip'
-}
 
 /**
  * The full archive is whatever the admin uploaded — it is never assembled from the
@@ -42,7 +38,7 @@ export async function GET(request: Request, ctx: Ctx) {
 
   const headers: Record<string, string> = {
     'Content-Type': 'application/zip',
-    'Content-Disposition': `attachment; filename="${attachmentName(project.archiveName)}"`,
+    'Content-Disposition': attachment(project.archiveName, 'download.zip'),
     'Accept-Ranges': 'bytes',
   }
 
@@ -50,19 +46,19 @@ export async function GET(request: Request, ctx: Ctx) {
   let start = 0
   let end = size - 1
   let status = 200
-  if (rangeHeader) {
-    const range = parseRange(rangeHeader, size)
-    if (!range) {
-      return new Response(null, { status: 416, headers: { 'Content-Range': `bytes */${size}` } })
-    }
+  const range = rangeHeader ? parseRange(rangeHeader, size) : null
+  if (range === 'unsatisfiable') {
+    return new Response(null, { status: 416, headers: { 'Content-Range': `bytes */${size}` } })
+  }
+  if (range) {
     ;({ start, end } = range)
     status = 206
     headers['Content-Range'] = `bytes ${start}-${end}/${size}`
   }
   headers['Content-Length'] = String(end - start + 1)
 
-  // A resumed or probing range request that skips the start is not a new download.
-  if (start === 0) await incrementDownload(id)
+  // Only a request for the whole archive counts; resumed or probing ranges do not.
+  if (start === 0 && end === size - 1) await incrementDownload(id)
 
   const stream = createReadStream(archivePath(id), { start, end })
   return new Response(Readable.toWeb(stream) as ReadableStream, { status, headers })
@@ -116,7 +112,7 @@ export async function POST(request: Request, ctx: Ctx) {
   return new Response(new Uint8Array(data), {
     headers: {
       'Content-Type': 'application/zip',
-      'Content-Disposition': `attachment; filename="${attachmentName(`${project.title}-selection.zip`)}"`,
+      'Content-Disposition': attachment(`${project.title}-selection.zip`),
       'Content-Length': String(data.length),
     },
   })

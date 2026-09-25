@@ -134,12 +134,18 @@ export interface ShowcasePhoto {
   thumbLg: string
 }
 
-export const BLOCK_TYPE_LABELS: Record<BlockType, string> = {
-  image: 'Image',
-  title: 'Headline',
-  text: 'Text',
-  button: 'Button',
-  group: 'Group',
+/** Text a new block is created with. Photographer-authored once stored, so it is
+ *  filled in the creator's language at creation time and never translated later. */
+export interface BlockTextDefaults {
+  heading: string
+  text: string
+  buttonLabel: string
+}
+
+/** Strings baked into a new showcase's cover page. */
+export interface CoverStrings extends BlockTextDefaults {
+  albumTitle: string
+  eventDate: string
 }
 
 export function clamp(value: number, min: number, max: number): number {
@@ -161,7 +167,7 @@ interface MakeBlockOpts {
   h?: number
 }
 
-export function makeBlock(type: BlockType, opts: MakeBlockOpts = {}): Block {
+export function makeBlock(type: BlockType, opts: MakeBlockOpts, texts: BlockTextDefaults): Block {
   const id = newBlockId()
   const base = { id, type } as Block
   switch (type) {
@@ -174,21 +180,21 @@ export function makeBlock(type: BlockType, opts: MakeBlockOpts = {}): Block {
     case 'title':
       return {
         ...base,
-        text: 'Heading',
+        text: texts.heading,
         x: opts.x ?? 8, y: opts.y ?? 8, w: opts.w ?? 60, h: opts.h ?? 14,
         align: 'left', textColor: 'default', bg: 'none', radius: 'none', level: 2,
       }
     case 'text':
       return {
         ...base,
-        text: 'Add your text here.',
+        text: texts.text,
         x: opts.x ?? 8, y: opts.y ?? 24, w: opts.w ?? 60, h: opts.h ?? 20,
         align: 'left', textColor: 'default', bg: 'none', radius: 'none', textSize: 'normal',
       }
     case 'button':
       return {
         ...base,
-        label: 'View gallery', style: 'primary', linkType: 'custom', link: '',
+        label: texts.buttonLabel, style: 'primary', linkType: 'custom', link: '',
         x: opts.x ?? 8, y: opts.y ?? 78, w: opts.w ?? 24, h: opts.h ?? 9,
         textColor: 'default', bg: 'none', radius: 'md',
         borderStyle: 'none', borderWidth: 0,
@@ -207,18 +213,18 @@ export function makeBlock(type: BlockType, opts: MakeBlockOpts = {}): Block {
  * a Group holding Title / Text / Button(linkType: 'gallery'). Every piece is then
  * an ordinary block: draggable, resizable, deletable, individually optional.
  */
-export function buildCoverComposite(albumTitle: string, albumDate: string): Block[] {
-  const img = makeBlock('image', { x: 0, y: 0, w: 100, h: 100 })
+export function buildCoverComposite(albumTitle: string, albumDate: string, strings: CoverStrings): Block[] {
+  const img = makeBlock('image', { x: 0, y: 0, w: 100, h: 100 }, strings)
   img.radius = 'none'
 
-  const title = makeBlock('title', { x: 12, y: 58, w: 50, h: 18 })
-  title.text = albumTitle || 'Album title'
+  const title = makeBlock('title', { x: 12, y: 58, w: 50, h: 18 }, strings)
+  title.text = albumTitle || strings.albumTitle
 
-  const date = makeBlock('text', { x: 12, y: 78, w: 50, h: 9 })
-  date.text = albumDate || 'Event date'
+  const date = makeBlock('text', { x: 12, y: 78, w: 50, h: 9 }, strings)
+  date.text = albumDate || strings.eventDate
 
-  const button = makeBlock('button', { x: 12, y: 89, w: 22, h: 8 })
-  button.label = 'View gallery'
+  const button = makeBlock('button', { x: 12, y: 89, w: 22, h: 8 }, strings)
+  button.label = strings.buttonLabel
   button.linkType = 'gallery'
 
   const group: Block = {
@@ -367,14 +373,14 @@ export function arrangeGroupChildren(group: Block, mode: ArrangeMode, pad = 4): 
  * Place a freshly added child so it can never land on top of an existing one:
  * append it, then re-stack the whole group vertically.
  */
-export function addGroupChild(group: Block, type: BlockType, pad = 4): { group: Block; childId: string } {
+export function addGroupChild(group: Block, type: BlockType, texts: BlockTextDefaults, pad = 4): { group: Block; childId: string } {
   const h = Math.max(minBlockH({ type }), Math.min(14, group.h / 3))
   const child = makeBlock(type, {
     x: group.x + pad,
     y: group.y + pad,
     w: Math.max(10, group.w - pad * 2),
     h,
-  })
+  }, texts)
   const children = layoutStackV(group, [...(group.children ?? []), child], pad)
   return { group: { ...group, children }, childId: child.id }
 }

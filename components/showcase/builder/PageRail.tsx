@@ -4,10 +4,12 @@
 'use client'
 
 import { useEditor } from '@craftjs/core'
+import { useTranslations } from 'next-intl'
 import { useShowcaseStore } from '../store'
 import { useBuilder } from './useBuilder'
 
 export function PageRail() {
+  const t = useTranslations('showcaseBuilder.pageRail')
   const pages = useShowcaseStore((s) => s.pages)
   const currentPageId = useShowcaseStore((s) => s.currentPageId)
   const { switchPage, addPage, deletePage } = useBuilder()
@@ -23,7 +25,7 @@ export function PageRail() {
 
   return (
     <div className="flex flex-col gap-2">
-      <span className="text-xs font-medium text-zinc-500">Pages</span>
+      <span className="text-xs font-medium text-zinc-500">{t('heading')}</span>
       <ol className="flex flex-col gap-1.5">
         {pages.map((page, i) => {
           const active = page.id === currentPageId
@@ -33,6 +35,7 @@ export function PageRail() {
                 type="button"
                 onClick={() => selectPage(page.id)}
                 aria-current={active ? 'true' : undefined}
+                aria-label={t('selectPage', { number: i + 1 })}
                 className={`flex aspect-[16/10] flex-1 items-center justify-center rounded-md border text-xs font-medium transition-colors ${
                   active
                     ? 'border-zinc-900 bg-zinc-900 text-white dark:border-zinc-100 dark:bg-zinc-100 dark:text-zinc-900'
@@ -45,7 +48,7 @@ export function PageRail() {
                 <button
                   type="button"
                   onClick={() => deletePage(page.id)}
-                  aria-label={`Delete page ${i + 1}`}
+                  aria-label={t('deletePage', { number: i + 1 })}
                   className="shrink-0 rounded p-1 text-zinc-400 hover:bg-red-50 hover:text-red-600 focus:outline-none focus-visible:ring-2 focus-visible:ring-red-500 dark:hover:bg-red-950/40"
                 >
                   <svg width="14" height="14" viewBox="0 0 20 20" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round">
@@ -62,7 +65,7 @@ export function PageRail() {
         onClick={addPage}
         className="rounded-md border border-dashed border-zinc-300 py-2 text-xs font-medium text-zinc-600 hover:border-zinc-400 hover:text-zinc-900 focus:outline-none focus-visible:ring-2 focus-visible:ring-zinc-500 dark:border-zinc-700 dark:text-zinc-300"
       >
-        + Add page
+        {t('addPage')}
       </button>
     </div>
   )

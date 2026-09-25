@@ -4,12 +4,16 @@
 'use client'
 
 import { useEffect, useRef, useState } from 'react'
-import { BLOCK_TYPE_LABELS, type BlockType } from '@/lib/showcase-blocks'
+import { useTranslations } from 'next-intl'
+import type { BlockType } from '@/lib/showcase-blocks'
+import { useBlockTypeLabel } from './useBlockTypeLabel'
 import { useBuilder } from './useBuilder'
 
 const ORDER: BlockType[] = ['image', 'title', 'text', 'button', 'group']
 
 export function AddBlockMenu() {
+  const t = useTranslations('showcaseBuilder.addBlockMenu')
+  const blockTypeLabel = useBlockTypeLabel()
   const { addBlock, addCover } = useBuilder()
   const [open, setOpen] = useState(false)
   const wrapRef = useRef<HTMLDivElement>(null)
@@ -39,7 +43,7 @@ export function AddBlockMenu() {
         aria-haspopup="menu"
         className="h-9 rounded-lg border border-zinc-300 px-3 text-sm font-medium hover:bg-zinc-100 focus:outline-none focus-visible:ring-2 focus-visible:ring-zinc-500 dark:border-zinc-700 dark:hover:bg-zinc-800"
       >
-        + Add block
+        {t('add')}
       </button>
       {open && (
         <div
@@ -55,7 +59,7 @@ export function AddBlockMenu() {
             }}
             className="rounded-md px-3 py-1.5 text-left text-sm hover:bg-zinc-100 dark:hover:bg-zinc-800"
           >
-            Cover (image + caption)
+            {t('cover')}
           </button>
           <div className="my-1 h-px bg-zinc-200 dark:bg-zinc-800" />
           {ORDER.map((type) => (
@@ -69,7 +73,7 @@ export function AddBlockMenu() {
               }}
               className="rounded-md px-3 py-1.5 text-left text-sm hover:bg-zinc-100 dark:hover:bg-zinc-800"
             >
-              {BLOCK_TYPE_LABELS[type]}
+              {blockTypeLabel(type)}
             </button>
           ))}
         </div>

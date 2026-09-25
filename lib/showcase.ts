@@ -9,6 +9,7 @@ import type {
 } from './generated/prisma/client'
 import {
   buildCoverComposite,
+  type CoverStrings,
   type Block,
   type HeadingLevel,
   type PageSettings,
@@ -87,13 +88,16 @@ export async function getShowcaseById(id: string) {
  * are copied from the project so the cover reads sensibly straight away; the
  * admin can change everything in Album settings afterwards.
  */
-export async function createShowcase(project: {
-  id: string
-  title: string
-  eventDate: Date | null
-}) {
+export async function createShowcase(
+  project: {
+    id: string
+    title: string
+    eventDate: Date | null
+  },
+  coverStrings: CoverStrings,
+) {
   const dateLabel = project.eventDate ? project.eventDate.toISOString().slice(0, 10) : ''
-  const coverBlocks = buildCoverComposite(project.title, dateLabel)
+  const coverBlocks = buildCoverComposite(project.title, dateLabel, coverStrings)
 
   return prisma.showcase.create({
     data: {

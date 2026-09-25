@@ -3,6 +3,7 @@
 
 'use client'
 
+import { useTranslations } from 'next-intl'
 import type { CSSProperties } from 'react'
 import { safeExternalHref, type Block, type HeadingLevel, type TextSizePreset } from '@/lib/showcase-blocks'
 import {
@@ -52,6 +53,7 @@ export function BlockContent({
   headingFont,
   textFont,
 }: Props) {
+  const t = useTranslations('showcaseBuilder.canvas')
   if (block.type === 'image') {
     const radius = blockRadiusCss(block.radius)
     const border = blockBorderCss(block)
@@ -109,7 +111,7 @@ export function BlockContent({
             'repeating-linear-gradient(135deg, var(--sc-surface), var(--sc-surface) 9px, var(--sc-deep) 9px, var(--sc-deep) 18px)',
         }}
       >
-        {editable ? 'Pick a photo' : ''}
+        {editable ? t('pickPhoto') : ''}
       </div>
     )
   }

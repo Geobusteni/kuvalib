@@ -31,14 +31,6 @@ type BackgroundLike = Pick<
 >
 type BorderLike = { borderStyle?: BorderStyle; borderWidth?: number; borderColor?: string }
 
-export const EVENT_TYPE_LABELS: Record<ShowcaseEventType, string> = {
-  WEDDING: 'Wedding',
-  BIRTHDAY: 'Birthday',
-  CHRISTENING: 'Christening',
-  CORPORATE: 'Corporate',
-  GENERIC: 'Generic',
-}
-
 /** oklch hue angles. */
 const EVENT_HUE: Record<ShowcaseEventType, number> = {
   WEDDING: 12,
@@ -46,12 +38,6 @@ const EVENT_HUE: Record<ShowcaseEventType, number> = {
   CHRISTENING: 255,
   CORPORATE: 165,
   GENERIC: 289,
-}
-
-export const ALBUM_BG_LABELS: Record<ShowcaseBg, string> = {
-  NEUTRAL: 'Neutral',
-  DEEP: 'Deep',
-  ACCENT: 'Accent tint',
 }
 
 /**

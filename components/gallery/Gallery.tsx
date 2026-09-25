@@ -5,7 +5,6 @@
 
 import { useCallback, useEffect, useReducer, useRef, useState } from 'react'
 import { useTranslations } from 'next-intl'
-import LanguageSwitcher from '@/components/ui/LanguageSwitcher'
 import Toolbar from './Toolbar'
 import ImageTile, { type PhotoData } from './ImageTile'
 import PhotoFeedbackRow from './PhotoFeedbackRow'
@@ -183,9 +182,9 @@ export default function Gallery({
 
       {/* The grid sits in an 80%-wide column, so photos are never flush to the
           viewport edges, with the breathing room above and below. */}
-      <main className="mx-auto w-[90%] max-w-[1600px] pb-16 pt-24 sm:w-[80%]">
+      <main className="mx-auto w-[90%] max-w-[1600px] pb-16 pt-6 sm:w-[80%]">
         <h1 className="sr-only">{title}</h1>
-        <div className="columns-2 gap-2 sm:columns-3 lg:columns-4">
+        <div className="columns-1 gap-2 min-[320px]:columns-2 sm:columns-3 lg:columns-4">
           {photos.map((photo, index) => (
             <div key={photo.id} className="mb-2 break-inside-avoid">
               <ImageTile
@@ -220,13 +219,6 @@ export default function Gallery({
             >
               {t('downloadAll')}
             </a>
-          </div>
-        )}
-
-        {/* The toolbar has no room for the switcher on narrow screens. */}
-        {state.mode !== 'selection' && (
-          <div className="mt-6 flex justify-center sm:hidden">
-            <LanguageSwitcher className="[&_button]:!text-zinc-400 [&_button:hover]:!text-white [&_button[aria-current=true]]:!text-white [&_span[aria-hidden=true]]:!text-zinc-700" />
           </div>
         )}
       </main>

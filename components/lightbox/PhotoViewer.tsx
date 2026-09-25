@@ -294,7 +294,7 @@ export default function PhotoViewer({
       )}
 
       {actionPanel && photo.original && (
-        <div className="absolute inset-x-0 bottom-0 flex flex-col gap-2 rounded-t-2xl bg-zinc-900 p-6 sm:hidden">
+        <div className="absolute inset-x-0 bottom-0 flex flex-col gap-2 rounded-t-2xl bg-zinc-900 p-6 pb-[max(1.5rem,env(safe-area-inset-bottom))] sm:hidden">
           <button
             onClick={() => {
               setActionPanel(false)

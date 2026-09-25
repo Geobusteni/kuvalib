@@ -98,7 +98,7 @@ export default function AccessGate({
         </form>
 
         <div className="mt-6 flex justify-center">
-          <LanguageSwitcher className="[&_button]:!text-zinc-400 [&_button:hover]:!text-white [&_button[aria-current=true]]:!text-white [&_span[aria-hidden=true]]:!text-zinc-700" />
+          <LanguageSwitcher compact className="rounded-lg text-zinc-400 hover:bg-zinc-800 hover:text-white focus:outline-none focus-visible:ring-2 focus-visible:ring-white/50" />
         </div>
       </div>
     </div>

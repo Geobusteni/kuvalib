@@ -110,7 +110,7 @@ function TooltipButton({ onClick, disabled, pressed, label, className, children 
       <span
         role="tooltip"
         aria-hidden="true"
-        className="pointer-events-none absolute -top-9 left-1/2 z-10 -translate-x-1/2 whitespace-nowrap rounded-md bg-zinc-900 px-2 py-1 text-xs text-white opacity-0 shadow-lg transition-opacity delay-[1200ms] duration-150 group-hover:opacity-100 group-focus-visible:opacity-100 group-focus-visible:delay-0"
+        className="pointer-events-none absolute -top-9 left-1/2 hidden [@media(hover:hover)]:block z-10 -translate-x-1/2 whitespace-nowrap rounded-md bg-zinc-900 px-2 py-1 text-xs text-white opacity-0 shadow-lg transition-opacity delay-[1200ms] duration-150 group-hover:opacity-100 group-focus-visible:opacity-100 group-focus-visible:delay-0"
       >
         {label}
       </span>

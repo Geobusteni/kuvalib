@@ -4,7 +4,8 @@
 import { notFound } from 'next/navigation'
 import type { Metadata } from 'next'
 import { getTranslations } from 'next-intl/server'
-import { getProject, incrementVisit, listPhotos } from '@/lib/projects'
+import { getProject, listPhotos } from '@/lib/projects'
+import { recordVisit } from '@/lib/visits'
 import { getShowcaseById, pageSettingsFromRow } from '@/lib/showcase'
 import { verifyGalleryAccess } from '@/lib/gallery-auth'
 import { toShowcasePhoto } from '@/lib/photo-data'
@@ -52,7 +53,7 @@ export default async function ShowcasePage({ params }: Props) {
     return <AccessGate projectId={project.id} accessType={project.accessType} />
   }
 
-  await incrementVisit(project.id)
+  await recordVisit(project.id)
 
   const photoRecords = await listPhotos(project.id)
   const pages = showcase.pages.map((p) => ({

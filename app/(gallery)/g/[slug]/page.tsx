@@ -4,7 +4,8 @@
 import { notFound } from 'next/navigation'
 import type { Metadata } from 'next'
 import { getTranslations } from 'next-intl/server'
-import { getProject, incrementVisit, listPhotos } from '@/lib/projects'
+import { getProject, listPhotos } from '@/lib/projects'
+import { recordVisit } from '@/lib/visits'
 import { getShowcaseByProject } from '@/lib/showcase'
 import { verifyGalleryAccess } from '@/lib/gallery-auth'
 import { toPhotoData } from '@/lib/photo-data'
@@ -40,7 +41,7 @@ export default async function GalleryPage({ params }: Props) {
     return <AccessGate projectId={slug} accessType={project.accessType} />
   }
 
-  await incrementVisit(slug)
+  await recordVisit(slug)
 
   const [photos, showcase] = await Promise.all([listPhotos(slug), getShowcaseByProject(slug)])
 

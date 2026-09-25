@@ -40,7 +40,7 @@ export default function ViewerControls({
       {/* Top bar */}
       <div
         aria-hidden={!visible}
-        className={`absolute inset-x-0 top-0 z-10 flex h-14 items-center justify-between bg-gradient-to-b from-black/60 to-transparent px-4 transition-opacity duration-200 [.reduce-motion_&]:transition-none ${
+        className={`absolute inset-x-0 top-0 z-10 flex min-h-14 items-center justify-between gap-2 bg-gradient-to-b from-black/60 to-transparent pl-[max(1rem,env(safe-area-inset-left))] pr-[max(0.5rem,env(safe-area-inset-right))] pt-[env(safe-area-inset-top)] transition-opacity duration-200 [.reduce-motion_&]:transition-none ${
           visible ? 'opacity-100' : 'pointer-events-none opacity-0'
         }`}
       >
@@ -84,7 +84,7 @@ export default function ViewerControls({
         onClick={onPrev}
         disabled={currentIndex === 0}
         aria-label={t('previous')}
-        className={`${navBtn} left-2 ${visible ? 'opacity-100' : 'opacity-0 pointer-events-none'} disabled:opacity-0`}
+        className={`${navBtn} left-[max(0.5rem,env(safe-area-inset-left))] ${visible ? 'opacity-100' : 'opacity-0 pointer-events-none'} disabled:opacity-0`}
         tabIndex={visible ? 0 : -1}
       >
         <ChevronLeftIcon />
@@ -93,7 +93,7 @@ export default function ViewerControls({
         onClick={onNext}
         disabled={currentIndex === total - 1}
         aria-label={t('next')}
-        className={`${navBtn} right-2 ${visible ? 'opacity-100' : 'opacity-0 pointer-events-none'} disabled:opacity-0`}
+        className={`${navBtn} right-[max(0.5rem,env(safe-area-inset-right))] ${visible ? 'opacity-100' : 'opacity-0 pointer-events-none'} disabled:opacity-0`}
         tabIndex={visible ? 0 : -1}
       >
         <ChevronRightIcon />

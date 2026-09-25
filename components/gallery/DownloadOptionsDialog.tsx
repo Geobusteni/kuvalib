@@ -223,7 +223,7 @@ export default function DownloadOptionsDialog({
       className="fixed inset-0 z-50 flex items-center justify-center bg-black/70 p-4 focus:outline-none"
       onKeyDown={trapFocus}
     >
-      <div className="w-full max-w-sm rounded-2xl bg-zinc-900 p-6 text-white">
+      <div className="max-h-full w-full max-w-sm overflow-y-auto rounded-2xl bg-zinc-900 p-6 text-white">
         <h2 id="download-options-heading" className="text-base font-semibold">
           {t('title', { count: photos.length })}
         </h2>

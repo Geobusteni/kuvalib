@@ -257,7 +257,8 @@ move to the other without signing in again.
 ### Language
 
 Kuvalib speaks English and Romanian. The first visit uses the browser's language (English when
-it is neither), and the **EN | RO** switcher (admin header, sign-in and setup pages) overrides it.
+it is neither), and the **EN | RO** switcher (admin header, sign-in and setup pages; a one-button version showing
+the current language on the gallery and its password gate) overrides it.
 The choice is remembered for a year in a `kuvalib_locale` cookie on that browser, so clients and
 admins each get their own. Gallery and showcase links do not change with the language.
 

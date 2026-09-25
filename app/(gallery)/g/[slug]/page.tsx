@@ -2,7 +2,7 @@
 // Copyright (C) 2026 Alexandru Negoita
 
 import { notFound } from 'next/navigation'
-import type { Metadata } from 'next'
+import type { Metadata, Viewport } from 'next'
 import { getTranslations } from 'next-intl/server'
 import { getProject, listPhotos } from '@/lib/projects'
 import { recordVisit } from '@/lib/visits'
@@ -13,6 +13,9 @@ import AccessGate from '@/components/gallery/AccessGate'
 import Gallery from '@/components/gallery/Gallery'
 
 type Props = { params: Promise<{ slug: string }> }
+
+// Lets the gallery draw under a notch; the toolbar and lightbox pad themselves with env(safe-area-inset-*).
+export const viewport: Viewport = { viewportFit: 'cover' }
 
 export async function generateMetadata({ params }: Props): Promise<Metadata> {
   const { slug } = await params

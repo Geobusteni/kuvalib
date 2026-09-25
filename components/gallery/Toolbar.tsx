@@ -18,7 +18,7 @@ interface ToolbarProps {
 }
 
 const buttonClass =
-  'inline-flex h-9 items-center justify-center rounded-lg px-3 text-center text-sm font-medium leading-none text-zinc-300 transition-colors hover:bg-zinc-800 hover:text-white focus:outline-none focus-visible:ring-2 focus-visible:ring-white/50'
+  'inline-flex min-h-11 items-center justify-center rounded-lg px-3 text-center text-sm font-medium leading-none text-zinc-300 transition-colors hover:bg-zinc-800 hover:text-white focus:outline-none focus-visible:ring-2 focus-visible:ring-white/50'
 
 export default function Toolbar({
   title,
@@ -32,23 +32,25 @@ export default function Toolbar({
   const t = useTranslations('gallery.toolbar')
 
   return (
-    <div className="fixed inset-x-0 top-0 z-30 flex h-14 items-center justify-between gap-4 bg-black/80 px-4 backdrop-blur-sm">
-      <span className="truncate text-sm font-medium text-zinc-100">{title}</span>
+    <div className="sticky top-0 z-30 flex flex-wrap items-center justify-between gap-x-3 bg-black/80 pb-1 pl-[max(1rem,env(safe-area-inset-left))] pr-[max(1rem,env(safe-area-inset-right))] pt-[max(0.25rem,env(safe-area-inset-top))] backdrop-blur-sm">
+      <span title={title} className="min-w-0 flex-1 basis-32 truncate text-sm font-medium text-zinc-100">
+        {title}
+      </span>
 
       {mode === 'gallery' ? (
-        <div className="flex shrink-0 items-center gap-2">
+        <div className="ml-auto flex flex-wrap items-center justify-end gap-x-1">
           {showcaseHref && (
             <a href={showcaseHref} className={buttonClass}>
               {t('viewShowcase')}
             </a>
           )}
-          <LanguageSwitcher className="hidden sm:inline-flex [&_button]:!text-zinc-400 [&_button:hover]:!text-white [&_button[aria-current=true]]:!text-white [&_span[aria-hidden=true]]:!text-zinc-700" />
+          <LanguageSwitcher compact className={buttonClass} />
           <button onClick={onEnterSelection} className={buttonClass}>
             {t('select')}
           </button>
         </div>
       ) : (
-        <div className="flex shrink-0 items-center gap-2">
+        <div className="ml-auto flex flex-wrap items-center justify-end gap-x-1">
           <button onClick={onExitSelection} className={buttonClass}>
             {t('cancel')}
           </button>
@@ -56,7 +58,7 @@ export default function Toolbar({
             onClick={onOpenDownloadOptions}
             disabled={selectedCount === 0}
             aria-haspopup="dialog"
-            className="inline-flex h-9 items-center justify-center rounded-lg bg-white px-3 text-center text-sm font-medium leading-none text-black transition-colors hover:bg-zinc-200 focus:outline-none focus-visible:ring-2 focus-visible:ring-white/50 disabled:opacity-40"
+            className="inline-flex min-h-11 items-center justify-center rounded-lg bg-white px-3 text-center text-sm font-medium leading-none text-black transition-colors hover:bg-zinc-200 focus:outline-none focus-visible:ring-2 focus-visible:ring-white/50 disabled:opacity-40"
           >
             {selectedCount > 0 ? t('downloadCount', { count: selectedCount }) : t('download')}
           </button>

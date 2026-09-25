@@ -10,6 +10,24 @@ adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html). While the
 
 ## [Unreleased]
 
+### Changed
+
+- **The public gallery fits every screen width, from 240px up.** The title bar no longer pushes the
+  page sideways on phones: a long title is cut with an ellipsis (the full title shows on hover),
+  the buttons wrap to a second row when they do not fit, and every button is at least 44px tall.
+  The bar now scrolls with the page's top edge (sticky) instead of overlaying the first photos.
+- The language switcher on the gallery and on the password gate is a single small button showing
+  the current language (tap to switch), replacing the EN | RO pair and the extra row at the bottom
+  of the gallery.
+- Below 320px wide the gallery shows one column of photos; wider screens keep 2, 3 and 4 columns.
+- The gallery and its lightbox keep their controls clear of a phone's notch and home bar when the
+  phone is held sideways.
+
+### Fixed
+
+- On narrow phones the like/dislike/comment tooltips under each photo made the gallery scroll
+  sideways. They now appear only on devices with a mouse.
+
 ## [1.12.1] - 2026-09-25
 
 ### Changed

@@ -24,23 +24,23 @@ export default async function AdminLayout({ children }: { children: React.ReactN
     <div className="min-h-screen bg-zinc-50 dark:bg-zinc-950">
       <header className="border-b border-zinc-200 bg-white dark:border-zinc-800 dark:bg-zinc-900">
         <div className="mx-auto flex min-h-14 max-w-5xl flex-wrap items-center justify-between gap-x-4 px-4">
-          <nav className="flex items-center gap-4" aria-label={t('label')}>
+          <nav className="flex items-center gap-2" aria-label={t('label')}>
             <Link
               href="/projects"
-              className="text-sm font-semibold tracking-tight text-zinc-900 dark:text-zinc-100"
+              className="inline-flex min-h-11 items-center px-1 text-sm font-semibold tracking-tight text-zinc-900 dark:text-zinc-100"
             >
               {tc('appName')}
             </Link>
             <Link
               href="/projects"
-              className="text-sm text-zinc-500 transition-colors hover:text-zinc-900 dark:hover:text-zinc-100"
+              className="inline-flex min-h-11 items-center px-1 text-sm text-zinc-500 transition-colors hover:text-zinc-900 dark:hover:text-zinc-100"
             >
               {t('projects')}
             </Link>
             {isAdmin && (
               <Link
                 href="/users"
-                className="text-sm text-zinc-500 transition-colors hover:text-zinc-900 dark:hover:text-zinc-100"
+                className="inline-flex min-h-11 items-center px-1 text-sm text-zinc-500 transition-colors hover:text-zinc-900 dark:hover:text-zinc-100"
               >
                 {t('users')}
               </Link>

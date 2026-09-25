@@ -10,14 +10,19 @@ adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html). While the
 
 ## [Unreleased]
 
+## [1.11.0] - 2026-09-25
+
 ### Added
 
 - **English and Romanian interface language.** The first visit follows the browser's language
   (English otherwise); an **EN | RO** switcher in the admin header and on the sign-in and setup
   pages changes it, and the choice is remembered for a year. Gallery and showcase links are
-  unchanged. Only the not-found and error pages are translated so far; the rest follows.
+  unchanged. Every screen is translated — admin, sign-in, gallery, lightbox, showcase viewer and
+  builder — and the server's error messages are translated too. The Romanian text has not had a
+  native review yet.
 - **Overall progress when uploading photos** — a second "Total" bar shows bytes sent across the
   whole batch, next to the existing per-file bar.
+- **The admin navigation links now have 44 px touch targets.**
 - **Byte counts on the archive upload** — the archive uploader now shows a progress bar with
   bytes sent, total and percentage.
 

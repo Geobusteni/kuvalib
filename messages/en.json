@@ -247,7 +247,257 @@
     "next": "Next image",
     "cancel": "Cancel"
   },
-  "showcaseBuilder": {},
+  "showcaseBuilder": {
+    "defaults": {
+      "heading": "Heading",
+      "text": "Add your text here.",
+      "buttonLabel": "View gallery",
+      "albumTitle": "Album title",
+      "eventDate": "Event date"
+    },
+    "blockTypes": {
+      "image": "Image",
+      "title": "Headline",
+      "text": "Text",
+      "button": "Button",
+      "group": "Group"
+    },
+    "options": {
+      "radius": {
+        "none": "Square",
+        "md": "Rounded",
+        "pill": "Pill"
+      },
+      "linkType": {
+        "custom": "Custom URL",
+        "zip": "ZIP archive",
+        "gallery": "Back to gallery"
+      },
+      "textSize": {
+        "small": "Small",
+        "normal": "Normal",
+        "medium": "Medium",
+        "large": "Large",
+        "huge": "Huge"
+      },
+      "borderStyle": {
+        "none": "None",
+        "solid": "Solid",
+        "dashed": "Dashed",
+        "dotted": "Dotted"
+      },
+      "kenBurns": {
+        "none": "None",
+        "zoom-in": "Zoom in",
+        "slide-left": "Slide left",
+        "slide-right": "Slide right",
+        "slide-up": "Slide up",
+        "slide-down": "Slide down"
+      },
+      "align": {
+        "left": "Left",
+        "center": "Center",
+        "right": "Right"
+      },
+      "bgSwatch": {
+        "none": "None",
+        "surface": "Surface",
+        "deep": "Deep",
+        "accentTint": "Accent tint",
+        "accentSolid": "Accent",
+        "custom": "Custom colour",
+        "gradient": "Gradient"
+      },
+      "textSwatch": {
+        "default": "Default",
+        "accent": "Accent",
+        "muted": "Muted",
+        "custom": "Custom colour"
+      },
+      "buttonStyle": {
+        "primary": "Primary",
+        "secondary": "Secondary"
+      },
+      "animation": {
+        "TURN": "Turn",
+        "FADE": "Fade",
+        "ZOOM": "Zoom",
+        "ROTATE": "Rotate"
+      },
+      "eventType": {
+        "WEDDING": "Wedding",
+        "BIRTHDAY": "Birthday",
+        "CHRISTENING": "Christening",
+        "CORPORATE": "Corporate",
+        "GENERIC": "Generic"
+      },
+      "albumBg": {
+        "NEUTRAL": "Neutral",
+        "DEEP": "Deep",
+        "ACCENT": "Accent tint"
+      },
+      "headingLevel": "H{level}"
+    },
+    "canvas": {},
+    "addBlockMenu": {
+      "add": "+ Add block",
+      "cover": "Cover (image + caption)"
+    },
+    "blockTree": {
+      "empty": "No blocks on this page yet.",
+      "heading": "Blocks"
+    },
+    "pageRail": {
+      "heading": "Pages",
+      "selectPage": "Page {number}",
+      "deletePage": "Delete page {number}",
+      "addPage": "+ Add page"
+    },
+    "shell": {
+      "backToProject": "← Project",
+      "albumSettings": "Album settings",
+      "copyLink": "Copy link",
+      "linkCopied": "Link copied",
+      "undo": "Undo",
+      "undoTitle": "Undo (Ctrl/Cmd+Z)",
+      "redo": "Redo",
+      "redoTitle": "Redo (Ctrl/Cmd+Shift+Z)",
+      "saving": "Saving…",
+      "unsaved": "Unsaved changes",
+      "saved": "Saved",
+      "save": "Save",
+      "build": "Build",
+      "preview": "Preview",
+      "blocks": "Blocks"
+    },
+    "settingsPanel": {
+      "outOfRange": "Must be between {min} and {max} — saved as {value}",
+      "background": "Background",
+      "reset": "Reset",
+      "opacity": "Opacity {value}%",
+      "from": "From",
+      "to": "To",
+      "angle": "Angle {value}°",
+      "border": "Border",
+      "widthPx": "Width (px)",
+      "colour": "Colour",
+      "pageHint": "Select a block on the canvas to edit it. Drag to move it; drag a corner to resize. These settings apply to the current page when nothing is selected.",
+      "thisPage": "This page",
+      "inGroup": " · in group",
+      "deleteBlock": "Delete block",
+      "bringToFront": "Bring to front",
+      "sendToBack": "Send to back",
+      "alignInGroup": "Align in group",
+      "detachHint": "Drag it out of the group box to detach it.",
+      "axis": {
+        "x": "X %",
+        "y": "Y %",
+        "w": "W %",
+        "h": "H %"
+      },
+      "photo": "Photo",
+      "uploadFirst": "Upload photos to the project first.",
+      "content": "Content",
+      "align": "Align",
+      "style": "Style",
+      "bold": "Bold",
+      "italic": "Italic",
+      "underline": "Underline",
+      "level": "Level",
+      "customSizeHeading": "Custom size (px, 8–200) — overrides the level default",
+      "albumDefault": "Album default",
+      "size": "Size",
+      "customSizePreset": "Custom size (px, 8–200) — overrides the preset",
+      "presetDefault": "Preset default",
+      "label": "Label",
+      "link": "Link",
+      "urlPlaceholder": "https://…",
+      "zipHint": "Opens the download dialog (ZIP of originals), if downloads are enabled for the project.",
+      "galleryHint": "Links to the full gallery this showcase was built from.",
+      "appearance": "Appearance",
+      "corners": "Corners",
+      "kenBurns": "Ken Burns",
+      "effect": "Effect",
+      "speed": "Speed — {value}s",
+      "cappedToAutoplay": "Capped to the {seconds}s autoplay interval.",
+      "blur": "Blur (glass effect) — {value}px",
+      "shadowBlur": "Shadow blur — {value}px (0 = off)",
+      "offsetX": "Offset X — {value}px",
+      "offsetY": "Offset Y — {value}px",
+      "spread": "Spread — {value}px",
+      "textColour": "Text colour",
+      "titleSolidHint": "Headline text is always solid — no transparency.",
+      "arrangeChildren": "Arrange children",
+      "stackDown": "Stack ↓",
+      "stackRight": "Stack →",
+      "alignLeft": "Left",
+      "alignCenter": "Center",
+      "alignRight": "Right",
+      "alignTop": "Top",
+      "alignMiddle": "Middle",
+      "alignBottom": "Bottom",
+      "addInside": "Add inside this group",
+      "addChild": "+ {type}"
+    },
+    "albumSettings": {
+      "title": "Album settings",
+      "albumTitle": "Title",
+      "date": "Date",
+      "eventType": "Event type",
+      "albumBackground": "Album background",
+      "musicPlaylist": "Music playlist",
+      "removeTrack": "Remove {name}",
+      "noTracks": "No tracks yet.",
+      "uploading": "Uploading…",
+      "addTrack": "+ Add track",
+      "loopPlaylist": "Loop the playlist while viewing",
+      "autoplayMusic": "Autoplay music",
+      "musicAutoplayOn": "Slides autoplay, so music always starts with them — this is checked for you.",
+      "musicAutoplayOff": "Starts music automatically (only a mute button is shown). Off, the viewer gets a play button for music instead.",
+      "slideshow": "Slideshow",
+      "pageTransition": "Page transition",
+      "autoplay": "Autoplay",
+      "secondsPerPage": "Seconds per page",
+      "seconds": "{n}s",
+      "headingSizes": "Heading sizes",
+      "headingSizesHint": "Default px size for each Headline level. A block can override its own size.",
+      "textSizes": "Text sizes",
+      "textSizesHint": "Default px size for each Text block preset. A block can override its own size.",
+      "fonts": "Fonts",
+      "fontsHint": "A Google Font for every Headline and every Text block, album-wide.",
+      "headingFont": "Heading font",
+      "textFont": "Text font",
+      "defaultFont": "Default",
+      "colorPresets": "Color presets",
+      "colorPresetsHint": "Your own palette — offered as quick-pick swatches everywhere a custom colour is chosen in the builder, so you don’t have to reopen a colour picker each time.",
+      "removePreset": "Remove preset colour {hex}",
+      "addPreset": "Add a preset colour",
+      "pageDots": "Page dots",
+      "showDots": "Show the page-position dots (top left) in the viewer",
+      "active": "Active",
+      "inactive": "Inactive",
+      "reset": "Reset",
+      "dotsHint": "Blank uses the event colour for the active dot and a translucent white for the rest.",
+      "customCss": "Custom CSS",
+      "hideCssRef": "Hide the CSS class reference",
+      "showCssRef": "Show the CSS class reference",
+      "cssScopeHint": "Applied only inside this showcase’s public viewer.",
+      "cssLegendIntro": "The classes available to target in the public viewer:",
+      "cssLegend": {
+        "viewer": "The whole viewer — full-bleed background behind everything.",
+        "stage": "Positioning wrapper around the current page (holds the 3D perspective for the Turn transition).",
+        "page": "The page itself — background, border, and where the page transition animates.",
+        "block": "Every block’s wrapper. Combine with a type below to target just one kind.",
+        "blockTypes": "One block type’s wrapper.",
+        "controls": "The floating top-right controls pill.",
+        "dots": "The left-side page-dot column. `.sc-dot` is one dot, `.sc-dot-active` the current page’s.",
+        "thumbnails": "The bottom thumbnail strip. `.sc-thumbnail` is one preview, `.sc-thumbnail-active` the current page’s."
+      },
+      "cancel": "Cancel",
+      "done": "Done",
+      "saving": "Saving…"
+    }
+  },
   "showcaseViewer": {
     "metadata": {
       "fallbackTitle": "Showcase"

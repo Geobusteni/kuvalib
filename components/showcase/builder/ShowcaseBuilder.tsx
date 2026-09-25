@@ -4,6 +4,7 @@
 'use client'
 
 import { Editor, useEditor } from '@craftjs/core'
+import { useTranslations } from 'next-intl'
 import { useEffect, useState } from 'react'
 import type { Block, PageSettings } from '@/lib/showcase-blocks'
 import { showcaseThemeVars } from '@/lib/showcase-theme'
@@ -87,6 +88,7 @@ function BuilderShell({
   downloadEnabled: boolean
   passwordProtected: boolean
 }) {
+  const t = useTranslations('showcaseBuilder.shell')
   const view = useShowcaseStore((s) => s.view)
   const setView = useShowcaseStore((s) => s.setView)
   const projectId = useShowcaseStore((s) => s.projectId)
@@ -140,29 +142,29 @@ function BuilderShell({
       <div className="flex items-center justify-between gap-3 border-b border-zinc-200 pb-3 dark:border-zinc-800">
         <div className="flex items-center gap-2">
           <a href={`/projects/${projectId}`} className="text-sm text-zinc-500 hover:text-zinc-900 dark:hover:text-zinc-100">
-            ← Project
+            {t('backToProject')}
           </a>
           <button
             type="button"
             onClick={() => setSettingsOpen(true)}
             className="rounded-lg border border-zinc-300 px-3 py-1.5 text-sm font-medium hover:bg-zinc-100 dark:border-zinc-700 dark:hover:bg-zinc-800"
           >
-            Album settings
+            {t('albumSettings')}
           </button>
           <button
             type="button"
             onClick={copyLink}
             className="rounded-lg border border-zinc-300 px-3 py-1.5 text-sm font-medium hover:bg-zinc-100 dark:border-zinc-700 dark:hover:bg-zinc-800"
           >
-            {linkCopied ? 'Link copied' : 'Copy link'}
+            {linkCopied ? t('linkCopied') : t('copyLink')}
           </button>
           <div className="flex overflow-hidden rounded-lg border border-zinc-300 dark:border-zinc-700">
             <button
               type="button"
               onClick={() => editorActions.history.undo()}
               disabled={!canUndo}
-              aria-label="Undo"
-              title="Undo (Ctrl/Cmd+Z)"
+              aria-label={t('undo')}
+              title={t('undoTitle')}
               className="flex h-9 w-9 items-center justify-center hover:bg-zinc-100 disabled:cursor-not-allowed disabled:opacity-30 disabled:hover:bg-transparent dark:hover:bg-zinc-800"
             >
               <svg width="16" height="16" viewBox="0 0 20 20" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round"><path d="M7 5 3 9l4 4M3 9h9a5 5 0 0 1 0 10h-1" /></svg>
@@ -171,8 +173,8 @@ function BuilderShell({
               type="button"
               onClick={() => editorActions.history.redo()}
               disabled={!canRedo}
-              aria-label="Redo"
-              title="Redo (Ctrl/Cmd+Shift+Z)"
+              aria-label={t('redo')}
+              title={t('redoTitle')}
               className="flex h-9 w-9 items-center justify-center border-l border-zinc-300 hover:bg-zinc-100 disabled:cursor-not-allowed disabled:opacity-30 disabled:hover:bg-transparent dark:border-zinc-700 dark:hover:bg-zinc-800"
             >
               <svg width="16" height="16" viewBox="0 0 20 20" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round"><path d="M13 5 17 9l-4 4M17 9H8a5 5 0 0 0 0 10h1" /></svg>
@@ -181,7 +183,7 @@ function BuilderShell({
         </div>
         <div className="flex items-center gap-3">
           <span className="text-xs text-zinc-400">
-            {saving ? 'Saving…' : dirty ? 'Unsaved changes' : lastSavedAt ? 'Saved' : ''}
+            {saving ? t('saving') : dirty ? t('unsaved') : lastSavedAt ? t('saved') : ''}
           </span>
           <div className="flex overflow-hidden rounded-lg border border-zinc-300 dark:border-zinc-700">
             {(['build', 'preview'] as const).map((v) => (
@@ -190,13 +192,13 @@ function BuilderShell({
                 type="button"
                 onClick={() => setView(v)}
                 aria-pressed={view === v}
-                className={`px-3 py-1.5 text-sm font-medium capitalize ${
+                className={`px-3 py-1.5 text-sm font-medium ${
                   view === v
                     ? 'bg-zinc-900 text-white dark:bg-zinc-100 dark:text-zinc-900'
                     : 'bg-white text-zinc-600 dark:bg-zinc-900 dark:text-zinc-300'
                 }`}
               >
-                {v}
+                {t(v)}
               </button>
             ))}
           </div>
@@ -206,7 +208,7 @@ function BuilderShell({
             disabled={saving || !dirty}
             className="rounded-lg bg-zinc-900 px-3 py-1.5 text-sm font-medium text-white hover:bg-zinc-700 disabled:cursor-not-allowed disabled:opacity-40 disabled:hover:bg-zinc-900 dark:bg-zinc-100 dark:text-zinc-900 dark:disabled:hover:bg-zinc-100"
           >
-            {saving ? 'Saving…' : dirty ? 'Save' : 'Saved'}
+            {saving ? t('saving') : dirty ? t('save') : t('saved')}
           </button>
         </div>
       </div>
@@ -234,7 +236,7 @@ function BuilderShell({
                     : 'border-zinc-300 hover:bg-zinc-100 dark:border-zinc-700 dark:hover:bg-zinc-800'
                 }`}
               >
-                Blocks
+                {t('blocks')}
               </button>
             </div>
             <Canvas />

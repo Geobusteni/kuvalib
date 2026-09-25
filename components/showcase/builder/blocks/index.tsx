@@ -4,6 +4,7 @@
 'use client'
 
 import { useEditor, useNode, type UserComponent } from '@craftjs/core'
+import { useTranslations } from 'next-intl'
 import type { ReactNode } from 'react'
 import type { Block } from '@/lib/showcase-blocks'
 import { BlockContent } from '../../BlockContent'
@@ -96,6 +97,7 @@ export const ButtonBlock: UserComponent = () => {
 ButtonBlock.craft = { displayName: 'ButtonBlock', rules: { canDrag: () => true } }
 
 export const GroupBlock: UserComponent = () => {
+  const t = useTranslations('showcaseBuilder.blockTypes')
   const { id } = useNode()
   const { isActive } = useEditor((state) => ({ isActive: state.events.selected.has(id) }))
   // Children render as separate flat siblings; the box itself is all that lives here.
@@ -114,7 +116,7 @@ export const GroupBlock: UserComponent = () => {
           opacity: isActive ? 0.9 : 0.4,
         }}
       >
-        Group
+        {t('group')}
       </span>
     </BlockShell>
   )

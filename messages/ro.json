@@ -247,7 +247,257 @@
     "next": "Imaginea următoare",
     "cancel": "Anulează"
   },
-  "showcaseBuilder": {},
+  "showcaseBuilder": {
+    "defaults": {
+      "heading": "Titlu",
+      "text": "Adaugă textul tău aici.",
+      "buttonLabel": "Vezi galeria",
+      "albumTitle": "Titlul albumului",
+      "eventDate": "Data evenimentului"
+    },
+    "blockTypes": {
+      "image": "Imagine",
+      "title": "Titlu",
+      "text": "Text",
+      "button": "Buton",
+      "group": "Grup"
+    },
+    "options": {
+      "radius": {
+        "none": "Pătrate",
+        "md": "Rotunjite",
+        "pill": "Capsulă"
+      },
+      "linkType": {
+        "custom": "URL propriu",
+        "zip": "Arhivă ZIP",
+        "gallery": "Înapoi la galerie"
+      },
+      "textSize": {
+        "small": "Mic",
+        "normal": "Normal",
+        "medium": "Mediu",
+        "large": "Mare",
+        "huge": "Foarte mare"
+      },
+      "borderStyle": {
+        "none": "Fără",
+        "solid": "Continuă",
+        "dashed": "Întreruptă",
+        "dotted": "Punctată"
+      },
+      "kenBurns": {
+        "none": "Fără",
+        "zoom-in": "Apropiere",
+        "slide-left": "Spre stânga",
+        "slide-right": "Spre dreapta",
+        "slide-up": "În sus",
+        "slide-down": "În jos"
+      },
+      "align": {
+        "left": "Stânga",
+        "center": "Centru",
+        "right": "Dreapta"
+      },
+      "bgSwatch": {
+        "none": "Fără",
+        "surface": "Suprafață",
+        "deep": "Închis",
+        "accentTint": "Nuanță de accent",
+        "accentSolid": "Accent",
+        "custom": "Culoare personalizată",
+        "gradient": "Gradient"
+      },
+      "textSwatch": {
+        "default": "Implicit",
+        "accent": "Accent",
+        "muted": "Estompat",
+        "custom": "Culoare personalizată"
+      },
+      "buttonStyle": {
+        "primary": "Principal",
+        "secondary": "Secundar"
+      },
+      "animation": {
+        "TURN": "Întoarcere",
+        "FADE": "Estompare",
+        "ZOOM": "Zoom",
+        "ROTATE": "Rotire"
+      },
+      "eventType": {
+        "WEDDING": "Nuntă",
+        "BIRTHDAY": "Zi de naștere",
+        "CHRISTENING": "Botez",
+        "CORPORATE": "Corporate",
+        "GENERIC": "General"
+      },
+      "albumBg": {
+        "NEUTRAL": "Neutru",
+        "DEEP": "Închis",
+        "ACCENT": "Nuanță de accent"
+      },
+      "headingLevel": "H{level}"
+    },
+    "canvas": {},
+    "addBlockMenu": {
+      "add": "+ Adaugă bloc",
+      "cover": "Copertă (imagine + legendă)"
+    },
+    "blockTree": {
+      "empty": "Nu există încă blocuri pe această pagină.",
+      "heading": "Blocuri"
+    },
+    "pageRail": {
+      "heading": "Pagini",
+      "selectPage": "Pagina {number}",
+      "deletePage": "Șterge pagina {number}",
+      "addPage": "+ Adaugă pagină"
+    },
+    "shell": {
+      "backToProject": "← Proiect",
+      "albumSettings": "Setări album",
+      "copyLink": "Copiază linkul",
+      "linkCopied": "Link copiat",
+      "undo": "Anulează",
+      "undoTitle": "Anulează (Ctrl/Cmd+Z)",
+      "redo": "Refă",
+      "redoTitle": "Refă (Ctrl/Cmd+Shift+Z)",
+      "saving": "Se salvează…",
+      "unsaved": "Modificări nesalvate",
+      "saved": "Salvat",
+      "save": "Salvează",
+      "build": "Construire",
+      "preview": "Previzualizare",
+      "blocks": "Blocuri"
+    },
+    "settingsPanel": {
+      "outOfRange": "Trebuie să fie între {min} și {max} — se salvează ca {value}",
+      "background": "Fundal",
+      "reset": "Resetează",
+      "opacity": "Opacitate {value}%",
+      "from": "De la",
+      "to": "Până la",
+      "angle": "Unghi {value}°",
+      "border": "Contur",
+      "widthPx": "Grosime (px)",
+      "colour": "Culoare",
+      "pageHint": "Selectează un bloc pe canvas pentru a-l edita. Trage-l pentru a-l muta; trage de un colț pentru a-l redimensiona. Aceste setări se aplică paginii curente când nu este selectat nimic.",
+      "thisPage": "Această pagină",
+      "inGroup": " · în grup",
+      "deleteBlock": "Șterge blocul",
+      "bringToFront": "Adu în față",
+      "sendToBack": "Trimite în spate",
+      "alignInGroup": "Aliniază în grup",
+      "detachHint": "Trage-l în afara grupului pentru a-l detașa.",
+      "axis": {
+        "x": "X %",
+        "y": "Y %",
+        "w": "L %",
+        "h": "Î %"
+      },
+      "photo": "Fotografie",
+      "uploadFirst": "Încarcă mai întâi fotografii în proiect.",
+      "content": "Conținut",
+      "align": "Aliniere",
+      "style": "Stil",
+      "bold": "Aldin",
+      "italic": "Cursiv",
+      "underline": "Subliniat",
+      "level": "Nivel",
+      "customSizeHeading": "Dimensiune personalizată (px, 8–200) — înlocuiește valoarea implicită a nivelului",
+      "albumDefault": "Implicit album",
+      "size": "Dimensiune",
+      "customSizePreset": "Dimensiune personalizată (px, 8–200) — înlocuiește presetarea",
+      "presetDefault": "Implicit presetare",
+      "label": "Etichetă",
+      "link": "Link",
+      "urlPlaceholder": "https://…",
+      "zipHint": "Deschide fereastra de descărcare (ZIP cu originalele), dacă descărcările sunt activate pentru proiect.",
+      "galleryHint": "Trimite la galeria completă din care a fost creată această prezentare.",
+      "appearance": "Aspect",
+      "corners": "Colțuri",
+      "kenBurns": "Ken Burns",
+      "effect": "Efect",
+      "speed": "Viteză — {value} s",
+      "cappedToAutoplay": "Limitat la intervalul de redare automată de {seconds} s.",
+      "blur": "Estompare (efect de sticlă) — {value}px",
+      "shadowBlur": "Estompare umbră — {value}px (0 = oprită)",
+      "offsetX": "Decalaj X — {value}px",
+      "offsetY": "Decalaj Y — {value}px",
+      "spread": "Extindere — {value}px",
+      "textColour": "Culoare text",
+      "titleSolidHint": "Textul titlului este întotdeauna opac — fără transparență.",
+      "arrangeChildren": "Aranjează elementele",
+      "stackDown": "Stivuiește ↓",
+      "stackRight": "Stivuiește →",
+      "alignLeft": "Stânga",
+      "alignCenter": "Centru",
+      "alignRight": "Dreapta",
+      "alignTop": "Sus",
+      "alignMiddle": "Mijloc",
+      "alignBottom": "Jos",
+      "addInside": "Adaugă în acest grup",
+      "addChild": "+ {type}"
+    },
+    "albumSettings": {
+      "title": "Setări album",
+      "albumTitle": "Titlu",
+      "date": "Dată",
+      "eventType": "Tipul evenimentului",
+      "albumBackground": "Fundalul albumului",
+      "musicPlaylist": "Listă de muzică",
+      "removeTrack": "Elimină {name}",
+      "noTracks": "Nicio piesă încă.",
+      "uploading": "Se încarcă…",
+      "addTrack": "+ Adaugă piesă",
+      "loopPlaylist": "Repetă lista de muzică în timpul vizionării",
+      "autoplayMusic": "Redare automată a muzicii",
+      "musicAutoplayOn": "Diapozitivele se redau automat, deci muzica pornește întotdeauna odată cu ele — această opțiune este bifată pentru tine.",
+      "musicAutoplayOff": "Pornește muzica automat (se afișează doar un buton de oprire a sunetului). Dacă este dezactivată, vizitatorul primește un buton de redare pentru muzică.",
+      "slideshow": "Prezentare",
+      "pageTransition": "Tranziția dintre pagini",
+      "autoplay": "Redare automată",
+      "secondsPerPage": "Secunde pe pagină",
+      "seconds": "{n} s",
+      "headingSizes": "Dimensiuni titluri",
+      "headingSizesHint": "Dimensiunea implicită în px pentru fiecare nivel de titlu. Un bloc își poate înlocui propria dimensiune.",
+      "textSizes": "Dimensiuni text",
+      "textSizesHint": "Dimensiunea implicită în px pentru fiecare presetare a blocurilor de text. Un bloc își poate înlocui propria dimensiune.",
+      "fonts": "Fonturi",
+      "fontsHint": "Un font Google pentru toate titlurile și toate blocurile de text, la nivelul întregului album.",
+      "headingFont": "Font titluri",
+      "textFont": "Font text",
+      "defaultFont": "Implicit",
+      "colorPresets": "Culori presetate",
+      "colorPresetsHint": "Paleta ta proprie — oferită ca mostre de alegere rapidă oriunde se alege o culoare personalizată în editor, ca să nu trebuiască să redeschizi de fiecare dată selectorul de culori.",
+      "removePreset": "Elimină culoarea presetată {hex}",
+      "addPreset": "Adaugă o culoare presetată",
+      "pageDots": "Puncte de pagină",
+      "showDots": "Afișează în vizualizator punctele de poziție a paginii (stânga sus)",
+      "active": "Activ",
+      "inactive": "Inactiv",
+      "reset": "Resetează",
+      "dotsHint": "Dacă e gol, punctul activ folosește culoarea evenimentului, iar restul un alb translucid.",
+      "customCss": "CSS personalizat",
+      "hideCssRef": "Ascunde referința claselor CSS",
+      "showCssRef": "Arată referința claselor CSS",
+      "cssScopeHint": "Se aplică doar în vizualizatorul public al acestei prezentări.",
+      "cssLegendIntro": "Clasele disponibile pentru țintire în vizualizatorul public:",
+      "cssLegend": {
+        "viewer": "Întregul vizualizator — fundalul pe toată suprafața, în spatele tuturor elementelor.",
+        "stage": "Containerul de poziționare din jurul paginii curente (păstrează perspectiva 3D pentru tranziția Întoarcere).",
+        "page": "Pagina propriu-zisă — fundalul, conturul și elementul pe care se animă tranziția dintre pagini.",
+        "block": "Containerul fiecărui bloc. Combină-l cu un tip de mai jos pentru a ținti doar un anumit fel de bloc.",
+        "blockTypes": "Containerul unui singur tip de bloc.",
+        "controls": "Bara plutitoare de comenzi din dreapta sus.",
+        "dots": "Coloana de puncte de pagină din stânga. `.sc-dot` este un punct, `.sc-dot-active` cel al paginii curente.",
+        "thumbnails": "Banda de miniaturi de jos. `.sc-thumbnail` este o previzualizare, `.sc-thumbnail-active` cea a paginii curente."
+      },
+      "cancel": "Anulează",
+      "done": "Gata",
+      "saving": "Se salvează…"
+    }
+  },
   "showcaseViewer": {
     "metadata": {
       "fallbackTitle": "Prezentare"

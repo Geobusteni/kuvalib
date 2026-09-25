@@ -4,7 +4,8 @@
 'use client'
 
 import { useEditor, Element } from '@craftjs/core'
-import { createContext, useCallback, useContext, useEffect, useRef, type ReactNode } from 'react'
+import { useTranslations } from 'next-intl'
+import { createContext, useCallback, useContext, useEffect, useMemo, useRef, type ReactNode } from 'react'
 import {
   arrangeGroupChildren,
   buildCoverComposite,
@@ -61,6 +62,11 @@ export function useBuilder(): BuilderApi {
 
 export function BuilderProvider({ children }: { children: ReactNode }) {
   const { query, actions } = useEditor()
+  const tDefaults = useTranslations('showcaseBuilder.defaults')
+  const texts = useMemo(
+    () => ({ heading: tDefaults('heading'), text: tDefaults('text'), buttonLabel: tDefaults('buttonLabel') }),
+    [tDefaults],
+  )
 
   const projectId = useShowcaseStore((s) => s.projectId)
   const currentPageId = useShowcaseStore((s) => s.currentPageId)
@@ -116,22 +122,26 @@ export function BuilderProvider({ children }: { children: ReactNode }) {
 
   const addBlock = useCallback(
     (type: BlockType) => {
-      const id = insert(makeBlock(type), null)
+      const id = insert(makeBlock(type, {}, texts), null)
       actions.selectNode(id)
       markDirty()
     },
-    [actions, insert, markDirty],
+    [actions, insert, markDirty, texts],
   )
 
   const addCover = useCallback(() => {
     const { title, eventDate } = useShowcaseStore.getState().settings
-    const [image, group] = buildCoverComposite(title, eventDate ?? '')
+    const [image, group] = buildCoverComposite(title, eventDate ?? '', {
+      ...texts,
+      albumTitle: tDefaults('albumTitle'),
+      eventDate: tDefaults('eventDate'),
+    })
     insert({ ...image }, null)
     const groupNodeId = insert({ ...group, children: undefined }, null)
     for (const child of group.children ?? []) insert(child, groupNodeId)
     actions.selectNode(groupNodeId)
     markDirty()
-  }, [actions, insert, markDirty])
+  }, [actions, insert, markDirty, tDefaults, texts])
 
   const addGroupChild = useCallback(
     (groupNodeId: string, type: BlockType) => {
@@ -143,12 +153,12 @@ export function BuilderProvider({ children }: { children: ReactNode }) {
         y: groupBlock.y + 4,
         w: Math.max(10, groupBlock.w - 8),
         h: Math.min(14, groupBlock.h / 3),
-      })
+      }, texts)
       const childId = insert(child, groupNodeId)
       actions.selectNode(childId)
       markDirty()
     },
-    [actions, insert, markDirty, query],
+    [actions, insert, markDirty, query, texts],
   )
 
   const arrangeGroup = useCallback(

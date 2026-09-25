@@ -2,6 +2,7 @@
 // Copyright (C) 2026 Alexandru Negoita
 
 import { NextRequest } from 'next/server'
+import { getTranslations } from 'next-intl/server'
 import { requireAdmin } from '@/lib/auth'
 import { getProject } from '@/lib/projects'
 import {
@@ -39,7 +40,14 @@ export async function POST(_req: NextRequest, ctx: Ctx) {
     return Response.json({ error: 'showcase_exists' }, { status: 409 })
   }
 
-  const showcase = await createShowcase(project)
+  const t = await getTranslations('showcaseBuilder.defaults')
+  const showcase = await createShowcase(project, {
+    heading: t('heading'),
+    text: t('text'),
+    buttonLabel: t('buttonLabel'),
+    albumTitle: t('albumTitle'),
+    eventDate: t('eventDate'),
+  })
   return Response.json({ showcaseId: showcase.id }, { status: 201 })
 }
 

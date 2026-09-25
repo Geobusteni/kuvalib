@@ -4,8 +4,8 @@
 'use client'
 
 import { useEditor } from '@craftjs/core'
+import { useTranslations } from 'next-intl'
 import {
-  BLOCK_TYPE_LABELS,
   clamp,
   type Block,
   type BlockAlign,
@@ -24,42 +24,34 @@ import { useShowcaseStore } from '../store'
 import { usePhotos } from '../photos-context'
 import { useBuilder } from './useBuilder'
 import { PresetSwatchRow } from './PresetSwatchRow'
+import { useBlockTypeLabel } from './useBlockTypeLabel'
 
-const RADII: { value: BlockRadius; label: string }[] = [
-  { value: 'none', label: 'Square' },
-  { value: 'md', label: 'Rounded' },
-  { value: 'pill', label: 'Pill' },
-]
+const RADII: BlockRadius[] = ['none', 'md', 'pill']
 const BG_SWATCHES: BlockBg[] = ['none', 'surface', 'deep', 'accentTint', 'accentSolid', 'custom', 'gradient']
 const TEXT_SWATCHES: BlockTextColor[] = ['default', 'accent', 'muted', 'custom']
 const ALIGNS: BlockAlign[] = ['left', 'center', 'right']
-const LINK_TYPES: { value: ButtonLinkType; label: string }[] = [
-  { value: 'custom', label: 'Custom URL' },
-  { value: 'zip', label: 'ZIP archive' },
-  { value: 'gallery', label: 'Back to gallery' },
-]
+const LINK_TYPES: ButtonLinkType[] = ['custom', 'zip', 'gallery']
 const HEADING_LEVELS: HeadingLevel[] = [1, 2, 3, 4, 5, 6]
-const TEXT_SIZES: { value: TextSizePreset; label: string }[] = [
-  { value: 'small', label: 'Small' },
-  { value: 'normal', label: 'Normal' },
-  { value: 'medium', label: 'Medium' },
-  { value: 'large', label: 'Large' },
-  { value: 'huge', label: 'Huge' },
-]
-const BORDER_STYLES: { value: BorderStyle; label: string }[] = [
-  { value: 'none', label: 'None' },
-  { value: 'solid', label: 'Solid' },
-  { value: 'dashed', label: 'Dashed' },
-  { value: 'dotted', label: 'Dotted' },
-]
-const KEN_BURNS_STYLES: { value: KenBurns; label: string }[] = [
-  { value: 'none', label: 'None' },
-  { value: 'zoom-in', label: 'Zoom in' },
-  { value: 'slide-left', label: 'Slide left' },
-  { value: 'slide-right', label: 'Slide right' },
-  { value: 'slide-up', label: 'Slide up' },
-  { value: 'slide-down', label: 'Slide down' },
-]
+const TEXT_SIZES: TextSizePreset[] = ['small', 'normal', 'medium', 'large', 'huge']
+const BORDER_STYLES: BorderStyle[] = ['none', 'solid', 'dashed', 'dotted']
+const KEN_BURNS_STYLES: KenBurns[] = ['none', 'zoom-in', 'slide-left', 'slide-right', 'slide-up', 'slide-down']
+const BUTTON_STYLES: ButtonStyle[] = ['primary', 'secondary']
+const ARRANGE_KEY = {
+  'align-left': 'alignLeft',
+  'align-center': 'alignCenter',
+  'align-right': 'alignRight',
+  'align-top': 'alignTop',
+  'align-middle': 'alignMiddle',
+  'align-bottom': 'alignBottom',
+} as const
+
+/** Turns a list of stored values into `{ value, label }` options, labelled from
+ *  `showcaseBuilder.options.<group>.<value>`. */
+function useOptions() {
+  const t = useTranslations('showcaseBuilder.options')
+  return <T extends string>(group: string, values: T[]) =>
+    values.map((value) => ({ value, label: t(`${group}.${value}` as never) }))
+}
 
 function Field({ label, children }: { label: string; children: React.ReactNode }) {
   return (
@@ -125,6 +117,7 @@ function NumberField({
   placeholder?: string
   className?: string
 }) {
+  const t = useTranslations('showcaseBuilder.settingsPanel')
   const outOfRange = value !== undefined && (value < min || value > max)
   return (
     <input
@@ -132,7 +125,7 @@ function NumberField({
       className={className}
       style={outOfRange ? { borderColor: '#ef4444' } : undefined}
       placeholder={placeholder}
-      title={outOfRange ? `Must be between ${min} and ${max} — saved as ${clamp(value, min, max)}` : undefined}
+      title={outOfRange ? t('outOfRange', { min, max, value: clamp(value, min, max) }) : undefined}
       value={value ?? ''}
       onChange={(e) => {
         const raw = e.target.value
@@ -195,17 +188,21 @@ function BackgroundField<T extends { bg: BlockBg; bgCustom?: string; bgCustomAlp
   onChange: (patch: Partial<T>) => void
   swatches?: BlockBg[]
 }) {
+  const t = useTranslations('showcaseBuilder.settingsPanel')
+  const tOpt = useTranslations('showcaseBuilder.options')
   const colorPresets = useShowcaseStore((s) => s.settings.colorPresets)
   return (
     <>
-      <Field label="Background">
+      <Field label={t('background')}>
         <div className="flex items-center justify-between gap-2">
           <div className="flex flex-wrap gap-1.5">
             {swatches.map((key) => (
               <button
                 key={key}
                 type="button"
-                title={key}
+                title={tOpt(`bgSwatch.${key}`)}
+                aria-label={tOpt(`bgSwatch.${key}`)}
+                aria-pressed={(value.bg ?? 'none') === key}
                 onClick={() => onChange({ bg: key } as Partial<T>)}
                 className="h-6 w-6 rounded-full border-2"
                 style={{
@@ -221,7 +218,7 @@ function BackgroundField<T extends { bg: BlockBg; bgCustom?: string; bgCustomAlp
               onClick={() => onChange({ bg: 'none' } as Partial<T>)}
               className="shrink-0 text-[11px] text-zinc-400 underline"
             >
-              Reset
+              {t('reset')}
             </button>
           )}
         </div>
@@ -236,7 +233,7 @@ function BackgroundField<T extends { bg: BlockBg; bgCustom?: string; bgCustomAlp
           />
           <PresetSwatchRow presets={colorPresets} onPick={(hex) => onChange({ bg: 'custom', bgCustom: hex } as Partial<T>)} />
           <label className="text-[11px] text-zinc-400">
-            Opacity {value.bgCustomAlpha ?? 100}%
+            {t('opacity', { value: value.bgCustomAlpha ?? 100 })}
             <input
               type="range"
               min={0}
@@ -252,7 +249,7 @@ function BackgroundField<T extends { bg: BlockBg; bgCustom?: string; bgCustomAlp
         <div className="flex flex-col gap-1.5">
           <div className="flex gap-2">
             <label className="flex flex-1 flex-col gap-1 text-[11px] text-zinc-400">
-              From
+              {t('from')}
               <input
                 type="color"
                 value={value.bgGradientFrom ?? '#000000'}
@@ -262,7 +259,7 @@ function BackgroundField<T extends { bg: BlockBg; bgCustom?: string; bgCustomAlp
               <PresetSwatchRow presets={colorPresets} onPick={(hex) => onChange({ bg: 'gradient', bgGradientFrom: hex } as Partial<T>)} />
             </label>
             <label className="flex flex-1 flex-col gap-1 text-[11px] text-zinc-400">
-              To
+              {t('to')}
               <input
                 type="color"
                 value={value.bgGradientTo ?? '#ffffff'}
@@ -273,7 +270,7 @@ function BackgroundField<T extends { bg: BlockBg; bgCustom?: string; bgCustomAlp
             </label>
           </div>
           <label className="text-[11px] text-zinc-400">
-            Angle {value.bgGradientAngle ?? 135}°
+            {t('angle', { value: value.bgGradientAngle ?? 135 })}
             <input
               type="range"
               min={0}
@@ -297,19 +294,21 @@ function BorderField<T extends { borderStyle?: BorderStyle; borderWidth?: number
   value: T
   onChange: (patch: Partial<T>) => void
 }) {
+  const t = useTranslations('showcaseBuilder.settingsPanel')
+  const options = useOptions()
   const colorPresets = useShowcaseStore((s) => s.settings.colorPresets)
   return (
     <>
-      <Field label="Border">
+      <Field label={t('border')}>
         <Segmented
-          options={BORDER_STYLES}
+          options={options('borderStyle', BORDER_STYLES)}
           value={value.borderStyle ?? 'none'}
           onChange={(v) => onChange({ borderStyle: v } as Partial<T>)}
         />
       </Field>
       {(value.borderStyle ?? 'none') !== 'none' && (
         <div className="flex gap-2">
-          <Field label="Width (px)">
+          <Field label={t('widthPx')}>
             <div className="flex items-center gap-2">
               <input
                 type="range"
@@ -329,7 +328,7 @@ function BorderField<T extends { borderStyle?: BorderStyle; borderWidth?: number
             </div>
           </Field>
           <label className="flex flex-1 flex-col gap-1 text-xs font-medium text-zinc-500">
-            Colour
+            {t('colour')}
             <input
               type="color"
               value={value.borderColor ?? '#ffffff'}
@@ -345,6 +344,7 @@ function BorderField<T extends { borderStyle?: BorderStyle; borderWidth?: number
 }
 
 function PageSettingsPanel() {
+  const t = useTranslations('showcaseBuilder.settingsPanel')
   const currentPageId = useShowcaseStore((s) => s.currentPageId)
   const page = useShowcaseStore((s) => s.pages.find((p) => p.id === s.currentPageId))
   const setPageSettings = useShowcaseStore((s) => s.setPageSettings)
@@ -356,12 +356,11 @@ function PageSettingsPanel() {
   return (
     <div className="flex flex-col gap-4">
       <p className="text-sm text-zinc-500">
-        Select a block on the canvas to edit it. Drag to move it; drag a corner to resize.
-        These settings apply to the current page when nothing is selected.
+        {t('pageHint')}
       </p>
       <div className="h-px bg-zinc-200 dark:bg-zinc-800" />
       <span className="text-xs font-semibold uppercase tracking-wide text-zinc-500">
-        This page
+        {t('thisPage')}
       </span>
       <BackgroundField value={settings} onChange={patch} />
       <BorderField value={settings} onChange={patch} />
@@ -370,6 +369,10 @@ function PageSettingsPanel() {
 }
 
 export function SettingsPanel() {
+  const t = useTranslations('showcaseBuilder.settingsPanel')
+  const options = useOptions()
+  const tOpt = useTranslations('showcaseBuilder.options')
+  const blockTypeLabel = useBlockTypeLabel()
   const photos = usePhotos()
   const { arrangeGroup, addGroupChild } = useBuilder()
   const markDirty = useShowcaseStore((s) => s.markDirty)
@@ -443,13 +446,13 @@ export function SettingsPanel() {
     <div className="flex flex-col gap-4">
       <div className="flex items-center justify-between">
         <span className="text-xs font-semibold uppercase tracking-wide text-zinc-500">
-          {BLOCK_TYPE_LABELS[block.type]}
-          {parentGroupId ? ' · in group' : ''}
+          {blockTypeLabel(block.type)}
+          {parentGroupId ? t('inGroup') : ''}
         </span>
         <button
           type="button"
           onClick={deleteSelected}
-          aria-label="Delete block"
+          aria-label={t('deleteBlock')}
           className="rounded p-1 text-zinc-400 hover:bg-red-50 hover:text-red-600 focus:outline-none focus-visible:ring-2 focus-visible:ring-red-500 dark:hover:bg-red-950/40"
         >
           <svg width="14" height="14" viewBox="0 0 20 20" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round">
@@ -460,28 +463,28 @@ export function SettingsPanel() {
 
       <div className="flex gap-2">
         <button type="button" onClick={() => moveWithinBand(true)} className="flex-1 rounded-lg border border-zinc-300 px-2 py-1.5 text-xs font-medium hover:bg-zinc-100 dark:border-zinc-700 dark:hover:bg-zinc-800">
-          Bring to front
+          {t('bringToFront')}
         </button>
         <button type="button" onClick={() => moveWithinBand(false)} className="flex-1 rounded-lg border border-zinc-300 px-2 py-1.5 text-xs font-medium hover:bg-zinc-100 dark:border-zinc-700 dark:hover:bg-zinc-800">
-          Send to back
+          {t('sendToBack')}
         </button>
       </div>
 
       {parentGroupBlock && (
         <div className="flex flex-col gap-1">
-          <span className="text-xs font-medium text-zinc-500">Align in group</span>
+          <span className="text-xs font-medium text-zinc-500">{t('alignInGroup')}</span>
           <div className="flex gap-2">
-            <button type="button" onClick={() => update({ x: parentGroupBlock.x + 2 })} className="flex-1 rounded-lg border border-zinc-300 px-2 py-1.5 text-xs hover:bg-zinc-100 dark:border-zinc-700 dark:hover:bg-zinc-800">Left</button>
-            <button type="button" onClick={() => update({ x: parentGroupBlock.x + (parentGroupBlock.w - block.w) / 2 })} className="flex-1 rounded-lg border border-zinc-300 px-2 py-1.5 text-xs hover:bg-zinc-100 dark:border-zinc-700 dark:hover:bg-zinc-800">Center</button>
-            <button type="button" onClick={() => update({ x: parentGroupBlock.x + parentGroupBlock.w - block.w - 2 })} className="flex-1 rounded-lg border border-zinc-300 px-2 py-1.5 text-xs hover:bg-zinc-100 dark:border-zinc-700 dark:hover:bg-zinc-800">Right</button>
+            <button type="button" onClick={() => update({ x: parentGroupBlock.x + 2 })} className="flex-1 rounded-lg border border-zinc-300 px-2 py-1.5 text-xs hover:bg-zinc-100 dark:border-zinc-700 dark:hover:bg-zinc-800">{t('alignLeft')}</button>
+            <button type="button" onClick={() => update({ x: parentGroupBlock.x + (parentGroupBlock.w - block.w) / 2 })} className="flex-1 rounded-lg border border-zinc-300 px-2 py-1.5 text-xs hover:bg-zinc-100 dark:border-zinc-700 dark:hover:bg-zinc-800">{t('alignCenter')}</button>
+            <button type="button" onClick={() => update({ x: parentGroupBlock.x + parentGroupBlock.w - block.w - 2 })} className="flex-1 rounded-lg border border-zinc-300 px-2 py-1.5 text-xs hover:bg-zinc-100 dark:border-zinc-700 dark:hover:bg-zinc-800">{t('alignRight')}</button>
           </div>
-          <p className="text-[11px] text-zinc-400">Drag it out of the group box to detach it.</p>
+          <p className="text-[11px] text-zinc-400">{t('detachHint')}</p>
         </div>
       )}
 
       <div className="grid grid-cols-4 gap-2">
         {(['x', 'y', 'w', 'h'] as const).map((axis) => (
-          <Field key={axis} label={axis.toUpperCase() + ' %'}>
+          <Field key={axis} label={t(`axis.${axis}`)}>
             <input
               type="number"
               className={inputClass}
@@ -493,7 +496,7 @@ export function SettingsPanel() {
       </div>
 
       {isImage && (
-        <Field label="Photo">
+        <Field label={t('photo')}>
           <div className="grid max-h-52 grid-cols-4 gap-1.5 overflow-y-auto">
             {photos.map((photo) => (
               <button
@@ -510,7 +513,7 @@ export function SettingsPanel() {
               </button>
             ))}
             {photos.length === 0 && (
-              <p className="col-span-4 text-xs text-zinc-500">Upload photos to the project first.</p>
+              <p className="col-span-4 text-xs text-zinc-500">{t('uploadFirst')}</p>
             )}
           </div>
         </Field>
@@ -518,27 +521,27 @@ export function SettingsPanel() {
 
       {isTextLike && (
         <>
-          <Field label="Content">
+          <Field label={t('content')}>
             <textarea
               className="min-h-16 rounded-lg border border-zinc-300 bg-white p-2 text-sm dark:border-zinc-700 dark:bg-zinc-900"
               value={block.text ?? ''}
               onChange={(e) => update({ text: e.target.value })}
             />
           </Field>
-          <Field label="Align">
+          <Field label={t('align')}>
             <Segmented
-              options={ALIGNS.map((a) => ({ value: a, label: a[0].toUpperCase() + a.slice(1) }))}
+              options={options('align', ALIGNS)}
               value={block.align ?? 'left'}
               onChange={(v) => update({ align: v })}
             />
           </Field>
-          <Field label="Style">
+          <Field label={t('style')}>
             <div className="flex gap-1.5">
               <button
                 type="button"
                 onClick={() => update({ bold: !block.bold })}
                 aria-pressed={!!block.bold}
-                aria-label="Bold"
+                aria-label={t('bold')}
                 className={`flex h-8 w-8 items-center justify-center rounded-lg border font-bold ${
                   block.bold
                     ? 'border-zinc-900 bg-zinc-900 text-white dark:border-zinc-100 dark:bg-zinc-100 dark:text-zinc-900'
@@ -551,7 +554,7 @@ export function SettingsPanel() {
                 type="button"
                 onClick={() => update({ italic: !block.italic })}
                 aria-pressed={!!block.italic}
-                aria-label="Italic"
+                aria-label={t('italic')}
                 className={`flex h-8 w-8 items-center justify-center rounded-lg border italic ${
                   block.italic
                     ? 'border-zinc-900 bg-zinc-900 text-white dark:border-zinc-100 dark:bg-zinc-100 dark:text-zinc-900'
@@ -564,7 +567,7 @@ export function SettingsPanel() {
                 type="button"
                 onClick={() => update({ underline: !block.underline })}
                 aria-pressed={!!block.underline}
-                aria-label="Underline"
+                aria-label={t('underline')}
                 className={`flex h-8 w-8 items-center justify-center rounded-lg border underline ${
                   block.underline
                     ? 'border-zinc-900 bg-zinc-900 text-white dark:border-zinc-100 dark:bg-zinc-100 dark:text-zinc-900'
@@ -580,20 +583,20 @@ export function SettingsPanel() {
 
       {isTitle && (
         <>
-          <Field label="Level">
+          <Field label={t('level')}>
             <Segmented
-              options={HEADING_LEVELS.map((l) => ({ value: String(l), label: `H${l}` }))}
+              options={HEADING_LEVELS.map((l) => ({ value: String(l), label: tOpt('headingLevel', { level: l }) }))}
               value={String(block.level ?? 2)}
               onChange={(v) => update({ level: Number(v) as HeadingLevel })}
             />
           </Field>
-          <Field label="Custom size (px, 8–200) — overrides the level default">
+          <Field label={t('customSizeHeading')}>
             <NumberField
               value={block.fontSize}
               onChange={(v) => update({ fontSize: v })}
               min={8}
               max={200}
-              placeholder="Album default"
+              placeholder={t('albumDefault')}
             />
           </Field>
         </>
@@ -601,16 +604,16 @@ export function SettingsPanel() {
 
       {isText && (
         <>
-          <Field label="Size">
-            <Segmented options={TEXT_SIZES} value={block.textSize ?? 'normal'} onChange={(v) => update({ textSize: v })} />
+          <Field label={t('size')}>
+            <Segmented options={options('textSize', TEXT_SIZES)} value={block.textSize ?? 'normal'} onChange={(v) => update({ textSize: v })} />
           </Field>
-          <Field label="Custom size (px, 8–200) — overrides the preset">
+          <Field label={t('customSizePreset')}>
             <NumberField
               value={block.fontSize}
               onChange={(v) => update({ fontSize: v })}
               min={8}
               max={200}
-              placeholder="Preset default"
+              placeholder={t('presetDefault')}
             />
           </Field>
         </>
@@ -618,12 +621,12 @@ export function SettingsPanel() {
 
       {isButton && (
         <>
-          <Field label="Label">
+          <Field label={t('label')}>
             <input className={inputClass} value={block.label ?? ''} onChange={(e) => update({ label: e.target.value })} />
           </Field>
-          <Field label="Link">
+          <Field label={t('link')}>
             <Segmented
-              options={LINK_TYPES}
+              options={options('linkType', LINK_TYPES)}
               value={block.linkType ?? 'custom'}
               onChange={(v) => update({ linkType: v })}
             />
@@ -631,23 +634,20 @@ export function SettingsPanel() {
           {(block.linkType ?? 'custom') === 'custom' && (
             <input
               className={inputClass}
-              placeholder="https://…"
+              placeholder={t('urlPlaceholder')}
               value={block.link ?? ''}
               onChange={(e) => update({ link: e.target.value })}
             />
           )}
           {block.linkType === 'zip' && (
-            <p className="text-[11px] text-zinc-400">Opens the download dialog (ZIP of originals), if downloads are enabled for the project.</p>
+            <p className="text-[11px] text-zinc-400">{t('zipHint')}</p>
           )}
           {block.linkType === 'gallery' && (
-            <p className="text-[11px] text-zinc-400">Links to the full gallery this showcase was built from.</p>
+            <p className="text-[11px] text-zinc-400">{t('galleryHint')}</p>
           )}
-          <Field label="Style">
+          <Field label={t('style')}>
             <Segmented
-              options={[
-                { value: 'primary', label: 'Primary' },
-                { value: 'secondary', label: 'Secondary' },
-              ] as { value: ButtonStyle; label: string }[]}
+              options={options('buttonStyle', BUTTON_STYLES)}
               value={block.style ?? 'primary'}
               onChange={(v) => update({ style: v })}
             />
@@ -659,24 +659,24 @@ export function SettingsPanel() {
       {isImage && (
         <>
           <div className="h-px bg-zinc-200 dark:bg-zinc-800" />
-          <span className="text-xs font-semibold uppercase tracking-wide text-zinc-500">Appearance</span>
-          <Field label="Corners">
-            <Segmented options={RADII} value={block.radius ?? 'none'} onChange={(v) => update({ radius: v })} />
+          <span className="text-xs font-semibold uppercase tracking-wide text-zinc-500">{t('appearance')}</span>
+          <Field label={t('corners')}>
+            <Segmented options={options('radius', RADII)} value={block.radius ?? 'none'} onChange={(v) => update({ radius: v })} />
           </Field>
           <BorderField value={block} onChange={update} />
 
           <div className="h-px bg-zinc-200 dark:bg-zinc-800" />
-          <span className="text-xs font-semibold uppercase tracking-wide text-zinc-500">Ken Burns</span>
-          <Field label="Effect">
+          <span className="text-xs font-semibold uppercase tracking-wide text-zinc-500">{t('kenBurns')}</span>
+          <Field label={t('effect')}>
             <Segmented
-              options={KEN_BURNS_STYLES}
+              options={options('kenBurns', KEN_BURNS_STYLES)}
               value={block.kenBurns ?? 'none'}
               onChange={(v) => update({ kenBurns: v })}
             />
           </Field>
           {(block.kenBurns ?? 'none') !== 'none' && (
             <label className="text-[11px] text-zinc-400">
-              Speed — {block.kenBurnsSpeed ?? 8}s
+              {t('speed', { value: block.kenBurnsSpeed ?? 8 })}
               <input
                 type="range"
                 min={2}
@@ -685,7 +685,7 @@ export function SettingsPanel() {
                 onChange={(e) => update({ kenBurnsSpeed: parseInt(e.target.value, 10) })}
                 className="w-full"
               />
-              {autoplay && <span className="mt-0.5 block">Capped to the {autoplaySeconds}s autoplay interval.</span>}
+              {autoplay && <span className="mt-0.5 block">{t('cappedToAutoplay', { seconds: autoplaySeconds })}</span>}
             </label>
           )}
         </>
@@ -694,11 +694,11 @@ export function SettingsPanel() {
       {hasSharedAppearance && !isImage && (
         <>
           <div className="h-px bg-zinc-200 dark:bg-zinc-800" />
-          <span className="text-xs font-semibold uppercase tracking-wide text-zinc-500">Appearance</span>
+          <span className="text-xs font-semibold uppercase tracking-wide text-zinc-500">{t('appearance')}</span>
 
           {showCorners && (
-            <Field label="Corners">
-              <Segmented options={RADII} value={block.radius ?? 'none'} onChange={(v) => update({ radius: v })} />
+            <Field label={t('corners')}>
+              <Segmented options={options('radius', RADII)} value={block.radius ?? 'none'} onChange={(v) => update({ radius: v })} />
             </Field>
           )}
 
@@ -707,7 +707,7 @@ export function SettingsPanel() {
           {isGroup && (
             <>
               <label className="text-[11px] text-zinc-400">
-                Blur (glass effect) — {block.blur ?? 0}px
+                {t('blur', { value: block.blur ?? 0 })}
                 <input
                   type="range"
                   min={0}
@@ -718,7 +718,7 @@ export function SettingsPanel() {
                 />
               </label>
               <label className="text-[11px] text-zinc-400">
-                Shadow blur — {block.shadow ?? 0}px (0 = off)
+                {t('shadowBlur', { value: block.shadow ?? 0 })}
                 <input
                   type="range"
                   min={0}
@@ -732,7 +732,7 @@ export function SettingsPanel() {
                 <>
                   <div className="grid grid-cols-2 gap-2">
                     <label className="text-[11px] text-zinc-400">
-                      Offset X — {block.shadowOffsetX ?? 0}px
+                      {t('offsetX', { value: block.shadowOffsetX ?? 0 })}
                       <input
                         type="range"
                         min={-40}
@@ -743,7 +743,7 @@ export function SettingsPanel() {
                       />
                     </label>
                     <label className="text-[11px] text-zinc-400">
-                      Offset Y — {block.shadowOffsetY ?? Math.round((block.shadow ?? 0) / 2)}px
+                      {t('offsetY', { value: block.shadowOffsetY ?? Math.round((block.shadow ?? 0) / 2) })}
                       <input
                         type="range"
                         min={-40}
@@ -755,7 +755,7 @@ export function SettingsPanel() {
                     </label>
                   </div>
                   <label className="text-[11px] text-zinc-400">
-                    Spread — {block.shadowSpread ?? 0}px
+                    {t('spread', { value: block.shadowSpread ?? 0 })}
                     <input
                       type="range"
                       min={-20}
@@ -780,14 +780,15 @@ export function SettingsPanel() {
           )}
 
           {showTextColor && (
-            <Field label="Text colour">
+            <Field label={t('textColour')}>
               <div className="flex items-center justify-between gap-2">
                 <div className="flex flex-wrap gap-1.5">
                   {TEXT_SWATCHES.map((key) => (
                     <button
                       key={key}
                       type="button"
-                      title={key}
+                      title={tOpt(`textSwatch.${key}`)}
+                      aria-label={tOpt(`textSwatch.${key}`)}
                       onClick={() => update({ textColor: key })}
                       className="h-6 w-6 rounded-full border-2"
                       style={{
@@ -803,7 +804,7 @@ export function SettingsPanel() {
                     onClick={() => update({ textColor: 'default' })}
                     className="shrink-0 text-[11px] text-zinc-400 underline"
                   >
-                    Reset
+                    {t('reset')}
                   </button>
                 )}
               </div>
@@ -819,7 +820,7 @@ export function SettingsPanel() {
               />
               <PresetSwatchRow presets={colorPresets} onPick={(hex) => update({ textColor: 'custom', textColorCustom: hex })} />
               <label className="text-[11px] text-zinc-400">
-                Opacity {block.textColorCustomAlpha ?? 100}%
+                {t('opacity', { value: block.textColorCustomAlpha ?? 100 })}
                 <input
                   type="range"
                   min={0}
@@ -837,15 +838,16 @@ export function SettingsPanel() {
       {isTitle && (
         <>
           <div className="h-px bg-zinc-200 dark:bg-zinc-800" />
-          <span className="text-xs font-semibold uppercase tracking-wide text-zinc-500">Text colour</span>
-          <p className="text-[11px] text-zinc-400">Headline text is always solid — no transparency.</p>
+          <span className="text-xs font-semibold uppercase tracking-wide text-zinc-500">{t('textColour')}</span>
+          <p className="text-[11px] text-zinc-400">{t('titleSolidHint')}</p>
           <div className="flex items-center justify-between gap-2">
             <div className="flex flex-wrap gap-1.5">
               {TEXT_SWATCHES.map((key) => (
                 <button
                   key={key}
                   type="button"
-                  title={key}
+                  title={tOpt(`textSwatch.${key}`)}
+                  aria-label={tOpt(`textSwatch.${key}`)}
                   onClick={() => update({ textColor: key })}
                   className="h-6 w-6 rounded-full border-2"
                   style={{
@@ -861,7 +863,7 @@ export function SettingsPanel() {
                 onClick={() => update({ textColor: 'default' })}
                 className="shrink-0 text-[11px] text-zinc-400 underline"
               >
-                Reset
+                {t('reset')}
               </button>
             )}
           </div>
@@ -882,31 +884,31 @@ export function SettingsPanel() {
       {isGroup && (
         <>
           <div className="h-px bg-zinc-200 dark:bg-zinc-800" />
-          <span className="text-xs font-semibold uppercase tracking-wide text-zinc-500">Arrange children</span>
+          <span className="text-xs font-semibold uppercase tracking-wide text-zinc-500">{t('arrangeChildren')}</span>
           <div className="flex gap-2">
-            <button type="button" onClick={() => arrangeGroup(selectedId, 'stack-v')} className="flex-1 rounded-lg border border-zinc-300 px-2 py-1.5 text-xs hover:bg-zinc-100 dark:border-zinc-700 dark:hover:bg-zinc-800">Stack ↓</button>
-            <button type="button" onClick={() => arrangeGroup(selectedId, 'stack-h')} className="flex-1 rounded-lg border border-zinc-300 px-2 py-1.5 text-xs hover:bg-zinc-100 dark:border-zinc-700 dark:hover:bg-zinc-800">Stack →</button>
+            <button type="button" onClick={() => arrangeGroup(selectedId, 'stack-v')} className="flex-1 rounded-lg border border-zinc-300 px-2 py-1.5 text-xs hover:bg-zinc-100 dark:border-zinc-700 dark:hover:bg-zinc-800">{t('stackDown')}</button>
+            <button type="button" onClick={() => arrangeGroup(selectedId, 'stack-h')} className="flex-1 rounded-lg border border-zinc-300 px-2 py-1.5 text-xs hover:bg-zinc-100 dark:border-zinc-700 dark:hover:bg-zinc-800">{t('stackRight')}</button>
           </div>
           <div className="flex gap-2">
             {(['align-left', 'align-center', 'align-right'] as const).map((mode) => (
-              <button key={mode} type="button" onClick={() => arrangeGroup(selectedId, mode)} className="flex-1 rounded-lg border border-zinc-300 px-2 py-1.5 text-xs capitalize hover:bg-zinc-100 dark:border-zinc-700 dark:hover:bg-zinc-800">
-                {mode.replace('align-', '')}
+              <button key={mode} type="button" onClick={() => arrangeGroup(selectedId, mode)} className="flex-1 rounded-lg border border-zinc-300 px-2 py-1.5 text-xs hover:bg-zinc-100 dark:border-zinc-700 dark:hover:bg-zinc-800">
+                {t(ARRANGE_KEY[mode])}
               </button>
             ))}
           </div>
           <div className="flex gap-2">
             {(['align-top', 'align-middle', 'align-bottom'] as const).map((mode) => (
-              <button key={mode} type="button" onClick={() => arrangeGroup(selectedId, mode)} className="flex-1 rounded-lg border border-zinc-300 px-2 py-1.5 text-xs capitalize hover:bg-zinc-100 dark:border-zinc-700 dark:hover:bg-zinc-800">
-                {mode.replace('align-', '')}
+              <button key={mode} type="button" onClick={() => arrangeGroup(selectedId, mode)} className="flex-1 rounded-lg border border-zinc-300 px-2 py-1.5 text-xs hover:bg-zinc-100 dark:border-zinc-700 dark:hover:bg-zinc-800">
+                {t(ARRANGE_KEY[mode])}
               </button>
             ))}
           </div>
           <div className="h-px bg-zinc-200 dark:bg-zinc-800" />
-          <span className="text-xs font-medium text-zinc-500">Add inside this group</span>
+          <span className="text-xs font-medium text-zinc-500">{t('addInside')}</span>
           <div className="flex flex-wrap gap-2">
             {(['title', 'text', 'button'] as const).map((type) => (
-              <button key={type} type="button" onClick={() => addGroupChild(selectedId, type)} className="rounded-lg border border-zinc-300 px-3 py-1.5 text-xs font-medium capitalize hover:bg-zinc-100 dark:border-zinc-700 dark:hover:bg-zinc-800">
-                + {BLOCK_TYPE_LABELS[type]}
+              <button key={type} type="button" onClick={() => addGroupChild(selectedId, type)} className="rounded-lg border border-zinc-300 px-3 py-1.5 text-xs font-medium hover:bg-zinc-100 dark:border-zinc-700 dark:hover:bg-zinc-800">
+                {t('addChild', { type: blockTypeLabel(type) })}
               </button>
             ))}
           </div>

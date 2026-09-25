@@ -4,7 +4,9 @@
 'use client'
 
 import { useEditor } from '@craftjs/core'
-import { BLOCK_TYPE_LABELS, type Block } from '@/lib/showcase-blocks'
+import { useTranslations } from 'next-intl'
+import type { Block } from '@/lib/showcase-blocks'
+import { useBlockTypeLabel } from './useBlockTypeLabel'
 
 /** A short label for the row beyond the block type — whatever text the block
  *  itself carries, so two Text blocks aren't indistinguishable in the list. */
@@ -29,18 +31,20 @@ function rowDetail(block: Block): string {
  * same as SettingsPanel does for the selected block.
  */
 export function BlockTree() {
+  const t = useTranslations('showcaseBuilder.blockTree')
+  const blockTypeLabel = useBlockTypeLabel()
   const { ids, selected, actions, query } = useEditor((state) => ({
     ids: state.nodes.ROOT?.data.nodes ?? [],
     selected: state.events.selected,
   }))
 
   if (ids.length === 0) {
-    return <p className="text-xs text-zinc-500">No blocks on this page yet.</p>
+    return <p className="text-xs text-zinc-500">{t('empty')}</p>
   }
 
   return (
     <div className="flex flex-col gap-1">
-      <span className="text-xs font-medium text-zinc-500">Blocks</span>
+      <span className="text-xs font-medium text-zinc-500">{t('heading')}</span>
       <ol className="flex flex-col gap-0.5">
         {ids.map((id) => {
           const node = query.node(id).get()
@@ -62,7 +66,7 @@ export function BlockTree() {
                     : 'text-zinc-600 hover:bg-zinc-100 dark:text-zinc-300 dark:hover:bg-zinc-800'
                 }`}
               >
-                <span className="shrink-0 font-medium">{BLOCK_TYPE_LABELS[block.type]}</span>
+                <span className="shrink-0 font-medium">{blockTypeLabel(block.type)}</span>
                 {detail && <span className="truncate opacity-70">{detail}</span>}
               </button>
             </li>

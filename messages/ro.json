@@ -262,7 +262,8 @@
         "previous": "Arată fotografia dinaintea celei curente.",
         "next": "Arată fotografia de după cea curentă.",
         "fullscreen": "Afișează fotografia pe tot ecranul.",
-        "close": "Te întoarce la galerie."
+        "close": "Te întoarce la galerie.",
+        "swipeUpHint": "Arată panoul de acțiuni, de unde poți descărca fotografia pe care o vezi."
       },
       "gestures": {
         "heading": "Gesturi pe ecranul tactil",
@@ -310,7 +311,8 @@
     "close": "Închide",
     "previous": "Imaginea anterioară",
     "next": "Imaginea următoare",
-    "cancel": "Anulează"
+    "cancel": "Anulează",
+    "download": "Descarcă imaginea"
   },
   "showcaseBuilder": {
     "defaults": {

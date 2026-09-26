@@ -9,6 +9,7 @@ import { useGestures } from '@/hooks/useGestures'
 import { useImageZoom } from '@/hooks/useImageZoom'
 import { useFocusTrap } from '@/hooks/useFocusTrap'
 import { useKeyboard } from '@/hooks/useKeyboard'
+import DownloadOptionsDialog from '@/components/gallery/DownloadOptionsDialog'
 import { useReducedMotion } from '@/hooks/useReducedMotion'
 import {
   exitFullscreen,
@@ -25,6 +26,8 @@ import type { FeedbackType } from '@/lib/feedback-storage'
 interface PhotoViewerProps {
   photos: PhotoData[]
   currentIndex: number
+  title: string
+  projectId: string
   onClose: () => void
   onPrev: () => void
   onNext: () => void
@@ -50,6 +53,8 @@ function expiryBarHeight() {
 export default function PhotoViewer({
   photos,
   currentIndex,
+  title,
+  projectId,
   onClose,
   onPrev,
   onNext,
@@ -82,6 +87,7 @@ export default function PhotoViewer({
   const hideTimer = useRef<ReturnType<typeof setTimeout> | null>(null)
   const [actionPanel, setActionPanel] = useState(false)
   const [commentDialogOpen, setCommentDialogOpen] = useState(false)
+  const [downloadDialogOpen, setDownloadDialogOpen] = useState(false)
   const zoom = useImageZoom(containerRef)
 
   const photo = photos[currentIndex]
@@ -301,6 +307,10 @@ export default function PhotoViewer({
     }
   }, [actionPanel])
 
+  const openDownload = useCallback(() => {
+    setDownloadDialogOpen(true)
+  }, [])
+
   const keyMap = useMemo(
     () => ({
       // Escape steps out of fullscreen first, then closes.
@@ -332,6 +342,8 @@ export default function PhotoViewer({
       },
       f: toggleFullscreen,
       F: toggleFullscreen,
+      d: openDownload,
+      D: openDownload,
     }),
     [
       onClose,
@@ -345,10 +357,11 @@ export default function PhotoViewer({
       exitFullscreenUI,
       actionPanel,
       closeSheet,
+      openDownload,
     ]
   )
 
-  useKeyboard(keyMap, !commentDialogOpen)
+  useKeyboard(keyMap, !downloadDialogOpen && !commentDialogOpen)
 
   useGestures(
     containerRef,
@@ -467,12 +480,30 @@ export default function PhotoViewer({
       >
         <button
           ref={panelCancelRef}
+          onClick={() => {
+            closeSheet()
+            openDownload()
+          }}
+          className="flex h-12 items-center justify-center rounded-xl bg-white text-sm font-medium text-zinc-900 focus:outline-none focus-visible:ring-2 focus-visible:ring-white/50"
+        >
+          {t('download')}
+        </button>
+        <button
           onClick={closeSheet}
           className="h-12 rounded-xl text-sm font-medium text-zinc-300 focus:outline-none focus-visible:ring-2 focus-visible:ring-white/50"
         >
           {t('cancel')}
         </button>
       </div>
+
+      {downloadDialogOpen && (
+        <DownloadOptionsDialog
+          photos={[photo]}
+          projectId={projectId}
+          title={title}
+          onClose={() => setDownloadDialogOpen(false)}
+        />
+      )}
 
       {commentDialogOpen && (
         <FeedbackCommentDialog

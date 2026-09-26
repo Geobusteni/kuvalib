@@ -246,6 +246,8 @@ export default function Gallery({
         <PhotoViewer
           photos={photos}
           currentIndex={state.currentIndex}
+          title={title}
+          projectId={projectId}
           onClose={closeViewer}
           onPrev={() => goTo(state.currentIndex - 1)}
           onNext={() => goTo(state.currentIndex + 1)}

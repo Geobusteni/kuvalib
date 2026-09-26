@@ -280,7 +280,7 @@ Do not add anything outside this scope unless explicitly requested.
 | Swipe left | Next image          |
 | Swipe right| Previous image      |
 | Swipe down | The whole lightbox follows the finger and fades; past ~25% of the screen height (or a fast flick) it slides away and closes, otherwise it springs back. With the action panel open, it closes the panel instead |
-| Swipe up   | The action panel (phones only, holds Cancel) rises with the finger and settles open past a threshold, else slides back (hides the feedback buttons while open) |
+| Swipe up   | The action panel (phones only; **Download** and Cancel) rises with the finger and settles open past a threshold, else slides back (hides the feedback buttons while open) |
 | Tap        | Toggle controls     |
 | Pinch      | Zoom in / out (1x–4x) |
 | Double-tap | Toggle 2x zoom at the tapped point |
@@ -291,7 +291,7 @@ any zoom level.
 
 ### Desktop Lightbox Controls
 
-Always visible: Previous, Next, Fullscreen, Close. There is deliberately **no per-photo download button** (clients read it as "download everything"); downloading lives in the gallery header/footer and Selection Mode.
+Always visible: Previous, Next, Fullscreen, Close. There is deliberately **no per-photo download icon** in the top controls (clients read it as "download everything"); the current photo can still be downloaded from the swipe-up panel on phones or with `D`, and everything else lives in the gallery header/footer and Selection Mode.
 
 Fullscreen mode: controls auto-hide after ~3 s of inactivity; mouse movement reveals them.
 
@@ -382,6 +382,7 @@ hidden entirely rather than offered with nothing behind it.
 | Escape     | Close            |
 | F          | Toggle Fullscreen|
 | Space      | Play/Pause slideshow|
+| D          | Open download options for this photo |
 | Home       | First image      |
 | End        | Last image       |
 

@@ -262,7 +262,8 @@
         "previous": "Shows the photo before this one.",
         "next": "Shows the photo after this one.",
         "fullscreen": "Fills the whole screen with the photo.",
-        "close": "Goes back to the gallery."
+        "close": "Goes back to the gallery.",
+        "swipeUpHint": "Shows the actions panel, where you can download the photo you are viewing."
       },
       "gestures": {
         "heading": "Touch gestures",
@@ -310,7 +311,8 @@
     "close": "Close viewer",
     "previous": "Previous image",
     "next": "Next image",
-    "cancel": "Cancel"
+    "cancel": "Cancel",
+    "download": "Download image"
   },
   "showcaseBuilder": {
     "defaults": {

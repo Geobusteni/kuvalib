@@ -273,7 +273,7 @@ same keys.
   otherwise downloads them individually)
 - **Lightbox on mobile** — swipe left/right to move, pinch or double-tap to zoom. Drag down and the
   photo follows your finger, then slides away to close (or springs back if you let go early)
-- **Lightbox on desktop** — arrow keys move, `F` toggles fullscreen, `Escape` closes
+- **Lightbox on desktop** — arrow keys move, `F` toggles fullscreen, `D` opens the download options for the photo you are viewing, `Escape` closes
 - **Not sure what a button does?** On a computer, hover over it for a tip. On any device, tap
   the **?** button (gallery header, and the slideshow's top bar or its More menu) for a Legend
   that explains every button, gesture and shortcut

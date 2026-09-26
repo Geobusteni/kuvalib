@@ -303,7 +303,7 @@ export function ShowcaseViewer({
               type="button"
               aria-label={t('nav.previousPage')}
               onClick={prev}
-              className="sc-nav-arrow absolute left-2 top-1/2 z-10 flex h-11 w-11 -translate-y-1/2 items-center justify-center rounded-full bg-black/40 text-white backdrop-blur-sm hover:bg-black/60 sm:left-3"
+              className="sc-nav-arrow absolute left-2 top-[calc((100%-var(--expiry-bar-h,0px))/2)] z-10 flex h-11 w-11 -translate-y-1/2 items-center justify-center rounded-full bg-black/40 text-white backdrop-blur-sm hover:bg-black/60 sm:left-3"
             >
               <ChevronLeftIcon size={18} />
             </button>
@@ -311,7 +311,7 @@ export function ShowcaseViewer({
               type="button"
               aria-label={t('nav.nextPage')}
               onClick={next}
-              className="sc-nav-arrow absolute right-2 top-1/2 z-10 flex h-11 w-11 -translate-y-1/2 items-center justify-center rounded-full bg-black/40 text-white backdrop-blur-sm hover:bg-black/60 sm:right-3"
+              className="sc-nav-arrow absolute right-2 top-[calc((100%-var(--expiry-bar-h,0px))/2)] z-10 flex h-11 w-11 -translate-y-1/2 items-center justify-center rounded-full bg-black/40 text-white backdrop-blur-sm hover:bg-black/60 sm:right-3"
             >
               <ChevronRightIcon size={18} />
             </button>

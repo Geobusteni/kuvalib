@@ -77,10 +77,6 @@ html {
     height: min(100cqh, 62.5cqw);
     --sc-floor: 0;
   }
-  .sc-nav-arrow {
-    top: min(calc(50cqh + min(50cqh, 31.25cqw) + 0.5rem), calc(100cqh - 3.25rem));
-    translate: none;
-  }
 }
 
 /* Showcase: Ken Burns effects on Image blocks (components/showcase/BlockContent.tsx).

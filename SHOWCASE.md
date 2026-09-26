@@ -295,8 +295,8 @@ smaller. Every block keeps its position and proportions, nothing is cut, and not
 sideways. Text scales with the frame with no readable minimum in this mode (it shrinks exactly
 like the picture, so it can never overflow its block). Phones held sideways and wide windows
 (16:10 or wider, or 1024 px and up) keep the page filling the whole viewer area, with the
-readable text minimums. In the letterboxed layout the previous / next arrows sit in the empty
-band below the page rather than over it.
+readable text minimums. The previous / next arrows are always vertically centred on the picture, in
+the letterboxed layout too.
 
 **Controls** float as one compact pill in the top-right corner, over the photo, instead of a
 full-width bar. From 768px wide up it holds, in order:

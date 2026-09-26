@@ -10,6 +10,13 @@ adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html). While the
 
 ## [Unreleased]
 
+## [1.17.1] - 2026-09-26
+
+### Fixed
+
+- **The slideshow's previous / next arrows are centred on the picture on portrait phones.** They
+  had been placed below the shrunken page and looked misaligned; landscape was already right.
+
 ## [1.17.0] - 2026-09-26
 
 ### Changed

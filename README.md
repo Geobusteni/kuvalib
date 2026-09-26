@@ -30,6 +30,7 @@ password or by their email address — where they can view and download delivere
 - **fflate** for ZIP creation and extraction
 - **next-intl** — English and Romanian UI, no locale-prefixed URLs
 - **Craft.js**, **react-rnd**, **zustand** — the album-showcase builder only
+- **Lucide** icon subset, vendored as data (no dependency), see `THIRD_PARTY_NOTICES.md`
 
 ---
 
@@ -252,7 +253,9 @@ It uses the **same password and expiry as the gallery**, and a client who has op
 move to the other without signing in again.
 
 **Create showcase** in the project's **Showcase** section opens the builder. Full guide:
-**[SHOWCASE.md](./SHOWCASE.md)**.
+**[SHOWCASE.md](./SHOWCASE.md)**. It includes an icon library (built-in icons plus your own
+uploaded SVGs, admin only); after upgrading, apply the new `CustomIcon` table with the update
+script or `npx prisma migrate deploy`.
 
 ### Language
 
@@ -351,6 +354,7 @@ npm run lint               # lint
 - [`CHANGELOG.md`](./CHANGELOG.md) — release history
 - [`ARCHITECTURE.md`](./ARCHITECTURE.md) — data model, auth flow, API surface, component design
 - [`PLAN.md`](./PLAN.md) — phased build plan and progress
+- [`THIRD_PARTY_NOTICES.md`](./THIRD_PARTY_NOTICES.md) — licences of vendored third-party material (Lucide icons)
 - [`AGENTS.md`](./AGENTS.md) — philosophy, roles, and conventions for contributors
 
 ---

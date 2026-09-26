@@ -655,6 +655,18 @@ export function collectPhotoIds(pages: ShowcasePageData[]): string[] {
   return [...seen]
 }
 
+/** Every distinct icon id (`lucide:<name>` / `custom:<id>`) referenced by a block's `icon` field, on top-level blocks and group children. */
+export function collectIconIds(pages: ShowcasePageData[]): string[] {
+  const seen = new Set<string>()
+  for (const page of pages) {
+    for (const { block } of flattenBlocks(page.blocks)) {
+      const icon = (block as unknown as { icon?: unknown }).icon
+      if (typeof icon === 'string' && icon) seen.add(icon)
+    }
+  }
+  return [...seen]
+}
+
 // ─── Album-wide size settings ───────────────────────────────────────────────
 
 /** Only the levels/presets actually present are validated and kept; missing

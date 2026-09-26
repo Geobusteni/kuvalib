@@ -20,6 +20,7 @@ import { SettingsPanel } from './SettingsPanel'
 import { AddBlockMenu } from './AddBlockMenu'
 import { AlbumSettingsDialog } from './AlbumSettingsDialog'
 import { ShowcaseViewer } from '../viewer/ShowcaseViewer'
+import { BuilderIconsProvider, type CustomIconItem } from './BuilderIconsProvider'
 
 export interface ShowcaseBuilderProps {
   projectId: string
@@ -32,6 +33,8 @@ export interface ShowcaseBuilderProps {
   shareUrl: string
   downloadEnabled: boolean
   passwordProtected: boolean
+  customIcons: CustomIconItem[]
+  canManageIcons: boolean
 }
 
 export function ShowcaseBuilder(props: ShowcaseBuilderProps) {
@@ -57,6 +60,7 @@ export function ShowcaseBuilder(props: ShowcaseBuilderProps) {
   }, [props.showcaseId])
 
   return (
+    <BuilderIconsProvider initialIcons={props.customIcons} canManage={props.canManageIcons}>
     <Editor
       resolver={showcaseResolver}
       // Craft fires this mid-commit; defer so we never setState during render.
@@ -72,6 +76,7 @@ export function ShowcaseBuilder(props: ShowcaseBuilderProps) {
         />
       </BuilderProvider>
     </Editor>
+    </BuilderIconsProvider>
   )
 }
 

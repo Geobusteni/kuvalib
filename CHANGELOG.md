@@ -10,6 +10,28 @@ adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html). While the
 
 ## [Unreleased]
 
+### Added
+
+- **Icon library for showcases.** About 230 built-in icons (a curated subset of Lucide: hearts,
+  cameras, gifts, contact, arrows, and more) plus your own SVG icons, chosen with a new icon picker
+  (search, categories, keyboard and touch friendly). Nothing in the builder uses icons yet; the
+  Icon block and the button icon option build on this.
+- **Your own SVG icons.** Paste SVG code or choose an `.svg` file in the picker's "My icons" tab, give
+  it a name and save. Only simple shapes are accepted (path, circle, rect, line, polyline, polygon,
+  ellipse, group) at up to 20 KB and 200 icons; anything else (scripts, images, gradients, comments,
+  links) is refused with a message saying what to remove. Colours become the block's colour. An icon
+  that is still used in a showcase cannot be deleted.
+
+### Security
+
+- Uploaded SVG icons go through a strict allowlist sanitiser on save and again before they are
+  shown, so an icon can never carry script, external references or styles.
+
+**Action required:** this release adds a database table (`CustomIcon`). Run the update script
+(`scripts/update-from-github.sh`) or apply the schema yourself (`npx prisma migrate deploy` or
+`npx prisma db push`) before using the app; without it the showcase builder page and the public
+showcase page fail to load.
+
 ## [1.20.0] - 2026-09-26
 
 ### Added

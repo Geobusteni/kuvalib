@@ -24,6 +24,9 @@ export type TextSizePreset = 'small' | 'normal' | 'medium' | 'large' | 'huge'
 /** Image blocks only — a slow pan/zoom while the image is on screen. */
 export type KenBurns = 'none' | 'zoom-in' | 'slide-left' | 'slide-up' | 'slide-down' | 'slide-right'
 
+export const IMAGE_SCALE_MIN = 100
+export const IMAGE_SCALE_MAX = 300
+
 export interface Block {
   id: string
   type: BlockType
@@ -70,6 +73,13 @@ export interface Block {
   /** Seconds the effect takes to complete. Capped in the UI to the album's
    *  autoplay interval, so it never gets cut off mid-motion. */
   kenBurnsSpeed?: number
+  /** image only — the point of the photo (0–100 % of its width/height) that
+   *  stays in view when the block crops it. Unset = 50/50, the plain centre crop. */
+  focusX?: number
+  focusY?: number
+  /** image only — zoom, in percent of the "cover" fit. Never below 100, so the
+   *  photo always fills the block; unset = 100. */
+  imageScale?: number
   /** title / text */
   text?: string
   align?: BlockAlign
@@ -523,6 +533,9 @@ export function sanitizeBlock(raw: unknown, depth = 0): Block | null {
     block.borderColor = hexColor(r.borderColor) ?? '#ffffff'
     block.kenBurns = pick(r.kenBurns, KEN_BURNS_STYLES, 'none')
     block.kenBurnsSpeed = num(r.kenBurnsSpeed, 8, 2, 60)
+    if (Number.isFinite(r.focusX)) block.focusX = num(r.focusX, 50, 0, 100)
+    if (Number.isFinite(r.focusY)) block.focusY = num(r.focusY, 50, 0, 100)
+    if (Number.isFinite(r.imageScale)) block.imageScale = num(r.imageScale, 100, IMAGE_SCALE_MIN, IMAGE_SCALE_MAX)
   }
   if (type === 'title' || type === 'text') {
     block.text = str(r.text, 4000)

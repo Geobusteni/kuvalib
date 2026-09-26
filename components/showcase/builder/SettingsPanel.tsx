@@ -23,6 +23,7 @@ import {
 import { useShowcaseStore } from '../store'
 import { usePhotos } from '../photos-context'
 import { useBuilder } from './useBuilder'
+import { ImageFramingField } from './ImageFramingField'
 import { PresetSwatchRow } from './PresetSwatchRow'
 import { useBlockTypeLabel } from './useBlockTypeLabel'
 
@@ -392,8 +393,9 @@ export function SettingsPanel() {
 
   if (!selectedId || !block) return <PageSettingsPanel />
 
-  const update = (patch: Partial<Block>) => {
-    actions.setProp(selectedId, (props: { block: Block }) => {
+  const update = (patch: Partial<Block>, merge = false) => {
+    // A drag or slider sweep is one edit: Craft folds calls within 500 ms into one undo step.
+    ;(merge ? actions.history.throttle(500) : actions).setProp(selectedId, (props: { block: Block }) => {
       props.block = { ...props.block, ...patch }
     })
     markDirty()
@@ -518,6 +520,8 @@ export function SettingsPanel() {
           </div>
         </Field>
       )}
+
+      {isImage && <ImageFramingField block={block} photo={photos.find((p) => p.id === block.photoId)} onChange={update} />}
 
       {isTextLike && (
         <>

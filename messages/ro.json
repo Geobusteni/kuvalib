@@ -518,7 +518,18 @@
       "alignMiddle": "Mijloc",
       "alignBottom": "Jos",
       "addInside": "Adaugă în acest grup",
-      "addChild": "+ {type}"
+      "addChild": "+ {type}",
+      "framing": "Încadrare",
+      "framingNeedsPhoto": "Alege o fotografie pentru a-i stabili încadrarea.",
+      "focusPoint": "Punct de focalizare",
+      "focusHint": "Atinge sau trage pe fotografie pentru a alege partea care rămâne vizibilă. Zona luminoasă este ce arată acest bloc.",
+      "focusHorizontal": "Orizontal — {value}%",
+      "focusVertical": "Vertical — {value}%",
+      "percentValue": "{value} la sută",
+      "resetFocus": "Resetează punctul de focalizare",
+      "imageScale": "Mărire — {value}%",
+      "imageScaleHint": "100% este minimul: fotografia umple mereu blocul, deci poți doar să o mărești.",
+      "resetScale": "Resetează mărirea"
     },
     "albumSettings": {
       "title": "Setări album",

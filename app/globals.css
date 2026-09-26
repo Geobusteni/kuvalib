@@ -80,7 +80,9 @@ html {
 }
 
 /* Showcase: Ken Burns effects on Image blocks (components/showcase/BlockContent.tsx).
-   All scaled to 112% so panning never reveals an edge. Reduced-motion strips
+   All scaled to 112% so panning never reveals an edge. They run on a wrapper
+   layer of their own; the image's focus/zoom transform sits on the <img>
+   inside it, so the two compose instead of one replacing the other. Reduced-motion strips
    these to a single near-instant frame via the global rule above — the app
    never depends on them finishing. */
 @keyframes sc-kb-zoom-in {

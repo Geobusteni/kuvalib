@@ -518,7 +518,18 @@
       "alignMiddle": "Middle",
       "alignBottom": "Bottom",
       "addInside": "Add inside this group",
-      "addChild": "+ {type}"
+      "addChild": "+ {type}",
+      "framing": "Framing",
+      "framingNeedsPhoto": "Pick a photo to set its framing.",
+      "focusPoint": "Focus point",
+      "focusHint": "Tap or drag on the photo to choose the part that stays in view. The bright area is what this block shows.",
+      "focusHorizontal": "Horizontal — {value}%",
+      "focusVertical": "Vertical — {value}%",
+      "percentValue": "{value} percent",
+      "resetFocus": "Reset focus point",
+      "imageScale": "Zoom — {value}%",
+      "imageScaleHint": "100% is the minimum: the photo always fills the block, so you can only zoom in.",
+      "resetScale": "Reset zoom"
     },
     "albumSettings": {
       "title": "Album settings",

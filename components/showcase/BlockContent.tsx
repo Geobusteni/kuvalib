@@ -62,9 +62,22 @@ export function BlockContent({
     const radius = blockRadiusCss(block.radius)
     const border = blockBorderCss(block)
     if (photo) {
-      // The border/radius/clip live on this static wrapper; only the <img>
-      // inside pans/zooms, so the frame never moves with the Ken Burns effect.
-      const kenBurnsAnimation = KEN_BURNS_KEYFRAMES[block.kenBurns ?? 'none']
+      // The border/radius/clip live on this static frame. Inside it, one layer
+      // carries the Ken Burns animation and the <img> carries the photographer's
+      // focus/zoom: separate elements, because a CSS animation on `transform`
+      // replaces a static `transform` on the same element. Both only ever
+      // enlarge a cover-fitted image about a point inside the block, so it can
+      // never leave a gap.
+      const kenBurns = block.kenBurns ?? 'none'
+      const kenBurnsAnimation = KEN_BURNS_KEYFRAMES[kenBurns]
+      const fx = block.focusX ?? 50
+      const fy = block.focusY ?? 50
+      const scale = (block.imageScale ?? 100) / 100
+      // The slide effects translate by up to 2% on top of a 112% scale; that
+      // margin only holds on the sliding axis when the scale is centred there,
+      // so a focus point at an edge must not be their origin on that axis.
+      const kbOriginX = kenBurns === 'slide-left' || kenBurns === 'slide-right' ? 50 : fx
+      const kbOriginY = kenBurns === 'slide-up' || kenBurns === 'slide-down' ? 50 : fy
       return (
         <div
           style={{
@@ -76,24 +89,36 @@ export function BlockContent({
             overflow: 'hidden',
           }}
         >
-          {/* eslint-disable-next-line @next/next/no-img-element -- showcase art direction needs object-fit, not the Image layout box */}
-          <img
-            src={photo.thumbLg}
-            alt=""
-            draggable={false}
+          <div
+            data-kb-layer=""
             style={{
               width: '100%',
               height: '100%',
-              objectFit: 'cover',
-              display: 'block',
-              pointerEvents: 'none',
-              userSelect: 'none',
+              transformOrigin: `${kbOriginX}% ${kbOriginY}%`,
               animationName: kenBurnsAnimation,
               animationDuration: kenBurnsAnimation ? `${block.kenBurnsSpeed ?? 8}s` : undefined,
               animationTimingFunction: 'ease-in-out',
               animationFillMode: 'forwards',
             }}
-          />
+          >
+            {/* eslint-disable-next-line @next/next/no-img-element -- showcase art direction needs object-fit, not the Image layout box */}
+            <img
+              src={photo.thumbLg}
+              alt=""
+              draggable={false}
+              style={{
+                width: '100%',
+                height: '100%',
+                objectFit: 'cover',
+                objectPosition: `${fx}% ${fy}%`,
+                transform: scale > 1 ? `scale(${scale})` : undefined,
+                transformOrigin: `${fx}% ${fy}%`,
+                display: 'block',
+                pointerEvents: 'none',
+                userSelect: 'none',
+              }}
+            />
+          </div>
         </div>
       )
     }

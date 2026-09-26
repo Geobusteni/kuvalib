@@ -10,6 +10,16 @@ adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html). While the
 
 ## [Unreleased]
 
+## [1.17.3] - 2026-09-26
+
+### Fixed
+
+- **The expiry strip and the photo viewer no longer misplace themselves in Chrome on iPhone.** The
+  previous attempt made the strip disappear while scrolling. On touch devices the gallery now
+  scrolls inside its own full-screen area instead of the page itself, so the browser's toolbar
+  stays put and nothing at the bottom edge can end up in the wrong place. **Trade-off:** on
+  phones the browser toolbar no longer hides as you scroll the gallery. Desktop is unchanged.
+
 ## [1.17.2] - 2026-09-26
 
 ### Fixed

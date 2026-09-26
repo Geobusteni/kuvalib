@@ -177,6 +177,10 @@ export default function Gallery({
 
   return (
     <>
+      {/* On touch devices the gallery scrolls inside this fixed box instead of the page, so the
+          mobile browser's toolbar never collapses or expands and nothing anchored to the bottom
+          edge (expiry strip, lightbox) can end up misplaced. Desktop scrolls the page as usual. */}
+      <div className="bg-black [@media(pointer:coarse)]:fixed [@media(pointer:coarse)]:inset-0 [@media(pointer:coarse)]:overflow-y-auto [@media(pointer:coarse)]:overscroll-contain">
       <Toolbar
         title={title}
         mode={state.mode === 'selection' ? 'selection' : 'gallery'}
@@ -235,12 +239,10 @@ export default function Gallery({
         </footer>
       )}
 
-      {expiresAt && (
-        <>
-          <div aria-hidden="true" style={{ height: 'var(--expiry-bar-h, 0px)' }} />
-          <ExpiryStrip expiresAt={expiresAt} />
-        </>
-      )}
+      {expiresAt && <div aria-hidden="true" style={{ height: 'var(--expiry-bar-h, 0px)' }} />}
+      </div>
+
+      {expiresAt && <ExpiryStrip expiresAt={expiresAt} />}
 
       {state.mode === 'viewer' && (
         <PhotoViewer

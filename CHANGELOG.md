@@ -10,6 +10,8 @@ adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html). While the
 
 ## [Unreleased]
 
+## [1.21.0] - 2026-09-26
+
 ### Added
 
 - **Icon library for showcases.** About 230 built-in icons (a curated subset of Lucide: hearts,

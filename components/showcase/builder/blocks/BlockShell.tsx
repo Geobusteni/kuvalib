@@ -6,8 +6,20 @@
 import { useEditor, useNode } from '@craftjs/core'
 import { Rnd } from 'react-rnd'
 import { useCallback, useRef, type ReactNode } from 'react'
+import { flushSync } from 'react-dom'
 import { clamp, type Block } from '@/lib/showcase-blocks'
-import { adhere, createAdhesion, type Adhesion, type SiblingRect } from '@/lib/showcase-snap'
+import {
+  adhere,
+  adhereResize,
+  alignResize,
+  clampToLimits,
+  createAdhesion,
+  type Adhesion,
+  type Rect,
+  type ResizeDirection,
+  type ResizeLimits,
+  type SiblingRect,
+} from '@/lib/showcase-snap'
 import { blockBackgroundCss, blockRadiusCss, blockShadowCss, fluidPx } from '@/lib/showcase-theme'
 import { useFrameSize, pctToPx, pxToPct } from '../../frame-size'
 
@@ -99,6 +111,15 @@ export function BlockShell({
     peers: SiblingRect[]
   } | null>(null)
 
+  // Same idea for a resize: react-rnd derives size and position from the pointer alone, so the
+  // held rectangle is pushed back into it from onResize.
+  const resize = useRef<{
+    start: Rect
+    held: Rect
+    adhesion: Adhesion
+    peers: SiblingRect[]
+  } | null>(null)
+
   const siblings = useCallback((): { id: string; block: Block; parentGroupId: string | null }[] => {
     const root = query.node('ROOT').get()
     return root.data.nodes.map((childId) => {
@@ -121,6 +142,15 @@ export function BlockShell({
   )
 
   const isGroup = block.type === 'group'
+
+  // A page-wide box, or a group child's own group: dragging (not resizing) is how a block
+  // leaves a group, so this is the one place membership also means "never grow beyond it".
+  const resizeLimits = (): ResizeLimits => {
+    const parent = !isGroup && parentGroupId ? siblings().find((s) => s.id === parentGroupId)?.block : undefined
+    return parent
+      ? { x0: parent.x, y0: parent.y, x1: parent.x + parent.w, y1: parent.y + parent.h, minW: MIN_PCT, minH: MIN_PCT }
+      : { x0: 0, y0: 0, x1: 100, y1: 100, minW: MIN_PCT, minH: MIN_PCT }
+  }
   const px = {
     x: pctToPx(block.x, frameW),
     y: pctToPx(block.y, frameH),
@@ -242,24 +272,59 @@ export function BlockShell({
           })
         }
       }}
-      onResizeStop={(_e, _dir, refEl, _delta, position) => {
-        let nextW = clamp(pxToPct(refEl.offsetWidth, frameW), MIN_PCT, 100)
-        let nextH = clamp(pxToPct(refEl.offsetHeight, frameH), MIN_PCT, 100)
-        let nextX = clamp(pxToPct(position.x, frameW), 0, 100 - nextW)
-        let nextY = clamp(pxToPct(position.y, frameH), 0, 100 - nextH)
-
-        // A group's child can be resized, but never past the group's own box —
-        // dragging (not resizing) is how a block leaves a group, so this is the
-        // one place membership doesn't also mean "free to grow beyond it".
-        if (!isGroup && parentGroupId) {
-          const parent = siblings().find((s) => s.id === parentGroupId)?.block
-          if (parent) {
-            nextW = Math.min(nextW, parent.w)
-            nextH = Math.min(nextH, parent.h)
-            nextX = clamp(nextX, parent.x, parent.x + parent.w - nextW)
-            nextY = clamp(nextY, parent.y, parent.y + parent.h - nextH)
-          }
+      onResizeStart={() => {
+        const start = { x: block.x, y: block.y, w: block.w, h: block.h }
+        resize.current = {
+          start,
+          held: start,
+          adhesion: createAdhesion(),
+          peers: siblings()
+            .filter((s) => s.id !== id && s.parentGroupId === parentGroupId)
+            .map((s) => ({ id: s.id, x: s.block.x, y: s.block.y, w: s.block.w, h: s.block.h })),
         }
+      }}
+      onResize={(_e, dir, _ref, delta, position) => {
+        const live = resize.current
+        if (!live || frameW <= 0 || frameH <= 0) return
+        const raw = {
+          x: pxToPct(position.x, frameW),
+          y: pxToPct(position.y, frameH),
+          w: block.w + pxToPct(delta.width, frameW),
+          h: block.h + pxToPct(delta.height, frameH),
+        }
+        const held = adhereResize(live.start, raw, dir as ResizeDirection, live.peers, { width: frameW, height: frameH }, live.adhesion, resizeLimits())
+        live.held = held
+        // re-resizable and react-rnd commit the pointer's raw size synchronously just before calling
+        // this. A pointer-move update is scheduled in a later task, so without flushSync the raw
+        // frame would be painted first and the held one would flicker in behind it.
+        flushSync(() => {
+          rndRef.current?.updateSize({ width: pctToPx(held.w, frameW), height: pctToPx(held.h, frameH) })
+          rndRef.current?.updatePosition({ x: pctToPx(held.x, frameW), y: pctToPx(held.y, frameH) })
+        })
+      }}
+      onResizeStop={(_e, dir, refEl, _delta, position) => {
+        const live = resize.current
+        resize.current = null
+        const limits = resizeLimits()
+        let next: Rect
+        if (live) {
+          // Same drop-time alignment as a drag, applied to the edge(s) that moved.
+          const others = siblings().filter((s) => s.id !== id)
+          const xCandidates = [0, 50, 100, ...others.flatMap((s) => [s.block.x, s.block.x + s.block.w / 2, s.block.x + s.block.w])]
+          const yCandidates = [0, 50, 100, ...others.flatMap((s) => [s.block.y, s.block.y + s.block.h / 2, s.block.y + s.block.h])]
+          next = alignResize(live.held, dir as ResizeDirection, xCandidates, yCandidates, pxToPct(SNAP_PX, frameW), pxToPct(SNAP_PX, frameH), limits)
+        } else {
+          next = clampToLimits(
+            {
+              x: pxToPct(position.x, frameW),
+              y: pxToPct(position.y, frameH),
+              w: pxToPct(refEl.offsetWidth, frameW),
+              h: pxToPct(refEl.offsetHeight, frameH),
+            },
+            limits,
+          )
+        }
+        const { x: nextX, y: nextY, w: nextW, h: nextH } = next
 
         if (isGroup) {
           const sx = block.w ? nextW / block.w : 1

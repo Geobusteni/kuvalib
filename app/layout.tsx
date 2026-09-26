@@ -5,6 +5,7 @@ import type { Metadata } from 'next'
 import { Geist } from 'next/font/google'
 import { NextIntlClientProvider } from 'next-intl'
 import { getLocale, getTranslations } from 'next-intl/server'
+import LocaleSync from '@/components/ui/LocaleSync'
 import './globals.css'
 
 const geist = Geist({ subsets: ['latin', 'latin-ext'], variable: '--font-geist-sans' })
@@ -24,7 +25,10 @@ export default async function RootLayout({ children }: { children: React.ReactNo
   return (
     <html lang={locale} className={`${geist.variable} h-full antialiased`}>
       <body className="min-h-full">
-        <NextIntlClientProvider>{children}</NextIntlClientProvider>
+        <NextIntlClientProvider>
+          <LocaleSync />
+          {children}
+        </NextIntlClientProvider>
       </body>
     </html>
   )

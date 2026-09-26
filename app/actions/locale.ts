@@ -13,6 +13,7 @@ export async function setLocale(locale: string): Promise<void> {
   const cookieStore = await cookies()
   cookieStore.set(LOCALE_COOKIE, locale, {
     path: '/',
+    // Chrome caps cookie lifetime at 400 days; stay under it.
     maxAge: 60 * 60 * 24 * 365,
     sameSite: 'lax',
     secure: process.env.COOKIE_SECURE === 'true',

@@ -6,7 +6,7 @@
 import { useTransition } from 'react'
 import { useLocale, useTranslations } from 'next-intl'
 import { setLocale } from '@/app/actions/locale'
-import { locales, type Locale } from '@/lib/locales'
+import { locales, LOCALE_STORAGE_KEY, type Locale } from '@/lib/locales'
 import Tooltip from './Tooltip'
 
 export default function LanguageSwitcher({
@@ -24,6 +24,10 @@ export default function LanguageSwitcher({
 
   function choose(locale: Locale) {
     if (locale === current) return
+    // Only an explicit pick is mirrored; an auto-detected language never is.
+    try {
+      window.localStorage.setItem(LOCALE_STORAGE_KEY, locale)
+    } catch {}
     startTransition(() => setLocale(locale))
   }
 

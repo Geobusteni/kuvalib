@@ -174,6 +174,7 @@ erDiagram
         boolean zipEnabled
         boolean dlEnabled
         boolean feedbackEnabled "client like/dislike/comment, off by default"
+        string defaultLocale "en or ro forced for /g and /s, null = automatic"
         datetime feedbackResetAt "bumped on admin reset"
         int dlCount
         int visitCount
@@ -538,10 +539,17 @@ shared, framework-free core.
 English and Romanian, via `next-intl` **without** locale-prefixed routes.
 
 - `lib/locales.ts` — `locales`, `defaultLocale`, `LOCALE_COOKIE` (`kuvalib_locale`) and the pure
-  `resolveLocale(cookie, acceptLanguage)`: whitelisted cookie, else best `Accept-Language`
-  match by language subtag and q-value, else `en`.
-- `i18n/request.ts` — next-intl request config; reads the cookie and header per request and
-  loads `messages/<locale>.json`. `next.config.ts` wraps the config with `createNextIntlPlugin`.
+  `resolveLocale(cookie, acceptLanguage, projectDefault?)`: whitelisted cookie (the visitor's own
+  choice), else the project's forced language, else best `Accept-Language` match by language
+  subtag and q-value, else `en`. `parsePublicPath` maps `/g/<id>` / `/s/<id>` to a lookup target.
+- `proxy.ts` — matcher `/g/:path*`, `/s/:path*` only; copies the pathname into the request header
+  `x-kuvalib-path` so server rendering can tell which public page it is on.
+- `i18n/request.ts` — next-intl request config; reads the cookie and headers per request and
+  loads `messages/<locale>.json`. Only when there is no cookie and `x-kuvalib-path` is a public
+  page does it look up `Project.defaultLocale` (`/s` id resolved through the showcase), once per
+  request via React `cache`; a lookup failure falls back silently.
+- `components/ui/LocaleSync.tsx` — mounted in the root layout; mirrors the cookie into
+  localStorage and restores a lost cookie from it (see decisions log). `next.config.ts` wraps the config with `createNextIntlPlugin`.
 - `app/layout.tsx` — `<html lang={locale}>`, `NextIntlClientProvider`, `generateMetadata`,
   Geist with the `latin-ext` subset (Romanian diacritics).
 - `app/actions/locale.ts` — `setLocale` server action: whitelist check, sets the cookie
@@ -606,6 +614,8 @@ On the server:
 | Decision                          | Reason                                                        |
 |-----------------------------------|---------------------------------------------------------------|
 | No locale-prefixed routes (`/ro/g/...`) for i18n | Gallery and showcase links are shared with clients and must stay `/g/[slug]`, `/s/[slug]` forever; the language is a per-browser preference, not part of the address |
+| Project `defaultLocale` is applied by `proxy.ts` + `x-kuvalib-path`, only on `/g` and `/s` | Root layout and `i18n/request.ts` cannot see the URL, and page-level lookups would be too late for `<html lang>`. The matcher keeps the proxy off API routes, assets and admin; it only sets one header, and the DB lookup happens only for visitors with no cookie. Admin/login/setup deliberately ignore project defaults. Precedence: visitor choice, project default, Accept-Language, `en` |
+| The visitor's language is stored twice: server-set cookie (source of truth) plus a localStorage mirror written only by the switcher | Safari ITP caps cookies set via `document.cookie` to 7 days, but cookies set in a server response keep their lifetime, so the cookie is set only by the `setLocale` action (365 days, under Chrome's 400-day cap). Some in-app webviews, cookie clearing and partitioned jars still drop cookies while localStorage survives, so `LocaleSync` restores the cookie from localStorage when it is missing and differs from the rendered language (once per value per page load, whitelisted values only, so a browser that refuses cookies cannot loop) and re-checks on bfcache `pageshow`. All storage access is try/catch (Safari private mode, disabled storage). Auto-detected languages are never stored, so visitors who never switch keep following the project default |
 | Locale lives in a `kuvalib_locale` cookie, not the session | Gallery clients are anonymous and never have an iron-session; a plain cookie works for them and for signed-out admin pages. It holds a whitelisted value only, so it is safe to read client-side |
 | PostgreSQL over SQLite            | Real user/role relations; room to grow beyond one machine     |
 | Prisma over raw SQL               | Typed schema and migrations; the app is expected to extend    |

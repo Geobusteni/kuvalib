@@ -257,10 +257,13 @@ move to the other without signing in again.
 ### Language
 
 Kuvalib speaks English and Romanian. The first visit uses the browser's language (English when
-it is neither), and the **EN | RO** switcher (admin header, sign-in and setup pages; a one-button version showing
+it is neither), unless the project has a **Default language** (Edit project, English or Romanian;
+Automatic is the default): then that project's gallery and showcase open in it. And the **EN | RO** switcher (admin header, sign-in and setup pages; a one-button version showing
 the current language on the gallery and its password gate) overrides it.
-The choice is remembered for a year in a `kuvalib_locale` cookie on that browser, so clients and
-admins each get their own. Gallery and showcase links do not change with the language.
+The choice is remembered for a year in a `kuvalib_locale` cookie on that browser (with a copy in
+the browser's local storage, used to restore it if the cookie is lost), so clients and
+admins each get their own. A language a visitor picks always wins over the project's default; a
+visitor who never switches keeps getting the default. Gallery and showcase links do not change with the language.
 
 Contributors: `npm run i18n:check` verifies `messages/en.json` and `messages/ro.json` have the
 same keys.

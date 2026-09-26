@@ -10,6 +10,18 @@ adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html). While the
 
 ## [Unreleased]
 
+### Added
+
+- **Default language per project.** In Edit project you can now force English or Romanian for that
+  project's gallery and showcase (Automatic, the default, keeps using the visitor's browser
+  language). A language a visitor picks with the language button always wins, and is now also
+  remembered in the browser's local storage, so it comes back even if the browser drops the cookie.
+  Admin and sign-in pages are unaffected.
+
+**Action required:** the database gains a `defaultLocale` column on `Project`. The normal update
+scripts apply it (`prisma migrate deploy` / `db push`); if you update by hand, run
+`npx prisma migrate deploy`. Existing projects stay on Automatic.
+
 ## [1.17.3] - 2026-09-26
 
 ### Fixed

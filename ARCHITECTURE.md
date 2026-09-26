@@ -247,7 +247,17 @@ erDiagram
         int size
         int sortOrder
     }
+    CustomIcon {
+        string id PK
+        string name
+        text svg "sanitised markup, never the raw upload"
+        datetime createdAt
+    }
 ```
+
+`CustomIcon` is global (single photographer), not per project, and has no relation: a showcase
+references an icon by the string `custom:<id>` inside its block JSON, so deleting an icon is
+refused with 409 `icon_in_use` while any `ShowcasePage.blocksJson` still contains that string.
 
 `Photo` has a composite unique constraint on `(projectId, originalName)`. That constraint is what
 makes duplicate detection at upload time possible.
@@ -413,6 +423,16 @@ GET    /api/projects/[id]/showcase/tracks/[tid]    Stream a track; requires gall
                                                      supports HTTP Range
 ```
 
+### Icons (admin only)
+
+```
+GET    /api/icons        List custom icons {id, name, svg} (admin)
+POST   /api/icons        Add one: JSON {name, svg} or multipart {name, file|svg}. Max 20 KB,
+                           name <= 60 chars, 200 icons; the SVG is sanitised or refused with a
+                           coded 400 (svg_*), 409 icon_limit_reached (admin)
+DELETE /api/icons/[id]   Delete one; 404 icon_not_found, 409 icon_in_use (admin)
+```
+
 The showcase's "Download as ZIP" reuses `POST /api/projects/[id]/download` with the showcase's
 own `photoIds`.
 
@@ -530,6 +550,8 @@ shared, framework-free core.
 | `builder/SettingsPanel`, `PageRail`, `BlockTree`, `AddBlockMenu`, `AlbumSettingsDialog`, `useBuilder` | The panel reads the selected Craft node; `useBuilder` couples Craft `query`/`actions` with the store (page switching, inserts, the Cover shortcut, arrange, debounced autosave to `PUT .../pages`). `BlockTree` lists `query.node('ROOT').get().data.nodes` in order (the same list `moveWithinBand` reorders) and calls `actions.selectNode(id)`. Its **Arrange** toggle (local state) swaps in `builder/ArrangeList`, which adds pointer/keyboard drag handles and a drop marker and, on drop, hands the new row list to `useBuilder.applyTreeRows`; the legal drop slots and resulting order/`parentGroupId`/box come from `lib/showcase-tree.ts`. |
 | `viewer/ShowcaseViewer` + `useSlideshow` | `idle → out → pre → in` page-turn machine (collapsed under `prefers-reduced-motion`); autoplay + loop; fullscreen as a local boolean (like the lightbox); keyboard. |
 | `viewer/BlockRenderer`, `PageStage`, `ViewerControls`, `DotIndicator`, `ThumbnailRail`, `MusicPlayer`, `ShowcaseDownloadDialog` | Render the flattened block list; per-`animationStyle` page transform; a floating top-right controls pill; a left-side page-dot column; `<audio>` playlist; ZIP dialog reusing `POST /api/projects/[id]/download`. |
+| `lib/icons/*`, `lib/svg-sanitize.ts`, `lib/custom-icons.ts` | Icon ids (`lucide:<name>` / `custom:<id>`, `ids.ts`); the vendored Lucide subset split into `lucide-paths.ts` (drawing data, what the viewer needs) and `lucide-meta.ts` (tags and categories, picker only); the pure allowlist SVG sanitiser; data access for custom icons plus `loadIconLibrary(ids)`. |
+| `components/showcase/Icon.tsx`, `icons-context.tsx`, `builder/IconPicker.tsx`, `builder/AddIconForm.tsx`, `builder/BuilderIconsProvider.tsx` | `ShowcaseIcon` draws an id in `currentColor` from an `IconsProvider` library. The public page resolves only the icons its blocks reference on the server (`collectIconIds` + `loadIconLibrary`), so the built-in set never ships to the viewer; the builder provides the whole set plus the live custom list and a manager (`reload`, `canManage`). `IconPicker` is a trigger + modal (search, category chips, roving-tabindex grid, "My icons" with add/delete). |
 | `BlockContent` | The visual inside a block (image/headline/text/button) — shared by builder and viewer so they never drift. Resolves a Headline/Text block's font size from its own `fontSize` override, else the album's per-level/per-preset defaults. An Image block renders as static clipped border/radius frame > Ken Burns layer (the `@keyframes` run here) > `<img>` (`object-fit: cover`, `object-position` and a `scale()` about the block's focus point). |
 
 ---
@@ -613,6 +635,10 @@ On the server:
 
 | Decision                          | Reason                                                        |
 |-----------------------------------|---------------------------------------------------------------|
+| Icons are vendored data (Lucide subset, ISC, credited in `THIRD_PARTY_NOTICES.md`), not an npm dependency, and resolved on the server into the viewer's provider | AGENTS.md: minimal dependencies. The set is ~47 KB raw / 14 KB gzipped of path data; keeping it out of the client viewer bundle (only the icons a showcase uses are passed down) means the public page pays nothing for the other ~230 |
+| Custom SVGs pass an allowlist parser that rejects, never repairs, and re-serialises from parsed values; solid colours become `currentColor`; checked on write, on read (`loadIconLibrary`) and again in `ShowcaseIcon` | An SVG is markup rendered with `dangerouslySetInnerHTML` on a page other people open, so it is treated as hostile: only geometry elements, numeric/path-data/enum attribute grammars, ASCII only (no unicode tricks), no comments/CDATA/DOCTYPE/entities/`style`/`href`. Root presentation attributes stay on the root, so the output is idempotent under re-sanitising. Recolouring by the block colour is why colours collapse to `currentColor` |
+| Custom icons live in one global table referenced by string id from block JSON, and delete scans `blocksJson` | Blocks are a JSON blob by design; a foreign key is impossible. A scan on an admin-only, rare action is simpler than an index table |
+| `useFocusTrap` also treats `input`, `textarea` and `select` as focusable | It only knew buttons and links, so Tab from a dialog's last text field escaped the dialog |
 | No locale-prefixed routes (`/ro/g/...`) for i18n | Gallery and showcase links are shared with clients and must stay `/g/[slug]`, `/s/[slug]` forever; the language is a per-browser preference, not part of the address |
 | Project `defaultLocale` is applied by `proxy.ts` + `x-kuvalib-path`, only on `/g` and `/s` | Root layout and `i18n/request.ts` cannot see the URL, and page-level lookups would be too late for `<html lang>`. The matcher keeps the proxy off API routes, assets and admin; it only sets one header, and the DB lookup happens only for visitors with no cookie. Admin/login/setup deliberately ignore project defaults. Precedence: visitor choice, project default, Accept-Language, `en` |
 | The visitor's language is stored twice: server-set cookie (source of truth) plus a localStorage mirror written only by the switcher | Safari ITP caps cookies set via `document.cookie` to 7 days, but cookies set in a server response keep their lifetime, so the cookie is set only by the `setLocale` action (365 days, under Chrome's 400-day cap). Some in-app webviews, cookie clearing and partitioned jars still drop cookies while localStorage survives, so `LocaleSync` restores the cookie from localStorage when it is missing and differs from the rendered language (once per value per page load, whitelisted values only, so a browser that refuses cookies cannot loop) and re-checks on bfcache `pageshow`. All storage access is try/catch (Safari private mode, disabled storage). Auto-detected languages are never stored, so visitors who never switch keep following the project default |

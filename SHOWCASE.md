@@ -372,6 +372,26 @@ pan/zoom are dropped — pages change instantly and autoplay still advances. Not
 
 ---
 
+## Icons
+
+The showcase has an icon library, chosen with the **icon picker** (used by the blocks that get an
+icon option). It offers about 230 built-in icons (a curated subset of Lucide) grouped in
+categories, searchable by name and keyword (English, and Romanian for common ones), and a **My
+icons** tab for your own.
+
+- **Choose:** open the picker, search or pick a category, click an icon (arrow keys move between
+  icons, Enter selects, Escape closes; on phones it opens as a bottom sheet). **No icon** clears it.
+- **Add your own:** My icons, **Add SVG icon**, paste the SVG code or choose an `.svg` file, check
+  the preview, name it, **Save**. Up to 200 icons of up to 20 KB. Only simple shapes are accepted
+  (path, circle, rect, line, polyline, polygon, ellipse, group); scripts, images, gradients, styles,
+  links and comments are refused and the message says which element or attribute to remove. Solid
+  colours in the file become the block's own colour, so one icon can be recoloured anywhere.
+- **Delete:** the bin button, then confirm. An icon still used in a showcase cannot be deleted.
+  Only administrators can add or delete; anyone building can pick.
+
+Icons are stored as `lucide:<name>` or `custom:<id>` on a block (`icon` field), rendered by
+`ShowcaseIcon` in the block's text colour.
+
 ## For developers
 
 The technical design — the Craft.js builder, the Craft-free viewer, the shared block model and

@@ -11,7 +11,7 @@ export function useFocusTrap(containerRef: RefObject<HTMLElement | null>) {
   return function trapFocus(e: React.KeyboardEvent) {
     if (e.key !== 'Tab' || !containerRef.current) return
     const items = Array.from(containerRef.current.querySelectorAll<HTMLElement>(FOCUSABLE)).filter(
-      (el) => el.offsetParent !== null || el === document.activeElement
+      (el) => !el.closest('[inert]') && (el.offsetParent !== null || el === document.activeElement)
     )
     if (items.length === 0) {
       e.preventDefault()

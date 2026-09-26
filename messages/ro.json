@@ -261,7 +261,6 @@
         "openHint": "Atinge sau dă clic pe o fotografie ca s-o vezi mare.",
         "previous": "Arată fotografia dinaintea celei curente.",
         "next": "Arată fotografia de după cea curentă.",
-        "download": "Salvează fotografia sub numele ei original.",
         "fullscreen": "Afișează fotografia pe tot ecranul.",
         "close": "Te întoarce la galerie."
       },
@@ -306,7 +305,6 @@
     "counter": "{index} / {total}",
     "dialogLabel": "Vizualizare fotografii: imaginea {index} din {total}",
     "photoAlt": "Fotografia {index} din {total}",
-    "download": "Descarcă imaginea",
     "enterFullscreen": "Intră în ecran complet",
     "exitFullscreen": "Ieși din ecran complet",
     "close": "Închide",

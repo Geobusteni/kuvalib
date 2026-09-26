@@ -18,6 +18,7 @@ import {
 import {
   ButtonBlock,
   GroupBlock,
+  IconBlock,
   ImageBlock,
   TextBlock,
   TitleBlock,
@@ -37,6 +38,7 @@ const COMPONENT_FOR: Record<BlockType, React.ElementType> = {
   title: TitleBlock,
   text: TextBlock,
   button: ButtonBlock,
+  icon: IconBlock,
   group: GroupBlock,
 }
 
@@ -153,12 +155,12 @@ export function BuilderProvider({ children }: { children: ReactNode }) {
       const groupNode = query.node(groupNodeId).get()
       const groupBlock = groupNode?.data.props.block as Block | undefined
       if (!groupBlock) return
-      const child = makeBlock(type, {
-        x: groupBlock.x + 4,
-        y: groupBlock.y + 4,
-        w: Math.max(10, groupBlock.w - 8),
-        h: Math.min(14, groupBlock.h / 3),
-      }, texts)
+      // An icon keeps its own square proportions rather than spanning the group.
+      const box =
+        type === 'icon'
+          ? { w: 8, h: 12.8 }
+          : { w: Math.max(10, groupBlock.w - 8), h: Math.min(14, groupBlock.h / 3) }
+      const child = makeBlock(type, { x: groupBlock.x + 4, y: groupBlock.y + 4, ...box }, texts)
       const childId = insert(child, groupNodeId)
       actions.selectNode(childId)
       markDirty()

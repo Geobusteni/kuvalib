@@ -17,6 +17,9 @@ import {
   type BlockTextColor,
   type BorderStyle,
   type ButtonLinkType,
+  ICON_STROKE_DEFAULT,
+  ICON_STROKE_MAX,
+  ICON_STROKE_MIN,
   type ButtonStyle,
   type HeadingLevel,
   type KenBurns,
@@ -30,9 +33,11 @@ const KEN_BURNS_UI_MAX = 120
 import { useShowcaseStore } from '../store'
 import { usePhotos } from '../photos-context'
 import { useBuilder } from './useBuilder'
+import { IconPicker } from './IconPicker'
 import { ImageFramingField } from './ImageFramingField'
 import { PresetSwatchRow } from './PresetSwatchRow'
 import { ShadowFields } from './ShadowFields'
+import { builtInIconName } from './rowDetail'
 import { useBlockTypeLabel } from './useBlockTypeLabel'
 
 const RADII: BlockRadius[] = ['none', 'md', 'pill']
@@ -40,6 +45,8 @@ const BG_SWATCHES: BlockBg[] = ['none', 'surface', 'deep', 'accentTint', 'accent
 const TEXT_SWATCHES: BlockTextColor[] = ['default', 'accent', 'muted', 'custom']
 const ALIGNS: BlockAlign[] = ['left', 'center', 'right']
 const LINK_TYPES: ButtonLinkType[] = ['custom', 'zip', 'gallery']
+const ICON_LINK_TYPES: ButtonLinkType[] = ['none', ...LINK_TYPES]
+const ICON_POSITIONS = ['left', 'right'] as const
 const HEADING_LEVELS: HeadingLevel[] = [1, 2, 3, 4, 5, 6]
 const TEXT_SIZES: TextSizePreset[] = ['small', 'normal', 'medium', 'large', 'huge']
 const BORDER_STYLES: BorderStyle[] = ['none', 'solid', 'dashed', 'dotted']
@@ -352,6 +359,31 @@ function BorderField<T extends { borderStyle?: BorderStyle; borderWidth?: number
   )
 }
 
+/** Link type, URL and hints — shared by the Button and Icon blocks. */
+function LinkFields({ block, types, onChange }: { block: Block; types: ButtonLinkType[]; onChange: (patch: Partial<Block>) => void }) {
+  const t = useTranslations('showcaseBuilder.settingsPanel')
+  const options = useOptions()
+  const linkType = block.linkType ?? types[0]
+  return (
+    <>
+      <Field label={t('link')}>
+        <Segmented options={options('linkType', types)} value={linkType} onChange={(v) => onChange({ linkType: v })} />
+      </Field>
+      {linkType === 'custom' && (
+        <input
+          className={inputClass}
+          aria-label={t('link')}
+          placeholder={t('urlPlaceholder')}
+          value={block.link ?? ''}
+          onChange={(e) => onChange({ link: e.target.value })}
+        />
+      )}
+      {linkType === 'zip' && <p className="text-[11px] text-zinc-400">{t('zipHint')}</p>}
+      {linkType === 'gallery' && <p className="text-[11px] text-zinc-400">{t('galleryHint')}</p>}
+    </>
+  )
+}
+
 function PageSettingsPanel() {
   const t = useTranslations('showcaseBuilder.settingsPanel')
   const currentPageId = useShowcaseStore((s) => s.currentPageId)
@@ -441,15 +473,16 @@ export function SettingsPanel() {
   const isTitle = block.type === 'title'
   const isText = block.type === 'text'
   const isButton = block.type === 'button'
+  const isIcon = block.type === 'icon'
   const isGroup = block.type === 'group'
   const isTextLike = isTitle || isText
 
   // Headline: level + optional custom size + solid text colour only — no
   // corners, no background (the title/text/button blocks own colour, a group
   // owns background — a headline is just text).
-  const showCorners = isText || isButton || isGroup
-  const showBackground = isText || isButton || isGroup
-  const showTextColor = isText || isButton
+  const showCorners = isText || isButton || isIcon || isGroup
+  const showBackground = isText || isButton || isIcon || isGroup
+  const showTextColor = isText || isButton || isIcon
   // Title has its own dedicated (text-colour-only) section further down.
   const hasSharedAppearance = showCorners || showBackground || showTextColor || isGroup
 
@@ -637,27 +670,28 @@ export function SettingsPanel() {
           <Field label={t('label')}>
             <input className={inputClass} value={block.label ?? ''} onChange={(e) => update({ label: e.target.value })} />
           </Field>
-          <Field label={t('link')}>
-            <Segmented
-              options={options('linkType', LINK_TYPES)}
-              value={block.linkType ?? 'custom'}
-              onChange={(v) => update({ linkType: v })}
-            />
-          </Field>
-          {(block.linkType ?? 'custom') === 'custom' && (
-            <input
-              className={inputClass}
-              placeholder={t('urlPlaceholder')}
-              value={block.link ?? ''}
-              onChange={(e) => update({ link: e.target.value })}
-            />
+          <div className="flex flex-col gap-1">
+            <span className="text-xs font-medium text-zinc-500">{t('icon')}</span>
+            <IconPicker value={block.icon} onChange={(icon) => update({ icon })} allowNone />
+          </div>
+          {block.icon && (
+            <>
+              <Field label={t('iconPosition')}>
+                <Segmented
+                  options={options('iconPosition', [...ICON_POSITIONS])}
+                  value={block.iconPosition ?? 'left'}
+                  onChange={(v) => update({ iconPosition: v })}
+                />
+              </Field>
+              {!block.label && (
+                <Field label={t('iconLabel')}>
+                  <input className={inputClass} value={block.iconLabel ?? ''} onChange={(e) => update({ iconLabel: e.target.value })} />
+                  <span className="text-[11px] font-normal text-zinc-400">{t('iconOnlyHint')}</span>
+                </Field>
+              )}
+            </>
           )}
-          {block.linkType === 'zip' && (
-            <p className="text-[11px] text-zinc-400">{t('zipHint')}</p>
-          )}
-          {block.linkType === 'gallery' && (
-            <p className="text-[11px] text-zinc-400">{t('galleryHint')}</p>
-          )}
+          <LinkFields block={block} types={LINK_TYPES} onChange={update} />
           <Field label={t('style')}>
             <Segmented
               options={options('buttonStyle', BUTTON_STYLES)}
@@ -686,6 +720,40 @@ export function SettingsPanel() {
             </div>
           </Field>
           <BorderField value={block} onChange={update} />
+        </>
+      )}
+
+      {isIcon && (
+        <>
+          <div className="flex flex-col gap-1">
+            <span className="text-xs font-medium text-zinc-500">{t('icon')}</span>
+            <IconPicker value={block.icon} onChange={(icon) => update({ icon })} />
+          </div>
+          <label className="text-[11px] text-zinc-400">
+            {t('iconStroke', { value: block.iconStroke ?? ICON_STROKE_DEFAULT })}
+            <input
+              type="range"
+              min={ICON_STROKE_MIN}
+              max={ICON_STROKE_MAX}
+              step={0.5}
+              value={block.iconStroke ?? ICON_STROKE_DEFAULT}
+              onChange={(e) => update({ iconStroke: parseFloat(e.target.value) }, true)}
+              className="w-full"
+            />
+            <span className="mt-0.5 block">{t('iconStrokeHint')}</span>
+          </label>
+          <LinkFields block={block} types={ICON_LINK_TYPES} onChange={update} />
+          <Field label={t('iconLabel')}>
+            <input
+              className={inputClass}
+              value={block.iconLabel ?? ''}
+              placeholder={builtInIconName(block.icon) || undefined}
+              onChange={(e) => update({ iconLabel: e.target.value })}
+            />
+            <span className="text-[11px] font-normal text-zinc-400">
+              {(block.linkType ?? 'none') === 'none' ? t('iconLabelHintDecorative') : t('iconLabelHintLinked')}
+            </span>
+          </Field>
         </>
       )}
 
@@ -754,10 +822,11 @@ export function SettingsPanel() {
             </>
           )}
 
-          {isButton && <ShadowFields value={block} onChange={update} />}
+          {(isButton || isIcon) && <ShadowFields value={block} onChange={update} />}
+          {isIcon && <BorderField value={block} onChange={update} />}
 
           {showTextColor && (
-            <Field label={t('textColour')}>
+            <Field label={isIcon ? t('iconColour') : t('textColour')}>
               <div className="flex items-center justify-between gap-2">
                 <div className="flex flex-wrap gap-1.5">
                   {TEXT_SWATCHES.map((key) => (
@@ -883,7 +952,7 @@ export function SettingsPanel() {
           <div className="h-px bg-zinc-200 dark:bg-zinc-800" />
           <span className="text-xs font-medium text-zinc-500">{t('addInside')}</span>
           <div className="flex flex-wrap gap-2">
-            {(['title', 'text', 'button'] as const).map((type) => (
+            {(['title', 'text', 'button', 'icon'] as const).map((type) => (
               <button key={type} type="button" onClick={() => addGroupChild(selectedId, type)} className="rounded-lg border border-zinc-300 px-3 py-1.5 text-xs font-medium hover:bg-zinc-100 dark:border-zinc-700 dark:hover:bg-zinc-800">
                 {t('addChild', { type: blockTypeLabel(type) })}
               </button>

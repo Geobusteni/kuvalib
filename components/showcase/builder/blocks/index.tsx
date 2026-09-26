@@ -96,6 +96,16 @@ export const ButtonBlock: UserComponent = () => {
 }
 ButtonBlock.craft = { displayName: 'ButtonBlock', rules: { canDrag: () => true } }
 
+export const IconBlock: UserComponent = () => {
+  const block = useBlock()
+  return (
+    <BlockShell>
+      <BlockContent block={block} editable />
+    </BlockShell>
+  )
+}
+IconBlock.craft = { displayName: 'IconBlock', rules: { canDrag: () => true } }
+
 export const GroupBlock: UserComponent = () => {
   const t = useTranslations('showcaseBuilder.blockTypes')
   const { id } = useNode()
@@ -129,5 +139,6 @@ export const showcaseResolver = {
   TitleBlock,
   TextBlock,
   ButtonBlock,
+  IconBlock,
   GroupBlock,
 }

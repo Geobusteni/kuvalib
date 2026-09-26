@@ -9,7 +9,7 @@ import type { BlockType } from '@/lib/showcase-blocks'
 import { useBlockTypeLabel } from './useBlockTypeLabel'
 import { useBuilder } from './useBuilder'
 
-const ORDER: BlockType[] = ['image', 'title', 'text', 'button', 'group']
+const ORDER: BlockType[] = ['image', 'title', 'text', 'button', 'icon', 'group']
 
 export function AddBlockMenu() {
   const t = useTranslations('showcaseBuilder.addBlockMenu')

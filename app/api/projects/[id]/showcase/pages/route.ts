@@ -4,9 +4,17 @@
 import { NextRequest } from 'next/server'
 import { requireAdmin } from '@/lib/auth'
 import { getShowcaseByProject, replacePages } from '@/lib/showcase'
+import { LUCIDE_PATHS } from '@/lib/icons/lucide-paths'
+import { parseIconId } from '@/lib/icons/ids'
 import { sanitizeBlocks, sanitizePageSettings } from '@/lib/showcase-blocks'
 
 type Ctx = { params: Promise<{ id: string }> }
+
+/** The block sanitiser only checks an icon id's shape; here the built-in ones are also checked against the shipped set. */
+function isKnownIcon(id: string): boolean {
+  const ref = parseIconId(id)
+  return ref?.kind === 'custom' || (ref?.kind === 'lucide' && Object.hasOwn(LUCIDE_PATHS, ref.key))
+}
 
 /**
  * Replaces the showcase's whole page list. The builder autosaves the entire deck
@@ -28,7 +36,7 @@ export async function PUT(request: NextRequest, ctx: Ctx) {
   }
 
   const pages = (body.pages as unknown[]).map((page) => ({
-    blocks: sanitizeBlocks((page as { blocks?: unknown })?.blocks),
+    blocks: sanitizeBlocks((page as { blocks?: unknown })?.blocks, isKnownIcon),
     settings: sanitizePageSettings((page as { settings?: unknown })?.settings),
   }))
 

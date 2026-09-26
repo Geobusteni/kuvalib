@@ -27,6 +27,7 @@ export const RESOLVED_NAME: Record<BlockType, string> = {
   title: 'TitleBlock',
   text: 'TextBlock',
   button: 'ButtonBlock',
+  icon: 'IconBlock',
   group: 'GroupBlock',
 }
 

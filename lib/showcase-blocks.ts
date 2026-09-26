@@ -11,13 +11,17 @@
  * coordinate space (see `design_handoff_album_showcase/README.md`).
  */
 
-export type BlockType = 'image' | 'title' | 'text' | 'button' | 'group'
+import { parseIconId } from './icons/ids'
+
+export type BlockType = 'image' | 'title' | 'text' | 'button' | 'icon' | 'group'
 export type BlockRadius = 'none' | 'md' | 'pill'
 export type BlockBg = 'none' | 'surface' | 'deep' | 'accentTint' | 'accentSolid' | 'custom' | 'gradient'
 export type BlockTextColor = 'default' | 'accent' | 'muted' | 'custom'
 export type BlockAlign = 'left' | 'center' | 'right'
 export type ButtonStyle = 'primary' | 'secondary'
-export type ButtonLinkType = 'custom' | 'zip' | 'gallery'
+/** `none` exists for Icon blocks (decorative unless linked); a Button always links. */
+export type ButtonLinkType = 'none' | 'custom' | 'zip' | 'gallery'
+export type ButtonIconPosition = 'left' | 'right'
 export type BorderStyle = 'none' | 'solid' | 'dashed' | 'dotted'
 export type HeadingLevel = 1 | 2 | 3 | 4 | 5 | 6
 export type TextSizePreset = 'small' | 'normal' | 'medium' | 'large' | 'huge'
@@ -28,6 +32,9 @@ export type KenBurns = 'none' | 'zoom-in' | 'slide-left' | 'slide-up' | 'slide-d
 export const BUTTON_FONT_DEFAULT = 15
 export const BUTTON_FONT_MIN = 10
 export const BUTTON_FONT_MAX = 72
+export const ICON_STROKE_MIN = 1
+export const ICON_STROKE_MAX = 4
+export const ICON_STROKE_DEFAULT = 2
 export const IMAGE_SCALE_MIN = 100
 export const IMAGE_SCALE_MAX = 300
 
@@ -49,7 +56,7 @@ export interface Block {
   bgGradientAngle?: number
   /** group only — backdrop-filter blur in px, for a glass effect over a photo. */
   blur?: number
-  /** group and button — CSS box-shadow, split into its parts. `shadow` is the blur
+  /** group, button and icon — CSS box-shadow, split into its parts. `shadow` is the blur
    *  radius and doubles as the on/off switch (0 = none, matching the panel's
    *  "Shadow — 0px" slider); the rest default sensibly when unset so older
    *  data (saved before these existed) still renders the same soft shadow it
@@ -68,7 +75,7 @@ export interface Block {
   textColorCustomAlpha?: number
   /** image */
   photoId?: string
-  /** image / button */
+  /** image / button / icon */
   borderStyle?: BorderStyle
   borderWidth?: number
   borderColor?: string
@@ -104,6 +111,17 @@ export interface Block {
   style?: ButtonStyle
   linkType?: ButtonLinkType
   link?: string
+  /** button / icon — `lucide:<name>` or `custom:<id>` (see lib/icons/ids.ts). On a
+   *  button it sits beside the label; on an icon block it is the whole content.
+   *  Never on title/text blocks. */
+  icon?: string
+  /** button only — which side of the label the icon sits on (unset = left). */
+  iconPosition?: ButtonIconPosition
+  /** icon block only — stroke width 1–4 of a built-in icon (unset = 2). */
+  iconStroke?: number
+  /** Accessible name. An icon block that links needs one; a button uses it only
+   *  when its label is empty. Unset falls back to the icon's own name. */
+  iconLabel?: string
   /** group */
   children?: Block[]
 }
@@ -221,6 +239,15 @@ export function makeBlock(type: BlockType, opts: MakeBlockOpts, texts: BlockText
         textColor: 'default', bg: 'none', radius: 'md',
         borderStyle: 'none', borderWidth: 0,
       }
+    case 'icon':
+      // 8 x 12.8 % is a square on the 16:10 frame.
+      return {
+        ...base,
+        icon: 'lucide:heart', iconStroke: ICON_STROKE_DEFAULT, linkType: 'none', link: '',
+        x: opts.x ?? 8, y: opts.y ?? 8, w: opts.w ?? 8, h: opts.h ?? 12.8,
+        textColor: 'default', bg: 'none', radius: 'none',
+        borderStyle: 'none', borderWidth: 0,
+      }
     case 'group':
       return {
         ...base,
@@ -271,7 +298,7 @@ export function buildCoverComposite(albumTitle: string, albumDate: string, strin
 export const STACK_GAP = 3
 
 export function minBlockH(child: Pick<Block, 'type'>): number {
-  return child.type === 'title' ? 10 : child.type === 'button' ? 7 : 6
+  return child.type === 'title' ? 10 : child.type === 'button' ? 7 : child.type === 'icon' ? 4 : 6
 }
 
 type Child = Block
@@ -396,13 +423,11 @@ export function arrangeGroupChildren(group: Block, mode: ArrangeMode, pad = 4): 
  * append it, then re-stack the whole group vertically.
  */
 export function addGroupChild(group: Block, type: BlockType, texts: BlockTextDefaults, pad = 4): { group: Block; childId: string } {
-  const h = Math.max(minBlockH({ type }), Math.min(14, group.h / 3))
-  const child = makeBlock(type, {
-    x: group.x + pad,
-    y: group.y + pad,
-    w: Math.max(10, group.w - pad * 2),
-    h,
-  }, texts)
+  const box =
+    type === 'icon'
+      ? { w: 8, h: 12.8 }
+      : { w: Math.max(10, group.w - pad * 2), h: Math.max(minBlockH({ type }), Math.min(14, group.h / 3)) }
+  const child = makeBlock(type, { x: group.x + pad, y: group.y + pad, ...box }, texts)
   const children = layoutStackV(group, [...(group.children ?? []), child], pad)
   return { group: { ...group, children }, childId: child.id }
 }
@@ -457,13 +482,15 @@ export function safeExternalHref(link: string | undefined): string {
   return ''
 }
 
-const BLOCK_TYPES: BlockType[] = ['image', 'title', 'text', 'button', 'group']
+const BLOCK_TYPES: BlockType[] = ['image', 'title', 'text', 'button', 'icon', 'group']
 const RADII: BlockRadius[] = ['none', 'md', 'pill']
 const BGS: BlockBg[] = ['none', 'surface', 'deep', 'accentTint', 'accentSolid', 'custom', 'gradient']
 const TEXT_COLORS: BlockTextColor[] = ['default', 'accent', 'muted', 'custom']
 const ALIGNS: BlockAlign[] = ['left', 'center', 'right']
 const BUTTON_STYLES: ButtonStyle[] = ['primary', 'secondary']
 const LINK_TYPES: ButtonLinkType[] = ['custom', 'zip', 'gallery']
+const ICON_LINK_TYPES: ButtonLinkType[] = ['none', 'custom', 'zip', 'gallery']
+const ICON_POSITIONS: ButtonIconPosition[] = ['left', 'right']
 const BORDER_STYLES: BorderStyle[] = ['none', 'solid', 'dashed', 'dotted']
 const HEADING_LEVELS: HeadingLevel[] = [1, 2, 3, 4, 5, 6]
 const TEXT_SIZES: TextSizePreset[] = ['small', 'normal', 'medium', 'large', 'huge']
@@ -500,7 +527,15 @@ function sanitizeShadow(r: Record<string, unknown>, block: Block): void {
   if (Number.isFinite(r.shadowSpread)) block.shadowSpread = num(r.shadowSpread, 0, -20, 40)
 }
 
-export function sanitizeBlock(raw: unknown, depth = 0): Block | null {
+/** `undefined` unless `value` is a well-formed icon id. `isKnown` lets a server caller
+ *  also reject built-in names it does not ship; a custom icon is never checked for
+ *  existence, so a deleted one simply draws nothing. */
+function iconId(value: unknown, isKnown?: (id: string) => boolean): string | undefined {
+  if (typeof value !== 'string' || !parseIconId(value)) return undefined
+  return !isKnown || isKnown(value) ? value : undefined
+}
+
+export function sanitizeBlock(raw: unknown, depth = 0, isKnownIcon?: (id: string) => boolean): Block | null {
   if (!raw || typeof raw !== 'object') return null
   const r = raw as Record<string, unknown>
   const type = pick<BlockType>(r.type, BLOCK_TYPES, 'text')
@@ -575,12 +610,30 @@ export function sanitizeBlock(raw: unknown, depth = 0): Block | null {
     block.borderColor = hexColor(r.borderColor) ?? '#ffffff'
     if (Number.isFinite(r.fontSize)) block.fontSize = num(r.fontSize, BUTTON_FONT_DEFAULT, BUTTON_FONT_MIN, BUTTON_FONT_MAX)
     sanitizeShadow(r, block)
+    const icon = iconId(r.icon, isKnownIcon)
+    if (icon) {
+      block.icon = icon
+      block.iconPosition = pick(r.iconPosition, ICON_POSITIONS, 'left')
+    }
+    if (typeof r.iconLabel === 'string' && r.iconLabel) block.iconLabel = str(r.iconLabel, 200)
+  }
+  if (type === 'icon') {
+    const icon = iconId(r.icon, isKnownIcon)
+    if (icon) block.icon = icon
+    block.iconStroke = num(r.iconStroke, ICON_STROKE_DEFAULT, ICON_STROKE_MIN, ICON_STROKE_MAX)
+    if (typeof r.iconLabel === 'string' && r.iconLabel) block.iconLabel = str(r.iconLabel, 200)
+    block.linkType = pick(r.linkType, ICON_LINK_TYPES, 'none')
+    block.link = str(r.link, 2000)
+    block.borderStyle = pick(r.borderStyle, BORDER_STYLES, 'none')
+    block.borderWidth = num(r.borderWidth, 0, 0, 20)
+    block.borderColor = hexColor(r.borderColor) ?? '#ffffff'
+    sanitizeShadow(r, block)
   }
   if (type === 'group') {
     const kids = Array.isArray(r.children) ? r.children : []
     block.children = kids
       .slice(0, 50)
-      .map((c) => sanitizeBlock(c, depth + 1))
+      .map((c) => sanitizeBlock(c, depth + 1, isKnownIcon))
       .filter((c): c is Block => c !== null)
   }
   return block
@@ -608,11 +661,11 @@ export function sanitizePageSettings(raw: unknown): PageSettings {
   return settings
 }
 
-export function sanitizeBlocks(raw: unknown): Block[] {
+export function sanitizeBlocks(raw: unknown, isKnownIcon?: (id: string) => boolean): Block[] {
   if (!Array.isArray(raw)) return []
   return raw
     .slice(0, 100)
-    .map((b) => sanitizeBlock(b, 0))
+    .map((b) => sanitizeBlock(b, 0, isKnownIcon))
     .filter((b): b is Block => b !== null)
 }
 

@@ -5,7 +5,7 @@
 
 import type { CSSProperties } from 'react'
 import { useTranslations } from 'next-intl'
-import { safeExternalHref, type Block, type HeadingLevel, type TextSizePreset } from '@/lib/showcase-blocks'
+import { ICON_STROKE_DEFAULT, safeExternalHref, type Block, type HeadingLevel, type TextSizePreset } from '@/lib/showcase-blocks'
 import {
   KEN_BURNS_KEYFRAMES,
   blockBackgroundCss,
@@ -18,6 +18,8 @@ import {
   fluidPx,
   googleFontFamilyCss,
 } from '@/lib/showcase-theme'
+import { parseIconId } from '@/lib/icons/ids'
+import { ShowcaseIcon } from './Icon'
 import { useKenBurnsMin, type ShowcasePhoto } from './photos-context'
 
 /**
@@ -43,6 +45,75 @@ interface Props {
 }
 
 const HEADING_TAGS = ['h1', 'h2', 'h3', 'h4', 'h5', 'h6'] as const
+
+/** What an icon is called to assistive tech when no label was typed: a built-in
+ *  icon's own name, otherwise `fallback` (a custom icon's name is not in the viewer). */
+function iconName(block: Block, fallback: string): string {
+  const typed = block.iconLabel?.trim()
+  if (typed) return typed
+  const ref = parseIconId(block.icon)
+  return ref?.kind === 'lucide' ? ref.key.replace(/-/g, ' ') : fallback
+}
+
+/** The element a Button or Icon block draws in, by link type: `zip` opens the
+ *  download dialog, `gallery` and a custom http(s) URL are anchors, and anything
+ *  else (or the builder canvas) is an inert box. `ariaLabel` is passed only by an
+ *  Icon block, which has no text of its own: when it links it is the accessible
+ *  name, and when it does not the block is decorative unless a label was typed. */
+function linkedElement({
+  block,
+  style,
+  editable,
+  galleryHref,
+  onZipClick,
+  ariaLabel,
+  typedLabel,
+  children,
+}: {
+  block: Block
+  style: CSSProperties
+  editable: boolean
+  galleryHref?: string
+  onZipClick?: () => void
+  ariaLabel?: string
+  typedLabel?: string
+  children: React.ReactNode
+}) {
+  if (!editable) {
+    if (block.linkType === 'zip') {
+      return (
+        <button type="button" onClick={onZipClick} aria-label={ariaLabel} style={{ ...style, cursor: 'pointer' }}>
+          {children}
+        </button>
+      )
+    }
+    if (block.linkType === 'gallery' && galleryHref) {
+      return (
+        <a href={galleryHref} aria-label={ariaLabel} style={style}>
+          {children}
+        </a>
+      )
+    }
+    const href = block.linkType === 'none' ? '' : safeExternalHref(block.link)
+    if (href) {
+      return (
+        <a href={href} target="_blank" rel="noopener noreferrer" aria-label={ariaLabel} style={style}>
+          {children}
+        </a>
+      )
+    }
+  }
+  if (ariaLabel === undefined) return <span style={style}>{children}</span>
+  return typedLabel ? (
+    <span role="img" aria-label={typedLabel} style={style}>
+      {children}
+    </span>
+  ) : (
+    <span aria-hidden="true" style={style}>
+      {children}
+    </span>
+  )
+}
 
 export function BlockContent({
   block,
@@ -187,12 +258,16 @@ export function BlockContent({
     // (secondary gets a subtle outline, primary none) so existing buttons
     // don't change.
     const explicitBorder = blockBorderCss(block)
+    const hasIcon = parseIconId(block.icon) !== null
+    const iconOnly = hasIcon && !block.label
+    const label = block.label || t('defaultButtonLabel')
     const style: CSSProperties = {
       width: '100%',
       height: '100%',
       display: 'flex',
       alignItems: 'center',
       justifyContent: 'center',
+      gap: hasIcon && !iconOnly ? '0.5em' : undefined,
       textAlign: 'center',
       fontSize: blockButtonFontSizeCss(block),
       fontWeight: 600,
@@ -213,33 +288,54 @@ export function BlockContent({
       border: explicitBorder !== 'none' ? explicitBorder : primary ? 'none' : '1px solid var(--sc-text-muted)',
       overflow: 'hidden',
     }
-    const label = block.label || t('defaultButtonLabel')
+    const icon = hasIcon ? <ShowcaseIcon icon={block.icon} size="1.15em" style={{ flexShrink: 0 }} /> : null
+    // An icon-only button is named by visually hidden text: the icon itself is decorative.
+    const content = (
+      <>
+        {block.iconPosition !== 'right' && icon}
+        {iconOnly ? <span className="sr-only">{iconName(block, t('defaultButtonLabel'))}</span> : <span>{label}</span>}
+        {block.iconPosition === 'right' && icon}
+      </>
+    )
+    return linkedElement({ block, style, editable, galleryHref, onZipClick, children: hasIcon ? content : label })
+  }
 
-    if (editable) return <span style={style}>{label}</span>
-
-    if (block.linkType === 'zip') {
-      return (
-        <button type="button" onClick={onZipClick} style={{ ...style, cursor: 'pointer' }}>
-          {label}
-        </button>
-      )
+  if (block.type === 'icon') {
+    const hasBg = block.bg !== 'none'
+    const style: CSSProperties = {
+      width: '100%',
+      height: '100%',
+      display: 'flex',
+      alignItems: 'center',
+      justifyContent: 'center',
+      boxSizing: 'border-box',
+      padding: 0,
+      borderRadius: blockRadiusCss(block.radius),
+      background: hasBg ? blockBackgroundCss(block) : 'transparent',
+      color: blockTextColorCss(block),
+      border: blockBorderCss(block),
+      overflow: 'hidden',
+      // The glyph is sized in `cqmin` of this box, so it stays square and centred
+      // whatever the block's proportions.
+      containerType: 'size',
     }
-    if (block.linkType === 'gallery' && galleryHref) {
-      return (
-        <a href={galleryHref} style={style}>
-          {label}
-        </a>
-      )
-    }
-    const href = safeExternalHref(block.link)
-    if (href) {
-      return (
-        <a href={href} target="_blank" rel="noopener noreferrer" style={style}>
-          {label}
-        </a>
-      )
-    }
-    return <span style={style}>{label}</span>
+    const glyph = (
+      <ShowcaseIcon
+        icon={block.icon}
+        strokeWidth={block.iconStroke ?? ICON_STROKE_DEFAULT}
+        style={{ width: '84cqmin', height: '84cqmin', flexShrink: 0 }}
+      />
+    )
+    return linkedElement({
+      block,
+      style,
+      editable,
+      galleryHref,
+      onZipClick,
+      ariaLabel: iconName(block, t('defaultIconLabel')),
+      typedLabel: block.iconLabel?.trim(),
+      children: glyph,
+    })
   }
 
   return null

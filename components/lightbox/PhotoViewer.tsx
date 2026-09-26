@@ -9,6 +9,7 @@ import { useGestures } from '@/hooks/useGestures'
 import { useImageZoom } from '@/hooks/useImageZoom'
 import { useFocusTrap } from '@/hooks/useFocusTrap'
 import { useKeyboard } from '@/hooks/useKeyboard'
+import { usePinToVisualBottom } from '@/hooks/usePinToVisualBottom'
 import DownloadOptionsDialog from '@/components/gallery/DownloadOptionsDialog'
 import { useReducedMotion } from '@/hooks/useReducedMotion'
 import {
@@ -67,6 +68,7 @@ export default function PhotoViewer({
 }: PhotoViewerProps) {
   const t = useTranslations('lightbox')
   const dialogRef = useRef<HTMLDivElement>(null)
+  usePinToVisualBottom(dialogRef, 'extend')
   const containerRef = useRef<HTMLDivElement>(null)
   const liftRef = useRef<HTMLDivElement>(null)
   const backdropRef = useRef<HTMLDivElement>(null)

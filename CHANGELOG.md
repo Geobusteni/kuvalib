@@ -10,6 +10,16 @@ adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html). While the
 
 ## [Unreleased]
 
+## [1.17.2] - 2026-09-26
+
+### Fixed
+
+- **The expiry strip and the photo viewer now follow the visible bottom edge on phones.** When the
+  browser's toolbar hides or shows while you scroll, the strip is moved onto the real bottom of the
+  screen instead of trailing above it, and the photo viewer stretches to match, so the page no
+  longer shows through a gap. The strip's underlay is solid black, and the gallery no longer asks
+  the browser to draw under its toolbars.
+
 ## [1.17.1] - 2026-09-26
 
 ### Fixed

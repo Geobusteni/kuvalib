@@ -6,10 +6,10 @@
 import { Editor, useEditor } from '@craftjs/core'
 import { useTranslations } from 'next-intl'
 import { useEffect, useState } from 'react'
-import type { Block, PageSettings } from '@/lib/showcase-blocks'
+import { kenBurnsMinSeconds, type Block, type PageSettings } from '@/lib/showcase-blocks'
 import { showcaseThemeVars } from '@/lib/showcase-theme'
 import { blocksToSerialized } from '../craft-bridge'
-import { PhotosProvider, type ShowcasePhoto } from '../photos-context'
+import { KenBurnsMinProvider, PhotosProvider, type ShowcasePhoto } from '../photos-context'
 import { useShowcaseStore, type AlbumSettings } from '../store'
 import { showcaseResolver } from './blocks'
 import { BuilderProvider, useBuilder } from './useBuilder'
@@ -134,6 +134,7 @@ function BuilderShell({
 
   return (
     <PhotosProvider photos={photos}>
+    <KenBurnsMinProvider seconds={kenBurnsMinSeconds(settings.autoplaySeconds)}>
       {/* Breaks out of the admin layout's max-w-5xl column — the builder needs
           real width for the canvas + two side panels, which felt cramped
           confined to the same column as a settings form. */}
@@ -272,6 +273,7 @@ function BuilderShell({
       {settingsOpen && <AlbumSettingsDialog onClose={() => setSettingsOpen(false)} />}
       </div>
       </div>
+    </KenBurnsMinProvider>
     </PhotosProvider>
   )
 }

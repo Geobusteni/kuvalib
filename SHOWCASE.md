@@ -169,8 +169,10 @@ title-and-button pair.
   can appear at any block size. Zooming keeps the focus point where it is. Both have a Reset.
   Older albums (no focus or zoom saved) look exactly as before.
 - **Ken Burns** (Image blocks) — a slow pan/zoom while the image is on screen: none, zoom in, or
-  slide left/right/up/down. **Speed** is a range in seconds, capped to the page's autoplay
-  interval when autoplay is on (so the effect never gets cut off mid-motion). The border and
+  slide left/right/up/down. **Speed** is a duration in seconds with no upper limit (the slider goes
+  to 120 s; the saved value up to 600 s), and never shorter than the album's slide timer plus 1 s
+  (a 3 s timer means at least 4 s), so the effect always outlasts the slide it plays on. A
+  shorter saved value is played at that minimum. The border and
   corners stay put — only the photo inside pans/zooms, clipped to the block's own box. Disabled
   entirely under `prefers-reduced-motion`.
 - **Size** — Headline: pick a level (H1–H6); the pixel size for each level comes from Album

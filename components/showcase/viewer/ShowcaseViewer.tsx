@@ -4,6 +4,8 @@
 'use client'
 
 import ExpiryStrip from '@/components/ui/ExpiryStrip'
+import { KenBurnsMinProvider } from '../photos-context'
+import { kenBurnsMinSeconds } from '@/lib/showcase-blocks'
 import { useTranslations } from 'next-intl'
 import { useCallback, useEffect, useRef, useState, useSyncExternalStore } from 'react'
 import type { Block, HeadingLevel, PageSettings, TextSizePreset } from '@/lib/showcase-blocks'
@@ -216,6 +218,7 @@ export function ShowcaseViewer({
   }, [shareUrl, passwordProtected, flashToast, t])
 
   return (
+    <KenBurnsMinProvider seconds={kenBurnsMinSeconds(settings.autoplaySeconds)}>
     <div
       ref={stageRef}
       className="sc-viewer relative min-h-dvh w-full overflow-hidden bg-black"
@@ -363,5 +366,6 @@ export function ShowcaseViewer({
 
       {expiresAt && <ExpiryStrip expiresAt={expiresAt} />}
     </div>
+    </KenBurnsMinProvider>
   )
 }

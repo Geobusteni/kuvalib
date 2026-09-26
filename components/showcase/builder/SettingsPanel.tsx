@@ -19,7 +19,11 @@ import {
   type KenBurns,
   type PageSettings,
   type TextSizePreset,
+  kenBurnsMinSeconds,
 } from '@/lib/showcase-blocks'
+
+// Practical ceiling of the Ken Burns slider; the saved value itself is allowed up to 600 s.
+const KEN_BURNS_UI_MAX = 120
 import { useShowcaseStore } from '../store'
 import { usePhotos } from '../photos-context'
 import { useBuilder } from './useBuilder'
@@ -377,8 +381,8 @@ export function SettingsPanel() {
   const photos = usePhotos()
   const { arrangeGroup, addGroupChild } = useBuilder()
   const markDirty = useShowcaseStore((s) => s.markDirty)
-  const autoplay = useShowcaseStore((s) => s.settings.autoplay)
   const autoplaySeconds = useShowcaseStore((s) => s.settings.autoplaySeconds)
+  const kenBurnsMin = kenBurnsMinSeconds(autoplaySeconds)
   const colorPresets = useShowcaseStore((s) => s.settings.colorPresets)
 
   const { selectedId, block, parentGroupId, actions, query } = useEditor((state) => {
@@ -429,6 +433,7 @@ export function SettingsPanel() {
       : undefined
 
   const isImage = block.type === 'image'
+  const kenBurnsSpeed = Math.max(block.kenBurnsSpeed ?? 8, kenBurnsMin)
   const isTitle = block.type === 'title'
   const isText = block.type === 'text'
   const isButton = block.type === 'button'
@@ -680,16 +685,16 @@ export function SettingsPanel() {
           </Field>
           {(block.kenBurns ?? 'none') !== 'none' && (
             <label className="text-[11px] text-zinc-400">
-              {t('speed', { value: block.kenBurnsSpeed ?? 8 })}
+              {t('speed', { value: kenBurnsSpeed })}
               <input
                 type="range"
-                min={2}
-                max={autoplay ? Math.max(2, autoplaySeconds) : 30}
-                value={Math.min(block.kenBurnsSpeed ?? 8, autoplay ? Math.max(2, autoplaySeconds) : 30)}
+                min={kenBurnsMin}
+                max={Math.max(KEN_BURNS_UI_MAX, kenBurnsSpeed)}
+                value={kenBurnsSpeed}
                 onChange={(e) => update({ kenBurnsSpeed: parseInt(e.target.value, 10) })}
                 className="w-full"
               />
-              {autoplay && <span className="mt-0.5 block">{t('cappedToAutoplay', { seconds: autoplaySeconds })}</span>}
+              <span className="mt-0.5 block">{t('minSlideTimer', { seconds: kenBurnsMin, timer: kenBurnsMin - 1 })}</span>
             </label>
           )}
         </>

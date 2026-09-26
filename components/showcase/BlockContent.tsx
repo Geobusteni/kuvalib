@@ -20,7 +20,7 @@ import {
   googleFontFamilyCss,
   TEXT_FLOOR,
 } from '@/lib/showcase-theme'
-import type { ShowcasePhoto } from './photos-context'
+import { useKenBurnsMin, type ShowcasePhoto } from './photos-context'
 
 /**
  * The visual inside a block — shared by the builder canvas and the viewer so the
@@ -58,6 +58,7 @@ export function BlockContent({
   textFont,
 }: Props) {
   const t = useTranslations('showcaseViewer.block')
+  const kenBurnsMin = useKenBurnsMin()
   if (block.type === 'image') {
     const radius = blockRadiusCss(block.radius)
     const border = blockBorderCss(block)
@@ -96,7 +97,7 @@ export function BlockContent({
               height: '100%',
               transformOrigin: `${kbOriginX}% ${kbOriginY}%`,
               animationName: kenBurnsAnimation,
-              animationDuration: kenBurnsAnimation ? `${block.kenBurnsSpeed ?? 8}s` : undefined,
+              animationDuration: kenBurnsAnimation ? `${Math.max(block.kenBurnsSpeed ?? 8, kenBurnsMin)}s` : undefined,
               animationTimingFunction: 'ease-in-out',
               animationFillMode: 'forwards',
             }}

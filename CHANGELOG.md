@@ -10,6 +10,12 @@ adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html). While the
 
 ## [Unreleased]
 
+### Changed
+
+- **The Ken Burns effect no longer has a maximum duration.** Its shortest allowed duration is now
+  the slide timer plus 1 second (a 3-second slide timer means at least 4 seconds), so the motion
+  always outlasts the slide. Slides saved with a shorter effect play at the new minimum.
+
 ### Added
 
 - **Focus point and zoom for showcase Image blocks.** In the block's settings, click or drag on the

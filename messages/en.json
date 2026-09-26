@@ -500,7 +500,6 @@
       "kenBurns": "Ken Burns",
       "effect": "Effect",
       "speed": "Speed — {value}s",
-      "cappedToAutoplay": "Capped to the {seconds}s autoplay interval.",
       "blur": "Blur (glass effect) — {value}px",
       "shadowBlur": "Shadow blur — {value}px (0 = off)",
       "offsetX": "Offset X — {value}px",
@@ -529,7 +528,8 @@
       "resetFocus": "Reset focus point",
       "imageScale": "Zoom — {value}%",
       "imageScaleHint": "100% is the minimum: the photo always fills the block, so you can only zoom in.",
-      "resetScale": "Reset zoom"
+      "resetScale": "Reset zoom",
+      "minSlideTimer": "At least {seconds}s: the slide timer ({timer}s) plus 1s, so the effect outlasts each slide."
     },
     "albumSettings": {
       "title": "Album settings",

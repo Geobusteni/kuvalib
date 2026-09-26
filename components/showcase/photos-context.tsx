@@ -20,6 +20,17 @@ export function PhotosProvider({
   return <PhotosContext.Provider value={photos}>{children}</PhotosContext.Provider>
 }
 
+const KenBurnsMinContext = createContext(0)
+
+// The shortest Ken Burns duration allowed (seconds); see kenBurnsMinSeconds in lib/showcase-blocks.
+export function KenBurnsMinProvider({ seconds, children }: { seconds: number; children: React.ReactNode }) {
+  return <KenBurnsMinContext.Provider value={seconds}>{children}</KenBurnsMinContext.Provider>
+}
+
+export function useKenBurnsMin(): number {
+  return useContext(KenBurnsMinContext)
+}
+
 export function usePhotos(): ShowcasePhoto[] {
   return useContext(PhotosContext)
 }

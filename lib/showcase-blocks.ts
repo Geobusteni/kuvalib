@@ -70,8 +70,8 @@ export interface Block {
   borderColor?: string
   /** image only — a slow pan/zoom while this image is on screen. */
   kenBurns?: KenBurns
-  /** Seconds the effect takes to complete. Capped in the UI to the album's
-   *  autoplay interval, so it never gets cut off mid-motion. */
+  /** Seconds the effect takes to complete. Never shorter than the album's slide
+   *  timer + 1 s (see kenBurnsMinSeconds), so the motion outlasts each slide. */
   kenBurnsSpeed?: number
   /** image only — the point of the photo (0–100 % of its width/height) that
    *  stays in view when the block crops it. Unset = 50/50, the plain centre crop. */
@@ -165,6 +165,11 @@ export function clamp(value: number, min: number, max: number): number {
 }
 
 /** A block id that is stable across a save/reload and unique within a page. */
+/** The Ken Burns effect must outlast the slide it plays on: the slide timer plus one second. */
+export function kenBurnsMinSeconds(autoplaySeconds: number): number {
+  return Math.max(2, autoplaySeconds) + 1
+}
+
 export function newBlockId(): string {
   if (typeof crypto !== 'undefined' && 'randomUUID' in crypto) return crypto.randomUUID()
   return `b_${Math.random().toString(36).slice(2)}${Date.now().toString(36)}`
@@ -532,7 +537,7 @@ export function sanitizeBlock(raw: unknown, depth = 0): Block | null {
     block.borderWidth = num(r.borderWidth, 0, 0, 20)
     block.borderColor = hexColor(r.borderColor) ?? '#ffffff'
     block.kenBurns = pick(r.kenBurns, KEN_BURNS_STYLES, 'none')
-    block.kenBurnsSpeed = num(r.kenBurnsSpeed, 8, 2, 60)
+    block.kenBurnsSpeed = num(r.kenBurnsSpeed, 8, 2, 600)
     if (Number.isFinite(r.focusX)) block.focusX = num(r.focusX, 50, 0, 100)
     if (Number.isFinite(r.focusY)) block.focusY = num(r.focusY, 50, 0, 100)
     if (Number.isFinite(r.imageScale)) block.imageScale = num(r.imageScale, 100, IMAGE_SCALE_MIN, IMAGE_SCALE_MAX)

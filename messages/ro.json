@@ -500,7 +500,6 @@
       "kenBurns": "Ken Burns",
       "effect": "Efect",
       "speed": "Viteză — {value} s",
-      "cappedToAutoplay": "Limitat la intervalul de redare automată de {seconds} s.",
       "blur": "Estompare (efect de sticlă) — {value}px",
       "shadowBlur": "Estompare umbră — {value}px (0 = oprită)",
       "offsetX": "Decalaj X — {value}px",
@@ -529,7 +528,8 @@
       "resetFocus": "Resetează punctul de focalizare",
       "imageScale": "Mărire — {value}%",
       "imageScaleHint": "100% este minimul: fotografia umple mereu blocul, deci poți doar să o mărești.",
-      "resetScale": "Resetează mărirea"
+      "resetScale": "Resetează mărirea",
+      "minSlideTimer": "Cel puțin {seconds} s: temporizatorul diapozitivului ({timer} s) plus 1 s, ca efectul să dureze mai mult decât diapozitivul."
     },
     "albumSettings": {
       "title": "Setări album",

@@ -5,6 +5,7 @@ import { requireAdmin } from '@/lib/auth'
 import { createProject, listProjects } from '@/lib/projects'
 import { ensureProjectDirs } from '@/lib/storage'
 import { encryptSecret } from '@/lib/crypto'
+import { isLocale } from '@/lib/locales'
 
 export async function GET() {
   await requireAdmin()
@@ -17,6 +18,11 @@ export async function POST(request: Request) {
   const body = await request.json().catch(() => null)
   if (!body?.title) {
     return Response.json({ error: 'title_required' }, { status: 400 })
+  }
+
+  const defaultLocale = body.defaultLocale || null
+  if (defaultLocale !== null && !isLocale(defaultLocale)) {
+    return Response.json({ error: 'invalid_locale' }, { status: 400 })
   }
 
   const accessType = body.accessType === 'EMAIL' ? 'EMAIL' : 'PASSWORD'
@@ -36,6 +42,7 @@ export async function POST(request: Request) {
     zipEnabled: body.zipEnabled !== false,
     dlEnabled: body.dlEnabled !== false,
     feedbackEnabled: body.feedbackEnabled === true,
+    defaultLocale,
   })
 
   await ensureProjectDirs(project.id)

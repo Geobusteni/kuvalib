@@ -44,6 +44,7 @@ export default async function EditProjectPage({ params }: Props) {
   const t = await getTranslations('admin.project')
   const ta = await getTranslations('admin.accessType')
   const tn = await getTranslations('admin.nav')
+  const tl = await getTranslations('language')
   const format = await getFormatter()
   const formatDate = (date: Date | null) =>
     date ? format.dateTime(new Date(date), { dateStyle: 'medium' }) : '—'
@@ -102,6 +103,10 @@ export default async function EditProjectPage({ params }: Props) {
         <Stat
           label={t('stats.access')}
           value={project.accessType === 'EMAIL' ? ta('emailBased') : ta('password')}
+        />
+        <Stat
+          label={t('stats.defaultLanguage')}
+          value={project.defaultLocale ? tl(`names.${project.defaultLocale as 'en' | 'ro'}`) : t('stats.languageAuto')}
         />
         {galleryPassword && (
           <div className="flex flex-col gap-0.5">
@@ -212,6 +217,7 @@ export default async function EditProjectPage({ params }: Props) {
                   zipEnabled: project.zipEnabled,
                   dlEnabled: project.dlEnabled,
                   feedbackEnabled: project.feedbackEnabled,
+                  defaultLocale: project.defaultLocale,
                 }}
               />
             </div>

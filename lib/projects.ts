@@ -3,6 +3,7 @@
 
 import prisma from './prisma'
 import type { AccessType } from './generated/prisma/client'
+import { isLocale, type Locale } from './locales'
 
 export type { AccessType }
 
@@ -15,6 +16,7 @@ export interface CreateProjectData {
   zipEnabled?: boolean
   dlEnabled?: boolean
   feedbackEnabled?: boolean
+  defaultLocale?: Locale | null
 }
 
 export interface UpdateProjectData {
@@ -26,6 +28,7 @@ export interface UpdateProjectData {
   zipEnabled?: boolean
   dlEnabled?: boolean
   feedbackEnabled?: boolean
+  defaultLocale?: Locale | null
 }
 
 // archiveSize is a BigInt column (archives can pass 2 GiB); callers and JSON only see numbers.
@@ -44,6 +47,25 @@ export async function getProject(id: string) {
   return project && withNumericArchiveSize(project)
 }
 
+// The language an admin forced for a project's public pages, or null for automatic.
+// Anything stored that is no longer a supported locale counts as automatic.
+export async function getProjectDefaultLocale(projectId: string): Promise<Locale | null> {
+  const row = await prisma.project.findUnique({
+    where: { id: projectId },
+    select: { defaultLocale: true },
+  })
+  return isLocale(row?.defaultLocale) ? row.defaultLocale : null
+}
+
+export async function getShowcaseDefaultLocale(showcaseId: string): Promise<Locale | null> {
+  const row = await prisma.showcase.findUnique({
+    where: { id: showcaseId },
+    select: { project: { select: { defaultLocale: true } } },
+  })
+  const value = row?.project.defaultLocale
+  return isLocale(value) ? value : null
+}
+
 export async function createProject(data: CreateProjectData) {
   const project = await prisma.project.create({
     data: {
@@ -55,6 +77,7 @@ export async function createProject(data: CreateProjectData) {
       zipEnabled: data.zipEnabled ?? true,
       dlEnabled: data.dlEnabled ?? true,
       feedbackEnabled: data.feedbackEnabled ?? false,
+      defaultLocale: data.defaultLocale ?? null,
     },
   })
   return withNumericArchiveSize(project)

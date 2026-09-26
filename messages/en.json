@@ -93,7 +93,9 @@
         "galleryPassword": "Gallery password",
         "visits": "Gallery visits",
         "downloads": "Downloads",
-        "lastAccess": "Last access"
+        "lastAccess": "Last access",
+        "defaultLanguage": "Default language",
+        "languageAuto": "Automatic"
       },
       "sections": {
         "photos": "Photos",
@@ -670,6 +672,7 @@
     "password_required_for_project": "A password is required for password-protected projects.",
     "not_found": "Not found.",
     "invalid_body": "The request was not valid.",
+    "invalid_locale": "That language is not supported.",
     "user_id_required": "Choose a user.",
     "too_many_attempts": "Too many attempts. Try again later.",
     "valid_email_required": "Enter a valid email address.",
@@ -811,6 +814,9 @@
       "keepPasswordHint": "Leave blank to keep the current password",
       "expiresAt": "Expiration date",
       "expiresHint": "The gallery becomes inaccessible after this date",
+      "defaultLocale": "Default language",
+      "defaultLocaleAuto": "Automatic (visitor's browser language)",
+      "defaultLocaleHint": "Shown to visitors of the gallery and showcase who have not picked a language themselves. A language a visitor chooses with the language button always wins.",
       "zipEnabled": "Offer the uploaded archive for download",
       "dlEnabled": "Allow individual image downloads",
       "feedbackEnabled": "Allow clients to like, dislike, and comment on photos",

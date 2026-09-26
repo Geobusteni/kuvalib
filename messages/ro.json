@@ -93,7 +93,9 @@
         "galleryPassword": "Parola galeriei",
         "visits": "Vizite în galerie",
         "downloads": "Descărcări",
-        "lastAccess": "Ultimul acces"
+        "lastAccess": "Ultimul acces",
+        "defaultLanguage": "Limbă implicită",
+        "languageAuto": "Automată"
       },
       "sections": {
         "photos": "Fotografii",
@@ -670,6 +672,7 @@
     "password_required_for_project": "Proiectele protejate cu parolă necesită o parolă.",
     "not_found": "Nu a fost găsit.",
     "invalid_body": "Cererea nu este validă.",
+    "invalid_locale": "Limba nu este acceptată.",
     "user_id_required": "Alege un utilizator.",
     "too_many_attempts": "Prea multe încercări. Încearcă din nou mai târziu.",
     "valid_email_required": "Introdu o adresă de e-mail validă.",
@@ -811,6 +814,9 @@
       "keepPasswordHint": "Lasă gol pentru a păstra parola curentă",
       "expiresAt": "Data expirării",
       "expiresHint": "Galeria devine inaccesibilă după această dată",
+      "defaultLocale": "Limbă implicită",
+      "defaultLocaleAuto": "Automată (limba browserului vizitatorului)",
+      "defaultLocaleHint": "Afișată vizitatorilor galeriei și prezentării care nu și-au ales singuri o limbă. Limba aleasă de vizitator cu butonul de limbă are întotdeauna prioritate.",
       "zipEnabled": "Oferă arhiva încărcată spre descărcare",
       "dlEnabled": "Permite descărcarea fotografiilor individuale",
       "feedbackEnabled": "Permite clienților să aprecieze, să neaprecieze și să comenteze fotografiile",

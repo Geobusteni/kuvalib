@@ -7,6 +7,7 @@ import { useState } from 'react'
 import { useRouter } from 'next/navigation'
 import { useTranslations } from 'next-intl'
 import { useErrorMessage } from '@/hooks/useErrorMessage'
+import { locales } from '@/lib/locales'
 
 type AccessType = 'PASSWORD' | 'EMAIL'
 
@@ -21,6 +22,7 @@ interface ProjectFormProps {
     zipEnabled?: boolean
     dlEnabled?: boolean
     feedbackEnabled?: boolean
+    defaultLocale?: string | null
   }
 }
 
@@ -35,6 +37,7 @@ function toDateInput(value: Date | string | null | undefined): string {
 export default function ProjectForm({ mode, projectId, defaults }: ProjectFormProps) {
   const router = useRouter()
   const t = useTranslations('ui.projectForm')
+  const tl = useTranslations('language')
   const msg = useErrorMessage()
   const [error, setError] = useState<string | null>(null)
   const [loading, setLoading] = useState(false)
@@ -69,6 +72,7 @@ export default function ProjectForm({ mode, projectId, defaults }: ProjectFormPr
       zipEnabled: checked('zipEnabled'),
       dlEnabled: checked('dlEnabled'),
       feedbackEnabled: checked('feedbackEnabled'),
+      defaultLocale: value('defaultLocale') ?? null,
     }
     if (password) body.password = password
 
@@ -173,6 +177,22 @@ export default function ProjectForm({ mode, projectId, defaults }: ProjectFormPr
           defaultValue={toDateInput(defaults?.expiresAt)}
           className={inputClass}
         />
+      </Field>
+
+      <Field label={t('defaultLocale')} htmlFor="defaultLocale" hint={t('defaultLocaleHint')}>
+        <select
+          id="defaultLocale"
+          name="defaultLocale"
+          defaultValue={defaults?.defaultLocale ?? ''}
+          className={inputClass}
+        >
+          <option value="">{t('defaultLocaleAuto')}</option>
+          {locales.map((locale) => (
+            <option key={locale} value={locale} lang={locale}>
+              {tl(`names.${locale}`)}
+            </option>
+          ))}
+        </select>
       </Field>
 
       <div className="flex flex-col gap-3">

@@ -83,6 +83,11 @@ model Project {
   /// the photographer opts a project in explicitly, same as zipEnabled/dlEnabled.
   feedbackEnabled Boolean @default(false)
 
+  /// Language forced for this project's public pages (/g, /s): 'en' or 'ro',
+  /// validated against lib/locales.ts. null = automatic (browser language).
+  /// A visitor's own choice with the language button always wins over it.
+  defaultLocale String? @db.VarChar(8)
+
   /// Bumped whenever the admin resets a project's feedback. Sent to the client
   /// alongside feedbackEnabled; the browser compares it against the reset epoch
   /// recorded in its own localStorage cache and discards that cache on mismatch.

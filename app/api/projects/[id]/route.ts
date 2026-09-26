@@ -5,6 +5,7 @@ import { requireAdmin } from '@/lib/auth'
 import { countPhotos, deleteProject, getProject, updateProject } from '@/lib/projects'
 import { deleteProjectFiles } from '@/lib/storage'
 import { encryptSecret } from '@/lib/crypto'
+import { isLocale } from '@/lib/locales'
 import type { UpdateProjectData } from '@/lib/projects'
 
 type Ctx = { params: Promise<{ id: string }> }
@@ -33,6 +34,12 @@ export async function PUT(request: Request, ctx: Ctx) {
   if (body.zipEnabled !== undefined) updates.zipEnabled = body.zipEnabled
   if (body.dlEnabled !== undefined) updates.dlEnabled = body.dlEnabled
   if (body.feedbackEnabled !== undefined) updates.feedbackEnabled = body.feedbackEnabled
+  if (body.defaultLocale !== undefined) {
+    if (body.defaultLocale && !isLocale(body.defaultLocale)) {
+      return Response.json({ error: 'invalid_locale' }, { status: 400 })
+    }
+    updates.defaultLocale = body.defaultLocale || null
+  }
   if (body.accessType === 'EMAIL' || body.accessType === 'PASSWORD') {
     updates.accessType = body.accessType
     // Switching to email access retires the shared password.

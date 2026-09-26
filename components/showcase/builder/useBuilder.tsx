@@ -113,12 +113,13 @@ export function BuilderProvider({ children }: { children: ReactNode }) {
   )
 
   const insert = useCallback(
-    (block: Block, parentGroupId: string | null): string => {
+    (block: Block, parentGroupId: string | null, joinPrevious = false): string => {
       const Component = COMPONENT_FOR[block.type]
       const tree = query
         .parseReactElement(<Element is={Component} block={block} parentGroupId={parentGroupId} />)
         .toNodeTree()
-      actions.addNodeTree(tree, 'ROOT')
+      // `merge` folds this insert into the previous history entry, so a Cover is one undo step.
+      ;(joinPrevious ? actions.history.merge() : actions).addNodeTree(tree, 'ROOT')
       return tree.rootNodeId
     },
     [actions, query],
@@ -141,8 +142,8 @@ export function BuilderProvider({ children }: { children: ReactNode }) {
       eventDate: tDefaults('eventDate'),
     })
     insert({ ...image }, null)
-    const groupNodeId = insert({ ...group, children: undefined }, null)
-    for (const child of group.children ?? []) insert(child, groupNodeId)
+    const groupNodeId = insert({ ...group, children: undefined }, null, true)
+    for (const child of group.children ?? []) insert(child, groupNodeId, true)
     actions.selectNode(groupNodeId)
     markDirty()
   }, [actions, insert, markDirty, tDefaults, texts])
@@ -177,14 +178,13 @@ export function BuilderProvider({ children }: { children: ReactNode }) {
       // photo whose centre once drifted into this group's box) is treated as
       // not really a child — arranging never touches it, and it's freed back
       // to top-level so this self-heals data from before that check existed.
+      const freed: string[] = []
       const childNodeIds = root.data.nodes.filter((nid) => {
         const props = query.node(nid).get().data.props
         if (props.parentGroupId !== groupNodeId) return false
         const b = props.block as Block
         if (b.w * b.h * 2 >= groupArea) {
-          actions.setProp(nid, (p: { parentGroupId: string | null }) => {
-            p.parentGroupId = null
-          })
+          freed.push(nid)
           return false
         }
         return true
@@ -193,9 +193,11 @@ export function BuilderProvider({ children }: { children: ReactNode }) {
         (nid) => query.node(nid).get().data.props.block as Block,
       )
       const arranged = arrangeGroupChildren({ ...groupBlock, children }, mode)
-      arranged.forEach((childBlock, i) => {
-        const nid = childNodeIds[i]
-        actions.setProp(nid, (props: { block: Block }) => {
+      // One setState, so the whole arrangement is a single undo step.
+      actions.setState((state) => {
+        for (const nid of freed) (state.nodes[nid].data.props as { parentGroupId: string | null }).parentGroupId = null
+        arranged.forEach((childBlock, i) => {
+          const props = state.nodes[childNodeIds[i]].data.props as { block: Block }
           props.block = { ...props.block, ...childBlock }
         })
       })

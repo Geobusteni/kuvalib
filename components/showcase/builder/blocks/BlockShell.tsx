@@ -3,7 +3,7 @@
 
 'use client'
 
-import { useEditor, useNode } from '@craftjs/core'
+import { useEditor, useNode, type EditorState } from '@craftjs/core'
 import { Rnd } from 'react-rnd'
 import { useCallback, useRef, type ReactNode } from 'react'
 import { flushSync } from 'react-dom'
@@ -63,16 +63,42 @@ function snapAxis(pos: number, size: number, candidates: number[], thresholdPct:
 // handle.
 const RESIZE_HANDLE_CLASS = 'sc-resize-handle'
 const resizeHandleClasses = {
+  top: RESIZE_HANDLE_CLASS,
+  right: RESIZE_HANDLE_CLASS,
+  bottom: RESIZE_HANDLE_CLASS,
+  left: RESIZE_HANDLE_CLASS,
   bottomRight: RESIZE_HANDLE_CLASS,
   bottomLeft: RESIZE_HANDLE_CLASS,
   topRight: RESIZE_HANDLE_CLASS,
   topLeft: RESIZE_HANDLE_CLASS,
 }
 
-interface NodeCollected {
-  block: Block
-  parentGroupId: string | null
+interface Change {
+  id: string
+  block?: Partial<Block>
+  parentGroupId?: string | null
 }
+
+/** Writes every change into one Craft state update, skipping fields that already match so an
+ *  unmoved gesture leaves nothing to record. */
+function applyChanges(changes: Change[]) {
+  return (state: EditorState) => {
+    for (const c of changes) {
+      const node = state.nodes[c.id]
+      if (!node) continue
+      const props = node.data.props as { block: Block; parentGroupId: string | null }
+      if (c.parentGroupId !== undefined && (props.parentGroupId ?? null) !== c.parentGroupId) {
+        props.parentGroupId = c.parentGroupId
+      }
+      const patch = c.block
+      if (!patch) continue
+      const changed = (Object.keys(patch) as (keyof Block)[]).some((k) => props.block[k] !== patch[k])
+      if (changed) props.block = { ...props.block, ...patch }
+    }
+  }
+}
+
+type Box = Pick<Block, 'x' | 'y' | 'w' | 'h'>
 
 export function BlockShell({
   children,
@@ -99,7 +125,6 @@ export function BlockShell({
     isActive: state.events.selected.has(id),
   }))
 
-  const dragStart = useRef<{ x: number; y: number } | null>(null)
   const rndRef = useRef<Rnd>(null)
   // react-draggable only ever adds pointer deltas to its own state, so the
   // unsnapped pointer position is tracked here and the held position is pushed
@@ -109,6 +134,7 @@ export function BlockShell({
     held: { x: number; y: number }
     adhesion: Adhesion
     peers: SiblingRect[]
+    children: Map<string, Box>
   } | null>(null)
 
   // Same idea for a resize: react-rnd derives size and position from the pointer alone, so the
@@ -118,6 +144,7 @@ export function BlockShell({
     held: Rect
     adhesion: Adhesion
     peers: SiblingRect[]
+    children: Map<string, Box>
   } | null>(null)
 
   const siblings = useCallback((): { id: string; block: Block; parentGroupId: string | null }[] => {
@@ -132,16 +159,34 @@ export function BlockShell({
     })
   }, [query])
 
-  const patchNode = useCallback(
-    (nodeId: string, patch: Partial<Block>) => {
-      actions.setProp(nodeId, (props: NodeCollected) => {
-        props.block = { ...props.block, ...patch }
-      })
+  const isGroup = block.type === 'group'
+
+  const childBoxes = useCallback((): Map<string, Box> => {
+    const boxes = new Map<string, Box>()
+    if (!isGroup) return boxes
+    for (const s of siblings()) {
+      if (s.parentGroupId === id) boxes.set(s.id, { x: s.block.x, y: s.block.y, w: s.block.w, h: s.block.h })
+    }
+    return boxes
+  }, [id, isGroup, siblings])
+
+  // A group gesture moves its children live without recording anything: the children are put
+  // back to where they started and the whole result is then written as one recorded change, so
+  // one undo restores the group and every child together.
+  const showChildren = useCallback(
+    (boxes: Map<string, Box>) => {
+      if (boxes.size === 0) return
+      actions.history.ignore().setState(applyChanges([...boxes].map(([cid, box]) => ({ id: cid, block: box }))))
     },
     [actions],
   )
-
-  const isGroup = block.type === 'group'
+  const commit = useCallback(
+    (origin: Map<string, Box>, changes: Change[]) => {
+      showChildren(origin)
+      actions.setState(applyChanges(changes))
+    },
+    [actions, showChildren],
+  )
 
   // A page-wide box, or a group child's own group: dragging (not resizing) is how a block
   // leaves a group, so this is the one place membership also means "never grow beyond it".
@@ -166,6 +211,13 @@ export function BlockShell({
     opacity: isActive ? 1 : 0,
     pointerEvents: isActive ? 'auto' : 'none',
   }
+  const visibility: React.CSSProperties = { opacity: isActive ? 1 : 0, pointerEvents: isActive ? 'auto' : 'none' }
+  const activeEdgeStyles = {
+    top: { ...edgeHitStyles.top, ...visibility },
+    right: { ...edgeHitStyles.right, ...visibility },
+    bottom: { ...edgeHitStyles.bottom, ...visibility },
+    left: { ...edgeHitStyles.left, ...visibility },
+  }
 
   return (
     <Rnd
@@ -173,12 +225,20 @@ export function BlockShell({
       ref={rndRef}
       position={{ x: px.x, y: px.y }}
       bounds="parent"
-      enableResizing={{ bottomRight: true, bottomLeft: true, topRight: true, topLeft: true }}
+      enableResizing={{
+        top: true,
+        right: true,
+        bottom: true,
+        left: true,
+        bottomRight: true,
+        bottomLeft: true,
+        topRight: true,
+        topLeft: true,
+      }}
       disableDragging={false}
       cancel={`.${RESIZE_HANDLE_CLASS}`}
       onDragStart={() => {
         actions.selectNode(id)
-        dragStart.current = { x: block.x, y: block.y }
         drag.current = {
           raw: { x: block.x, y: block.y },
           held: { x: block.x, y: block.y },
@@ -186,6 +246,7 @@ export function BlockShell({
           peers: siblings()
             .filter((s) => s.id !== id && s.parentGroupId === parentGroupId)
             .map((s) => ({ id: s.id, x: s.block.x, y: s.block.y, w: s.block.w, h: s.block.h })),
+          children: childBoxes(),
         }
       }}
       onDrag={(_e, d) => {
@@ -203,18 +264,7 @@ export function BlockShell({
         // react-draggable sets its own state right after onDrag returns; a microtask lands first
         // in React's flush, so the held position wins over the raw pointer position.
         queueMicrotask(() => rndRef.current?.updatePosition(heldPx))
-        if (!isGroup || !dragStart.current) return
-        const dx = nx - dragStart.current.x
-        const dy = ny - dragStart.current.y
-        for (const sib of siblings()) {
-          if (sib.parentGroupId !== id) continue
-          patchNode(sib.id, {
-            x: clamp(sib.block.x + dx, 0, 100),
-            y: clamp(sib.block.y + dy, 0, 100),
-          })
-        }
-        // Re-anchor so the next onDrag delta is relative to the new position.
-        dragStart.current = { x: nx, y: ny }
+        showChildren(shiftedChildren(live.children, nx - block.x, ny - block.y))
       }}
       onDragStop={(_e, d) => {
         const live = drag.current
@@ -226,51 +276,38 @@ export function BlockShell({
         // whichever of this block's own start/centre/end is closest, within
         // a few px. This only nudges the final drop position; it never
         // blocks the drag itself, so dragging over another block still works.
-        const others = siblings().filter((s) => s.id !== id)
+        // A group never aligns to its own children, and a click that moved nothing stays put.
+        const moved = rawX !== block.x || rawY !== block.y
+        const others = siblings().filter((s) => s.id !== id && s.parentGroupId !== (isGroup ? id : undefined))
         const xCandidates = [0, 50, 100, ...others.flatMap((s) => [s.block.x, s.block.x + s.block.w / 2, s.block.x + s.block.w])]
         const yCandidates = [0, 50, 100, ...others.flatMap((s) => [s.block.y, s.block.y + s.block.h / 2, s.block.y + s.block.h])]
-        const nx = clamp(snapAxis(rawX, block.w, xCandidates, pxToPct(SNAP_PX, frameW)), 0, 100 - block.w)
-        const ny = clamp(snapAxis(rawY, block.h, yCandidates, pxToPct(SNAP_PX, frameH)), 0, 100 - block.h)
+        const nx = moved ? clamp(snapAxis(rawX, block.w, xCandidates, pxToPct(SNAP_PX, frameW)), 0, 100 - block.w) : block.x
+        const ny = moved ? clamp(snapAxis(rawY, block.h, yCandidates, pxToPct(SNAP_PX, frameH)), 0, 100 - block.h) : block.y
+
+        const origin = live ? live.children : childBoxes()
+        const changes: Change[] = [{ id, block: { x: nx, y: ny } }]
 
         if (isGroup) {
-          const snapDx = nx - rawX
-          const snapDy = ny - rawY
-          if (snapDx !== 0 || snapDy !== 0) {
-            for (const sib of siblings()) {
-              if (sib.parentGroupId !== id) continue
-              patchNode(sib.id, {
-                x: clamp(sib.block.x + snapDx, 0, 100),
-                y: clamp(sib.block.y + snapDy, 0, 100),
-              })
-            }
-          }
-        }
-
-        patchNode(id, { x: nx, y: ny })
-        dragStart.current = null
-
-        if (isGroup) return
-        // Re-parent a leaf block into whichever group box now holds its centre —
-        // but never into a group less than half this block's own area. Without
-        // that guard, a full-bleed Cover photo (the largest thing on the page,
-        // and behind everything) gets scooped up by any small overlay group its
-        // centre happens to drift into, and "Arrange children" then resizes the
-        // photo itself to fit the stack.
-        const cx = nx + block.w / 2
-        const cy = ny + block.h / 2
-        const ownArea = block.w * block.h
-        const target = siblings().find((s) => {
-          if (s.block.type !== 'group' || s.id === id) return false
-          const b = s.block
-          if (b.w * b.h * 2 < ownArea) return false
-          return cx >= b.x && cx <= b.x + b.w && cy >= b.y && cy <= b.y + b.h
-        })
-        const nextParent = target ? target.id : null
-        if (nextParent !== parentGroupId) {
-          actions.setProp(id, (props: NodeCollected) => {
-            props.parentGroupId = nextParent
+          for (const [cid, box] of shiftedChildren(origin, nx - block.x, ny - block.y)) changes.push({ id: cid, block: box })
+        } else {
+          // Re-parent a leaf block into whichever group box now holds its centre —
+          // but never into a group less than half this block's own area. Without
+          // that guard, a full-bleed Cover photo (the largest thing on the page,
+          // and behind everything) gets scooped up by any small overlay group its
+          // centre happens to drift into, and "Arrange children" then resizes the
+          // photo itself to fit the stack.
+          const cx = nx + block.w / 2
+          const cy = ny + block.h / 2
+          const ownArea = block.w * block.h
+          const target = siblings().find((s) => {
+            if (s.block.type !== 'group' || s.id === id) return false
+            const b = s.block
+            if (b.w * b.h * 2 < ownArea) return false
+            return cx >= b.x && cx <= b.x + b.w && cy >= b.y && cy <= b.y + b.h
           })
+          changes[0].parentGroupId = target ? target.id : null
         }
+        commit(origin, changes)
       }}
       onResizeStart={() => {
         const start = { x: block.x, y: block.y, w: block.w, h: block.h }
@@ -281,6 +318,7 @@ export function BlockShell({
           peers: siblings()
             .filter((s) => s.id !== id && s.parentGroupId === parentGroupId)
             .map((s) => ({ id: s.id, x: s.block.x, y: s.block.y, w: s.block.w, h: s.block.h })),
+          children: childBoxes(),
         }
       }}
       onResize={(_e, dir, _ref, delta, position) => {
@@ -300,6 +338,7 @@ export function BlockShell({
         flushSync(() => {
           rndRef.current?.updateSize({ width: pctToPx(held.w, frameW), height: pctToPx(held.h, frameH) })
           rndRef.current?.updatePosition({ x: pctToPx(held.x, frameW), y: pctToPx(held.y, frameH) })
+          showChildren(scaledChildren(live.children, block, held))
         })
       }}
       onResizeStop={(_e, dir, refEl, _delta, position) => {
@@ -309,7 +348,7 @@ export function BlockShell({
         let next: Rect
         if (live) {
           // Same drop-time alignment as a drag, applied to the edge(s) that moved.
-          const others = siblings().filter((s) => s.id !== id)
+          const others = siblings().filter((s) => s.id !== id && s.parentGroupId !== (isGroup ? id : undefined))
           const xCandidates = [0, 50, 100, ...others.flatMap((s) => [s.block.x, s.block.x + s.block.w / 2, s.block.x + s.block.w])]
           const yCandidates = [0, 50, 100, ...others.flatMap((s) => [s.block.y, s.block.y + s.block.h / 2, s.block.y + s.block.h])]
           next = alignResize(live.held, dir as ResizeDirection, xCandidates, yCandidates, pxToPct(SNAP_PX, frameW), pxToPct(SNAP_PX, frameH), limits)
@@ -324,30 +363,27 @@ export function BlockShell({
             limits,
           )
         }
-        const { x: nextX, y: nextY, w: nextW, h: nextH } = next
-
+        const origin = live ? live.children : childBoxes()
+        const changes: Change[] = [{ id, block: next }]
         if (isGroup) {
-          const sx = block.w ? nextW / block.w : 1
-          const sy = block.h ? nextH / block.h : 1
-          for (const sib of siblings()) {
-            if (sib.parentGroupId !== id) continue
-            patchNode(sib.id, {
-              x: nextX + (sib.block.x - block.x) * sx,
-              y: nextY + (sib.block.y - block.y) * sy,
-              w: sib.block.w * sx,
-              h: sib.block.h * sy,
-            })
-          }
+          for (const [cid, box] of scaledChildren(origin, block, next)) changes.push({ id: cid, block: box })
         }
-        patchNode(id, { x: nextX, y: nextY, w: nextW, h: nextH })
+        commit(origin, changes)
         actions.selectNode(id)
       }}
       resizeHandleClasses={resizeHandleClasses}
       resizeHandleStyles={{
+        ...activeEdgeStyles,
         bottomRight: activeHandleStyle,
         bottomLeft: activeHandleStyle,
         topRight: activeHandleStyle,
         topLeft: activeHandleStyle,
+      }}
+      resizeHandleComponent={{
+        top: <EdgeGrip edge="top" />,
+        right: <EdgeGrip edge="right" />,
+        bottom: <EdgeGrip edge="bottom" />,
+        left: <EdgeGrip edge="left" />,
       }}
     >
       <div
@@ -406,5 +442,68 @@ const handleStyle: React.CSSProperties = {
   border: '2px solid white',
   boxShadow: '0 0 0 1px rgba(0,0,0,0.25)',
   // Sit above neighbouring blocks so a handle at a shared edge stays grabbable.
-  zIndex: 20,
+  zIndex: 21,
+  touchAction: 'none',
+}
+
+// An edge handle is an invisible hit band that straddles the edge — a third outside the block,
+// two thirds inside, because the page frame clips whatever sticks out — with a visible grip
+// centred on it. `--sc-edge-hit` is 24px, and 44px on touch (globals.css). The band stops short
+// of the corner handles (which reach 8px inside the block) so the two never overlap.
+const EDGE_INSET = 8
+const EDGE_MIN_LENGTH = 24
+const outside = 'calc(var(--sc-edge-hit) / -3)'
+const alongX = { left: '50%', width: `max(calc(100% - ${EDGE_INSET * 2}px), ${EDGE_MIN_LENGTH}px)`, transform: 'translateX(-50%)' }
+const alongY = { top: '50%', height: `max(calc(100% - ${EDGE_INSET * 2}px), ${EDGE_MIN_LENGTH}px)`, transform: 'translateY(-50%)' }
+const edgeHitStyles: Record<'top' | 'right' | 'bottom' | 'left', React.CSSProperties> = {
+  top: { ...alongX, height: 'var(--sc-edge-hit)', top: outside, bottom: 'auto', cursor: 'ns-resize', zIndex: 20, touchAction: 'none' },
+  bottom: { ...alongX, height: 'var(--sc-edge-hit)', bottom: outside, top: 'auto', cursor: 'ns-resize', zIndex: 20, touchAction: 'none' },
+  left: { ...alongY, width: 'var(--sc-edge-hit)', left: outside, right: 'auto', cursor: 'ew-resize', zIndex: 20, touchAction: 'none' },
+  right: { ...alongY, width: 'var(--sc-edge-hit)', right: outside, left: 'auto', cursor: 'ew-resize', zIndex: 20, touchAction: 'none' },
+}
+
+const GRIP_LONG = 28
+const GRIP_SHORT = 8
+// The grip sits on the block's edge, nudged 2px inward so it stays visible on the page border.
+function EdgeGrip({ edge }: { edge: 'top' | 'right' | 'bottom' | 'left' }) {
+  const horizontal = edge === 'top' || edge === 'bottom'
+  const towardsEdge = edge === 'top' || edge === 'left'
+  const across = towardsEdge
+    ? `calc(var(--sc-edge-hit) / 3 - ${GRIP_SHORT / 2 - 2}px)`
+    : `calc(var(--sc-edge-hit) * 2 / 3 - ${GRIP_SHORT / 2 + 2}px)`
+  return (
+    <span
+      aria-hidden="true"
+      style={{
+        position: 'absolute',
+        boxSizing: 'border-box',
+        width: horizontal ? GRIP_LONG : GRIP_SHORT,
+        height: horizontal ? GRIP_SHORT : GRIP_LONG,
+        ...(horizontal
+          ? { left: '50%', marginLeft: -GRIP_LONG / 2, top: across }
+          : { top: '50%', marginTop: -GRIP_LONG / 2, left: across }),
+        background: 'var(--sc-accent)',
+        borderRadius: 4,
+        border: '2px solid white',
+        boxShadow: '0 0 0 1px rgba(0,0,0,0.25)',
+        pointerEvents: 'none',
+      }}
+    />
+  )
+}
+
+function shiftedChildren(origin: Map<string, Box>, dx: number, dy: number): Map<string, Box> {
+  return new Map([...origin].map(([cid, b]) => [cid, { ...b, x: clamp(b.x + dx, 0, 100), y: clamp(b.y + dy, 0, 100) }]))
+}
+
+/** Children scaled with their group's box, per axis: an edge resize only changes the axis it moved. */
+function scaledChildren(origin: Map<string, Box>, from: Box, to: Box): Map<string, Box> {
+  const sx = from.w ? to.w / from.w : 1
+  const sy = from.h ? to.h / from.h : 1
+  return new Map(
+    [...origin].map(([cid, b]) => [
+      cid,
+      { x: to.x + (b.x - from.x) * sx, y: to.y + (b.y - from.y) * sy, w: b.w * sx, h: b.h * sy },
+    ]),
+  )
 }

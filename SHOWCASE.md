@@ -103,9 +103,10 @@ one, and a group's children are indented under it, in that same back-to-front or
 | **Group** | A positioning container for other blocks (see below). |
 
 - **Click** a block to select it — the settings panel fills in.
-- **Drag** a block to move it; **drag a corner handle** (shown only on the selected block) to
-  resize it.
-- **Snapping.** Dragging a block and resizing it by a corner handle behave the same way:
+- **Drag** a block to move it; **drag a handle** (shown only on the selected block: the four corners and the
+  middle of each edge) to resize it. A corner moves two edges, an edge grip moves just that one and
+  leaves the opposite edge where it is. On a touch screen the edge grips have a 44 px grab area.
+- **Snapping.** Dragging a block and resizing it by any handle (corner or edge) behave the same way:
   - *Sibling adhesion (live).* A block's edge that comes within about 8 px of a neighbour's edge
     is held against it. Keep pushing and, once you are more than 12 px past it, it lets go and
     moves freely, so you can still overlap blocks on purpose. A released edge does not grab
@@ -132,7 +133,10 @@ title-and-button pair.
 - **Membership is by position.** Drag a block so its centre lands inside a group's box and it
   becomes that group's child; drag a child's centre out and it becomes a top-level block again.
   There is no bind/unbind button.
-- **Moving or resizing the group** carries its children along.
+- **Moving or resizing the group** carries its children along, live while you drag. Resizing from an
+  edge scales the children along that direction only. The whole gesture is **one undo step**: a
+  single Undo puts the group and every child back. The same holds for dragging a block into or
+  out of a group and for the Arrange children buttons.
 - **Arrange children** (in the panel, when a group is selected): **Stack ↓ / Stack →** and
   **align left / centre / right / top / middle / bottom**. These never let children overlap or
   clip their text — they space the children out along one axis with a real gap, then shrink them

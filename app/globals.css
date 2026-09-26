@@ -173,3 +173,13 @@ html {
   clip: auto;
   white-space: normal;
 }
+
+/* Showcase builder: hit-band thickness of the edge resize handles (BlockShell). */
+.sc-resize-handle {
+  --sc-edge-hit: 24px;
+}
+@media (pointer: coarse) {
+  .sc-resize-handle {
+    --sc-edge-hit: 44px;
+  }
+}

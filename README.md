@@ -271,8 +271,8 @@ same keys.
 - **Selection mode** — tap "Select", choose photos, then pick **Download as ZIP** or **Share
   photos** (opens the device's native share sheet, where supported, to save or send each photo;
   otherwise downloads them individually)
-- **Lightbox on mobile** — swipe left/right to move, down to close, up for actions, pinch or
-  double-tap to zoom
+- **Lightbox on mobile** — swipe left/right to move, pinch or double-tap to zoom. Drag down and the
+  photo follows your finger, then slides away to close (or springs back if you let go early)
 - **Lightbox on desktop** — arrow keys move, `F` toggles fullscreen, `Escape` closes
 - **Not sure what a button does?** On a computer, hover over it for a tip. On any device, tap
   the **?** button (gallery header, and the slideshow's top bar or its More menu) for a Legend
@@ -296,7 +296,6 @@ same keys.
 | `←` / `→` | Previous / Next   |
 | `Escape`  | Close             |
 | `F`       | Toggle fullscreen |
-| `D`       | Open download options for this photo |
 | `Home`    | First image       |
 | `End`     | Last image        |
 

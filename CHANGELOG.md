@@ -10,6 +10,19 @@ adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html). While the
 
 ## [Unreleased]
 
+### Changed
+
+- **Swiping down in the photo viewer is now animated.** The photo follows your finger and fades,
+  then slides away to close, or springs back if you let go early. With reduced motion turned on it
+  still follows the finger but settles instantly. The swipe-up panel follows the finger the same way.
+- **The photo viewer no longer has a single-photo Download button** (or the `D` shortcut), because it
+  looked like it downloaded the whole gallery. Use Select in the gallery, or the ZIP archive.
+
+### Fixed
+
+- **The expiry strip no longer jumps up while scrolling on phones**, and the photo viewer no longer
+  shows the gallery through a gap at the bottom when the browser's toolbar hides or reappears.
+
 ## [1.16.0] - 2026-09-26
 
 ### Added

@@ -3,7 +3,7 @@
 
 'use client'
 
-import { useEffect, useId, useRef, useState, type ReactNode } from 'react'
+import { useEffect, useId, useMemo, useRef, useState, type ReactNode } from 'react'
 import { useTranslations } from 'next-intl'
 import { LegendButton } from '@/components/ui/Legend'
 import Tooltip from '@/components/ui/Tooltip'
@@ -18,6 +18,7 @@ import {
   SpeakerIcon,
   ThumbnailsIcon,
 } from '@/components/ui/icons'
+import { useHelpHint } from '@/hooks/useHelpHint'
 import { useLegend } from '@/hooks/useLegend'
 import { MusicControls, useMusicToggle, type MusicControlsProps } from './MusicControls'
 import ShowcaseLegend from './ShowcaseLegend'
@@ -41,7 +42,8 @@ const menuBtn =
  * room the right group leaves, so the two can never overlap. From `md` up the
  * secondary actions sit inline; below it they fold into a "More" disclosure so
  * the row never outgrows a 240px phone. Every control, autoplay and music included, sits
- * in that menu below `md`, so the pill holds only the More button. Space/Enter on any control belong to that control, so they are
+ * in that menu below `md`; the pill holds only the "?" (duplicated in the menu so it is
+ * easy to reach and can draw a new visitor's eye) and the More button. Space/Enter on any control belong to that control, so they are
  * kept from the viewer's window-level shortcuts (Space = play/pause).
  */
 export function ViewerControls({
@@ -89,7 +91,14 @@ export function ViewerControls({
   const open = menuRequested && visible
   const groupRef = useRef<HTMLDivElement>(null)
   const triggerRef = useRef<HTMLButtonElement>(null)
-  const legend = useLegend(triggerRef)
+  const mobileHelpRef = useRef<HTMLButtonElement>(null)
+  const legendTriggers = useMemo(() => [mobileHelpRef, triggerRef], [])
+  const legend = useLegend(legendTriggers)
+  const help = useHelpHint('slideshow')
+  const toggleLegend = () => {
+    help.markSeen()
+    legend.toggle()
+  }
   const legendOpen = legend.open && visible
   useEffect(() => {
     onLegendOpenChange(legendOpen)
@@ -225,8 +234,9 @@ export function ViewerControls({
               <LegendButton
                 open={legendOpen}
                 controls={legendId}
-                onClick={legend.toggle}
+                onClick={toggleLegend}
                 buttonRef={legend.triggerRef}
+                attention={help.hint}
                 className={inlineBtn}
                 iconSize={18}
                 iconStrokeWidth={1.9}
@@ -238,6 +248,18 @@ export function ViewerControls({
             />
           </div>
 
+          <div className="md:hidden">
+            <LegendButton
+              open={legendOpen}
+              controls={legendId}
+              onClick={toggleLegend}
+              buttonRef={mobileHelpRef}
+              attention={help.hint}
+              className={inlineBtn}
+              iconSize={18}
+              iconStrokeWidth={1.9}
+            />
+          </div>
           <Tooltip label={t('more')} className="md:hidden" suppress={open}>
             <button
               ref={triggerRef}
@@ -322,6 +344,7 @@ export function ViewerControls({
               aria-haspopup="dialog"
               onClick={() => {
                 closeMenu(false)
+                help.markSeen()
                 legend.show()
               }}
               className={menuBtn}

@@ -16,10 +16,11 @@ function focusVisible(...candidates: (HTMLElement | null | undefined)[]) {
  * the panel closes it. Escape and the Close button hand focus back to whichever
  * trigger is on screen.
  *
- * `alternateTrigger` is for a surface that swaps the "?" for another control at
- * narrow widths: focus goes to whichever of the two is on screen.
+ * `alternateTriggers` are other controls that open the same panel (a second
+ * "?" or a menu at narrow widths): focus goes to the first one on screen, and a
+ * press on any of them is not an outside press. Pass a stable array.
  */
-export function useLegend(alternateTrigger?: RefObject<HTMLElement | null>) {
+export function useLegend(alternateTriggers?: RefObject<HTMLElement | null>[]) {
   const [open, setOpen] = useState(false)
   const triggerRef = useRef<HTMLButtonElement>(null)
   const panelRef = useRef<HTMLDivElement>(null)
@@ -27,7 +28,7 @@ export function useLegend(alternateTrigger?: RefObject<HTMLElement | null>) {
   const close = (restoreFocus = false) => {
     setOpen(false)
     if (!restoreFocus) return
-    focusVisible(triggerRef.current, alternateTrigger?.current)
+    focusVisible(triggerRef.current, ...(alternateTriggers ?? []).map((r) => r.current))
   }
 
   useEffect(() => {
@@ -37,11 +38,12 @@ export function useLegend(alternateTrigger?: RefObject<HTMLElement | null>) {
       if (e.key !== 'Escape') return
       e.stopImmediatePropagation()
       setOpen(false)
-      focusVisible(triggerRef.current, alternateTrigger?.current)
+      focusVisible(triggerRef.current, ...(alternateTriggers ?? []).map((r) => r.current))
     }
     const onPointer = (e: PointerEvent) => {
       const target = e.target as Node
       if (panelRef.current?.contains(target) || triggerRef.current?.contains(target)) return
+      if (alternateTriggers?.some((r) => r.current?.contains(target))) return
       setOpen(false)
     }
     window.addEventListener('keydown', onKey, true)
@@ -50,7 +52,7 @@ export function useLegend(alternateTrigger?: RefObject<HTMLElement | null>) {
       window.removeEventListener('keydown', onKey, true)
       document.removeEventListener('pointerdown', onPointer)
     }
-  }, [open, alternateTrigger])
+  }, [open, alternateTriggers])
 
   const toggle = () => setOpen((v) => !v)
   const show = () => setOpen(true)

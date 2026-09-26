@@ -250,6 +250,17 @@ Do not add anything outside this scope unless explicitly requested.
   the slideshow's controls, and the title is a plain line at the top of the page
 - Footer, below the grid: two buttons, **Show slideshow** and **Download ZIP archive**, each shown
   only when it exists
+- Icon-only buttons show a **tooltip** on hover / keyboard focus (`components/ui/Tooltip.tsx`,
+  CSS only, `@media (hover: hover)` only, `aria-hidden` so the `aria-label` stays the one
+  accessible name; no native `title`). It appears below the button, right edge aligned to it
+- A **"?" button** sits before the language button (normal mode only) and opens the **Legend**
+  (`components/ui/Legend.tsx`, `hooks/useLegend.ts`): a non-modal `role="dialog"` disclosure
+  listing every action with the *same icon component* as the real button
+  (`components/ui/icons.tsx` — never redraw an icon inline), plus touch gestures (touch devices
+  only) and a Keyboard section (hover devices only). Focus moves to the panel; Escape closes it
+  and returns focus to "?"; a tap outside, focus leaving it, or Close also closes it; keys
+  pressed inside never reach the page's shortcuts. A card under the header on phones, anchored
+  under the pill from `md`. Add a Legend row whenever you add or change an icon-only action
 
 ### Gallery — Selection Mode
 
@@ -321,7 +332,13 @@ hidden entirely rather than offered with nothing behind it.
   toggle, fullscreen (hidden where unsupported), copy-link, download, compact language button.
   Below `md` only autoplay and music stay in the bar; the rest fold into a "More" disclosure
   and the dots become a "3 / 10" counter, so nothing overlaps at any width. In fullscreen the
-  bar auto-hides after ~3 s and returns on activity. Toasts clear themselves after ~3 s.
+  bar auto-hides after ~3 s and returns on activity (an open Legend keeps it visible).
+  Toasts clear themselves after ~3 s.
+- Every icon-only bar button has the shared hover/focus **Tooltip**. A **"?"** button opens the
+  same **Legend** as the gallery's: inline in the pill from `md`; below `md` it is a "Help and
+  legend" row in the More menu (the pill stays at autoplay / music / More). The panel is a card
+  under the pill; Escape closes it and returns focus to whichever of "?" / More is on screen,
+  without exiting fullscreen or firing the viewer's shortcuts.
 - Background music starts only from the music toggle (browsers block autoplay audio); the
   playlist advances track to track and loops if enabled.
 - A Button block with link type `zip` opens the download dialog, `gallery` links to `/g/<id>`,

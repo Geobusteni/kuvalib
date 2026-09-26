@@ -4,6 +4,8 @@
 'use client'
 
 import { useTranslations } from 'next-intl'
+import Tooltip from '@/components/ui/Tooltip'
+import { SpeakerIcon } from '@/components/ui/icons'
 
 export interface MusicControlsProps {
   autoStarted: boolean
@@ -31,36 +33,19 @@ export function MusicControls({
   className,
 }: MusicControlsProps & { className: string }) {
   const t = useTranslations('showcaseViewer.music')
-  if (autoStarted) {
-    return (
+  const label = autoStarted ? (muted ? t('unmute') : t('mute')) : playing ? t('pause') : t('play')
+  const waves = autoStarted ? !muted : playing
+  return (
+    <Tooltip label={label}>
       <button
         type="button"
-        aria-label={muted ? t('unmute') : t('mute')}
-        aria-pressed={muted}
-        onClick={onToggleMuted}
-        title={muted ? t('unmute') : t('mute')}
+        aria-label={label}
+        aria-pressed={autoStarted ? muted : playing}
+        onClick={autoStarted ? onToggleMuted : onTogglePlaying}
         className={className}
       >
-        <svg width="18" height="18" viewBox="0 0 20 20" fill="none" stroke="currentColor" strokeWidth="1.6" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
-          <path d="M3 8h3l4-3v10l-4-3H3z" fill="currentColor" stroke="none" />
-          {muted ? <path d="M13.5 7.5l4 5M17.5 7.5l-4 5" /> : <path d="M13 6.5c1.4 1 1.4 6 0 7M15.3 4.5c2.6 2 2.6 9.5 0 11.5" />}
-        </svg>
+        <SpeakerIcon waves={waves} />
       </button>
-    )
-  }
-  return (
-    <button
-      type="button"
-      aria-label={playing ? t('pause') : t('play')}
-      aria-pressed={playing}
-      onClick={onTogglePlaying}
-      title={playing ? t('pause') : t('play')}
-      className={className}
-    >
-      <svg width="18" height="18" viewBox="0 0 20 20" fill="none" stroke="currentColor" strokeWidth="1.6" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
-        <path d="M3 8h3l4-3v10l-4-3H3z" fill="currentColor" stroke="none" />
-        {playing ? <path d="M13 6.5c1.4 1 1.4 6 0 7M15.3 4.5c2.6 2 2.6 9.5 0 11.5" /> : <path d="M13.5 7.5l4 5M17.5 7.5l-4 5" />}
-      </svg>
-    </button>
+    </Tooltip>
   )
 }

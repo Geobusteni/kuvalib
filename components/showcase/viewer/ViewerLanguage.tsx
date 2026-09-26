@@ -8,6 +8,6 @@ import LanguageSwitcher from '@/components/ui/LanguageSwitcher'
 /** The single-button language switcher, coloured for the dark controls pill.
  *  Placed by `ViewerControls`, whose Space/Enter guard keeps a press on this
  *  button from also reaching the viewer's window-level Space = play/pause. */
-export function ViewerLanguage({ className }: { className: string }) {
-  return <LanguageSwitcher compact className={className} />
+export function ViewerLanguage({ className, tooltip = false }: { className: string; tooltip?: boolean }) {
+  return <LanguageSwitcher compact tooltip={tooltip} className={className} />
 }

@@ -274,6 +274,9 @@ same keys.
 - **Lightbox on mobile** — swipe left/right to move, down to close, up for actions, pinch or
   double-tap to zoom
 - **Lightbox on desktop** — arrow keys move, `F` toggles fullscreen, `Escape` closes
+- **Not sure what a button does?** On a computer, hover over it for a tip. On any device, tap
+  the **?** button (gallery header, and the slideshow's top bar or its More menu) for a Legend
+  that explains every button, gesture and shortcut
 
 ### Keyboard shortcuts
 

@@ -3,22 +3,23 @@
 
 'use client'
 
-import { useEffect, useRef, useState, type ReactNode } from 'react'
+import { useEffect, useId, useRef, useState, type ReactNode } from 'react'
 import { useTranslations } from 'next-intl'
+import { LegendButton } from '@/components/ui/Legend'
+import Tooltip from '@/components/ui/Tooltip'
+import {
+  CopyLinkIcon,
+  DownloadIcon,
+  FullscreenIcon,
+  HelpIcon,
+  MoreIcon,
+  PlayPauseIcon,
+  ThumbnailsIcon,
+} from '@/components/ui/icons'
+import { useLegend } from '@/hooks/useLegend'
 import { MusicControls, type MusicControlsProps } from './MusicControls'
+import ShowcaseLegend from './ShowcaseLegend'
 import { ViewerLanguage } from './ViewerLanguage'
-
-const ICON_PROPS = {
-  width: 18,
-  height: 18,
-  viewBox: '0 0 20 20',
-  fill: 'none',
-  stroke: 'currentColor',
-  strokeWidth: 1.6,
-  strokeLinecap: 'round',
-  strokeLinejoin: 'round',
-  'aria-hidden': true,
-} as const
 
 interface Action {
   key: string
@@ -54,6 +55,9 @@ export function ViewerControls({
   music,
   backHref,
   visible,
+  onLegendOpenChange,
+  showPages,
+  showDots,
   children,
 }: {
   autoplay: boolean
@@ -68,14 +72,24 @@ export function ViewerControls({
   music?: MusicControlsProps
   backHref?: string
   visible: boolean
+  onLegendOpenChange: (open: boolean) => void
+  showPages: boolean
+  showDots: boolean
   children?: ReactNode
 }) {
   const t = useTranslations('showcaseViewer.controls')
   const tl = useTranslations('language')
+  const tg = useTranslations('legend')
+  const legendId = useId()
   const [menuRequested, setOpen] = useState(false)
   const open = menuRequested && visible
   const groupRef = useRef<HTMLDivElement>(null)
   const triggerRef = useRef<HTMLButtonElement>(null)
+  const legend = useLegend(triggerRef)
+  const legendOpen = legend.open && visible
+  useEffect(() => {
+    onLegendOpenChange(legendOpen)
+  }, [legendOpen, onLegendOpenChange])
   const panelRef = useRef<HTMLDivElement>(null)
 
   const closeMenu = (restoreFocus: boolean) => {
@@ -109,46 +123,28 @@ export function ViewerControls({
       label: t('togglePageThumbnails'),
       onClick: onToggleThumbs,
       pressed: thumbsOpen,
-      icon: (
-        <svg {...ICON_PROPS} className="shrink-0">
-          <rect x="2.5" y="5" width="15" height="10" rx="1.5" />
-          <path d="M7 5v10M13 5v10" />
-        </svg>
-      ),
+      icon: <ThumbnailsIcon className="shrink-0" />,
     },
     ...(showFullscreen
       ? [{
           key: 'fullscreen',
           label: t('toggleFullscreen'),
           onClick: onToggleFullscreen,
-          icon: (
-            <svg {...ICON_PROPS} className="shrink-0">
-              <path d="M3 7V3h4M13 3h4v4M17 13v4h-4M7 17H3v-4" />
-            </svg>
-          ),
+          icon: <FullscreenIcon size={18} strokeWidth={1.6} className="shrink-0" />,
         }]
       : []),
     {
       key: 'copy',
       label: t('copyLink'),
       onClick: onCopyLink,
-      icon: (
-        <svg {...ICON_PROPS} className="shrink-0">
-          <rect x="7" y="7" width="9" height="9" rx="1.5" />
-          <path d="M4 12.5V5.5A1.5 1.5 0 0 1 5.5 4H12" />
-        </svg>
-      ),
+      icon: <CopyLinkIcon className="shrink-0" />,
     },
     ...(showDownload
       ? [{
           key: 'download',
           label: t('downloadAlbum'),
           onClick: onDownload,
-          icon: (
-            <svg {...ICON_PROPS} className="shrink-0">
-              <path d="M10 3v10M6 9l4 4 4-4M3 15h14" />
-            </svg>
-          ),
+          icon: <DownloadIcon size={18} strokeWidth={1.6} className="shrink-0" />,
         }]
       : []),
   ]
@@ -176,54 +172,78 @@ export function ViewerControls({
               {t('backToEditor')}
             </a>
           )}
-          <button
-            type="button"
-            aria-label={autoplay ? t('pauseSlideshow') : t('playSlideshow')}
-            aria-pressed={autoplay}
-            title={autoplay ? t('pauseSlideshow') : t('playSlideshow')}
-            onClick={onToggleAutoplay}
-            className={inlineBtn}
-          >
-            <svg {...ICON_PROPS} fill="currentColor">
-              {autoplay ? <path d="M6 4h3v12H6zM11 4h3v12h-3z" /> : <path d="M6 4l11 6-11 6z" />}
-            </svg>
-          </button>
+          <Tooltip label={autoplay ? t('pauseSlideshow') : t('playSlideshow')}>
+            <button
+              type="button"
+              aria-label={autoplay ? t('pauseSlideshow') : t('playSlideshow')}
+              aria-pressed={autoplay}
+              onClick={onToggleAutoplay}
+              className={inlineBtn}
+            >
+              <PlayPauseIcon playing={autoplay} />
+            </button>
+          </Tooltip>
           {music && <MusicControls {...music} className={inlineBtn} />}
 
           <div className="hidden items-center gap-0.5 md:flex">
             {actions.map((a) => (
-              <button
-                key={a.key}
-                type="button"
-                aria-label={a.label}
-                aria-pressed={a.pressed}
-                title={a.label}
-                onClick={a.onClick}
-                className={inlineBtn}
-              >
-                {a.icon}
-              </button>
+              <Tooltip key={a.key} label={a.label}>
+                <button
+                  type="button"
+                  aria-label={a.label}
+                  aria-pressed={a.pressed}
+                  onClick={a.onClick}
+                  className={inlineBtn}
+                >
+                  {a.icon}
+                </button>
+              </Tooltip>
             ))}
-            <ViewerLanguage className="rounded-full text-white/90 hover:bg-white/10 focus:outline-none focus-visible:ring-2 focus-visible:ring-white/70" />
+            <Tooltip label={tg('open')} suppress={legendOpen}>
+              <LegendButton
+                open={legendOpen}
+                controls={legendId}
+                onClick={legend.toggle}
+                buttonRef={legend.triggerRef}
+                className={inlineBtn}
+                iconSize={18}
+                iconStrokeWidth={1.9}
+              />
+            </Tooltip>
+            <ViewerLanguage
+              tooltip
+              className="rounded-full text-white/90 hover:bg-white/10 focus:outline-none focus-visible:ring-2 focus-visible:ring-white/70"
+            />
           </div>
 
-          <button
-            ref={triggerRef}
-            type="button"
-            aria-label={t('more')}
-            title={t('more')}
-            aria-expanded={open}
-            aria-controls="sc-controls-menu"
-            onClick={() => setOpen((v) => !v)}
-            className={`${inlineBtn} md:hidden`}
-          >
-            <svg {...ICON_PROPS} fill="currentColor" stroke="none">
-              <circle cx="4.5" cy="10" r="1.6" />
-              <circle cx="10" cy="10" r="1.6" />
-              <circle cx="15.5" cy="10" r="1.6" />
-            </svg>
-          </button>
+          <Tooltip label={t('more')} className="md:hidden" suppress={open}>
+            <button
+              ref={triggerRef}
+              type="button"
+              aria-label={t('more')}
+              aria-expanded={open}
+              aria-controls="sc-controls-menu"
+              onClick={() => setOpen((v) => !v)}
+              className={inlineBtn}
+            >
+              <MoreIcon />
+            </button>
+          </Tooltip>
         </div>
+
+        {legendOpen && (
+          <ShowcaseLegend
+            id={legendId}
+            panelRef={legend.panelRef}
+            onClose={() => legend.close(true)}
+            className="absolute right-0 top-full z-30 mt-2 max-h-[calc(100dvh-5rem-env(safe-area-inset-top))]"
+            music={music ? (music.autoStarted ? 'autostarted' : 'manual') : null}
+            showFullscreen={showFullscreen}
+            showDownload={showDownload}
+            showPages={showPages}
+            showDots={showDots}
+          />
+        )}
 
         {open && (
           <div
@@ -251,6 +271,18 @@ export function ViewerControls({
                 {a.label}
               </button>
             ))}
+            <button
+              type="button"
+              aria-haspopup="dialog"
+              onClick={() => {
+                closeMenu(false)
+                legend.show()
+              }}
+              className={menuBtn}
+            >
+              <HelpIcon size={18} strokeWidth={1.9} className="shrink-0" />
+              {tg('open')}
+            </button>
             <div className="flex min-h-11 items-center justify-between gap-3 rounded-xl px-3 text-sm text-white">
               <span>{tl('label')}</span>
               <ViewerLanguage className="rounded-full bg-white/10 text-white hover:bg-white/20 focus:outline-none focus-visible:ring-2 focus-visible:ring-white/70" />

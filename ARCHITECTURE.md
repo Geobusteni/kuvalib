@@ -105,15 +105,15 @@ kuvalib/
 │   ├── not-found.tsx
 │   └── globals.css
 ├── components/
-│   ├── gallery/{Gallery,ImageTile,Toolbar,AccessGate,DownloadOptionsDialog,PhotoFeedbackRow,FeedbackCommentDialog}.tsx
+│   ├── gallery/{Gallery,ImageTile,Toolbar,GalleryLegend,AccessGate,DownloadOptionsDialog,PhotoFeedbackRow,FeedbackCommentDialog}.tsx
 │   ├── lightbox/{PhotoViewer,ViewerControls,PhotoFeedbackBar}.tsx
 │   ├── showcase/            # Stage 2 — builder (Craft.js) + viewer (Craft-free) + shared
 │   │   ├── {store,craft-bridge,frame-size,photos-context,BlockContent}.*
 │   │   ├── builder/{ShowcaseBuilder,Canvas,PageRail,SettingsPanel,AddBlockMenu,AlbumSettingsDialog,useBuilder}.tsx
 │   │   ├── builder/blocks/{BlockShell,index}.tsx
-│   │   └── viewer/{ShowcaseViewer,PageStage,BlockRenderer,ViewerControls,ThumbnailRail,MusicPlayer,ShowcaseDownloadDialog,useSlideshow}.*
-│   └── ui/{ProjectForm,DeleteProjectButton,LogoutButton,ProgressBar}.tsx
-├── hooks/{useKeyboard,useGestures,useImageZoom,useFocusTrap,useReducedMotion,usePhotoFeedback}.ts
+│   │   └── viewer/{ShowcaseViewer,PageStage,BlockRenderer,ViewerControls,ShowcaseLegend,ThumbnailRail,MusicPlayer,ShowcaseDownloadDialog,useSlideshow}.*
+│   └── ui/{ProjectForm,DeleteProjectButton,LogoutButton,ProgressBar,Tooltip,Legend,icons}.tsx
+├── hooks/{useKeyboard,useGestures,useImageZoom,useFocusTrap,useReducedMotion,usePhotoFeedback,useLegend}.ts
 ├── lib/
 │   ├── prisma.ts              # Client singleton with the MariaDB adapter
 │   ├── auth.ts                # Session, role guards, password hashing
@@ -709,4 +709,7 @@ On the server:
 | Nesting through the tree fits the block's box into the group (shortest shift to lie wholly inside; shrunk to fit and to stay under half the group's area; group not offered if the minimum size still would not fit) | The canvas rules free a child whose centre leaves the group, and `arrangeGroup` frees any child at least half the group's area. Re-parenting without touching geometry would be silently undone the next time the group is arranged or the block is dragged |
 | Arrange drag only moves a marker; the write happens on drop, and the keyboard drop restores focus to the handle | Rows re-order in the DOM on drop, which drops browser focus from the moved handle; and a blur caused by that re-render must not cancel the drop, hence the handlers read a ref rather than render state |
 | The gallery toolbar is `sticky` in normal flow and wraps (title `flex-1 basis-32 truncate`, actions `flex-wrap`), not `fixed` at a fixed height; the gallery route exports `viewport-fit=cover` and pads with `env(safe-area-inset-*)` | A fixed 56px bar cannot grow when it wraps to two rows at 240px, so it would cover photos; in flow it pushes content down by exactly its own height. Without `viewport-fit=cover` the insets are always 0, so it is set on the gallery route only (not the admin) |
+| Icon-only buttons get a CSS-only `Tooltip` (hover / `:has(:focus-visible)`, both inside `@media (hover: hover)`, `aria-hidden`, right edge on the button's) and a "?" Legend built from the same `components/ui/icons.tsx` components as the buttons; the native `title` attribute was removed from those buttons | Touch has no hover, so the Legend is the only way to learn a button there; sharing the icon components keeps the two from drifting; `title` would have announced the label twice. The tip is right-aligned because both bars sit at the top right and a centred tip is clipped by the viewport edge |
+| The Legend panel is a non-modal `role="dialog"` that catches Escape in the capture phase and stops keydown at the panel (`useLegend`); the gallery's panel is `absolute` inside the sticky header on phones and `fixed` from `md` | Escape must not reach the slideshow's fullscreen/shortcut handler, and letter keys typed while reading must not toggle selection or download. The sticky header has `backdrop-filter`, which makes it the containing block for `fixed` children on phones only |
+| The gallery header actions `flex-wrap` below `md` | With the added "?" five buttons no longer fit at 240 px |
 | The per-photo feedback tooltips render only under `@media (hover: hover)` | They are `absolute whitespace-nowrap`, and although invisible they still widened the scrollable area, making the whole gallery scroll sideways on phones from 240 to ~430px |

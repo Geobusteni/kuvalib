@@ -3,8 +3,14 @@
 
 'use client'
 
+import { useId } from 'react'
 import { useTranslations } from 'next-intl'
 import LanguageSwitcher from '@/components/ui/LanguageSwitcher'
+import { LegendButton } from '@/components/ui/Legend'
+import Tooltip from '@/components/ui/Tooltip'
+import { ArchiveIcon, SelectIcon, SlideshowIcon } from '@/components/ui/icons'
+import { useLegend } from '@/hooks/useLegend'
+import GalleryLegend from './GalleryLegend'
 
 interface ToolbarProps {
   title: string
@@ -14,6 +20,7 @@ interface ToolbarProps {
   showcaseHref: string | null
   /** Download URL of the photographer's uploaded ZIP, when there is one. */
   archiveHref: string | null
+  feedbackEnabled: boolean
   onEnterSelection: () => void
   onExitSelection: () => void
   onOpenDownloadOptions: () => void
@@ -27,25 +34,11 @@ const iconButtonClass = `${buttonClass} min-w-11 px-0`
 // Phones: the second line of the sticky header. From md up: a pill that floats over the page,
 // like the slideshow's controls, so the photos get the whole width.
 const actionsClass =
-  '-ml-2 flex items-center gap-1 md:fixed md:right-[max(1rem,env(safe-area-inset-right))] md:top-[max(0.75rem,env(safe-area-inset-top))] md:z-30 md:ml-0 md:rounded-full md:bg-black/60 md:px-2 md:ring-1 md:ring-white/15 md:backdrop-blur-sm'
+  '-ml-2 flex flex-wrap items-center gap-1 md:fixed md:right-[max(1rem,env(safe-area-inset-right))] md:top-[max(0.75rem,env(safe-area-inset-top))] md:z-30 md:ml-0 md:flex-nowrap md:rounded-full md:bg-black/60 md:px-2 md:ring-1 md:ring-white/15 md:backdrop-blur-sm'
 
-function Icon({ children }: { children: React.ReactNode }) {
-  return (
-    <svg
-      width="22"
-      height="22"
-      viewBox="0 0 24 24"
-      fill="none"
-      stroke="currentColor"
-      strokeWidth="1.75"
-      strokeLinecap="round"
-      strokeLinejoin="round"
-      aria-hidden="true"
-    >
-      {children}
-    </svg>
-  )
-}
+// Under the header's second line on phones; anchored under the pill from md up.
+const legendClass =
+  'absolute right-[max(1rem,env(safe-area-inset-right))] top-full z-40 mt-1 max-h-[min(70dvh,calc(100dvh-8rem))] md:fixed md:top-[calc(max(0.75rem,env(safe-area-inset-top))+4rem)] md:mt-0 md:max-h-[calc(100dvh-6rem)]'
 
 export default function Toolbar({
   title,
@@ -53,11 +46,15 @@ export default function Toolbar({
   selectedCount,
   showcaseHref,
   archiveHref,
+  feedbackEnabled,
   onEnterSelection,
   onExitSelection,
   onOpenDownloadOptions,
 }: ToolbarProps) {
   const t = useTranslations('gallery.toolbar')
+  const tt = useTranslations('legend')
+  const legendId = useId()
+  const legend = useLegend()
 
   return (
     <div className="sticky top-0 z-30 bg-black/80 pb-1 pl-[max(1rem,env(safe-area-inset-left))] pr-[max(1rem,env(safe-area-inset-right))] pt-[max(0.5rem,env(safe-area-inset-top))] backdrop-blur-sm md:static md:bg-transparent md:pb-0 md:pr-56 md:pt-5 md:backdrop-blur-none">
@@ -68,29 +65,34 @@ export default function Toolbar({
       {mode === 'gallery' ? (
         <div className={actionsClass}>
           {showcaseHref && (
-            <a href={showcaseHref} aria-label={t('viewShowcase')} title={t('viewShowcase')} className={iconButtonClass}>
-              <Icon>
-                <rect x="3" y="4" width="18" height="13" rx="2" />
-                <path d="M10 8.5v4l3.5-2z" />
-                <path d="M8 21h8M12 17v4" />
-              </Icon>
-            </a>
+            <Tooltip label={t('viewShowcase')}>
+              <a href={showcaseHref} aria-label={t('viewShowcase')} className={iconButtonClass}>
+                <SlideshowIcon />
+              </a>
+            </Tooltip>
           )}
-          <button onClick={onEnterSelection} aria-label={t('select')} title={t('select')} className={iconButtonClass}>
-            <Icon>
-              <rect x="4" y="4" width="16" height="16" rx="3" />
-              <path d="M8.5 12.5l2.5 2.5 4.5-5" />
-            </Icon>
-          </button>
+          <Tooltip label={t('select')}>
+            <button onClick={onEnterSelection} aria-label={t('select')} className={iconButtonClass}>
+              <SelectIcon />
+            </button>
+          </Tooltip>
           {archiveHref && (
-            <a href={archiveHref} download aria-label={t('downloadZip')} title={t('downloadZip')} className={iconButtonClass}>
-              <Icon>
-                <path d="M12 4v11M7.5 10.5L12 15l4.5-4.5" />
-                <path d="M4 19h16" />
-              </Icon>
-            </a>
+            <Tooltip label={t('downloadZip')}>
+              <a href={archiveHref} download aria-label={t('downloadZip')} className={iconButtonClass}>
+                <ArchiveIcon />
+              </a>
+            </Tooltip>
           )}
-          <LanguageSwitcher compact className={`${buttonClass} ml-auto md:ml-0`} />
+          <Tooltip label={tt('open')} className="ml-auto md:ml-0" suppress={legend.open}>
+            <LegendButton
+              open={legend.open}
+              controls={legendId}
+              onClick={legend.toggle}
+              buttonRef={legend.triggerRef}
+              className={iconButtonClass}
+            />
+          </Tooltip>
+          <LanguageSwitcher compact tooltip className={buttonClass} />
         </div>
       ) : (
         <div className={`${actionsClass} flex-wrap`}>
@@ -106,6 +108,18 @@ export default function Toolbar({
             {selectedCount > 0 ? t('downloadCount', { count: selectedCount }) : t('download')}
           </button>
         </div>
+      )}
+
+      {mode === 'gallery' && legend.open && (
+        <GalleryLegend
+          id={legendId}
+          panelRef={legend.panelRef}
+          onClose={() => legend.close(true)}
+          hasShowcase={showcaseHref !== null}
+          hasArchive={archiveHref !== null}
+          feedbackEnabled={feedbackEnabled}
+          className={legendClass}
+        />
       )}
     </div>
   )

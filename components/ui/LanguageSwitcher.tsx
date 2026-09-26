@@ -7,13 +7,16 @@ import { useTransition } from 'react'
 import { useLocale, useTranslations } from 'next-intl'
 import { setLocale } from '@/app/actions/locale'
 import { locales, type Locale } from '@/lib/locales'
+import Tooltip from './Tooltip'
 
 export default function LanguageSwitcher({
   className = '',
   compact = false,
+  tooltip = false,
 }: {
   className?: string
   compact?: boolean
+  tooltip?: boolean
 }) {
   const t = useTranslations('language')
   const current = useLocale()
@@ -26,11 +29,12 @@ export default function LanguageSwitcher({
 
   if (compact) {
     const next = locales[(locales.indexOf(current as Locale) + 1) % locales.length]
-    return (
+    const label = t('switchTo', { language: t(`names.${next}`) })
+    const button = (
       <button
         type="button"
         lang={current}
-        aria-label={t('switchTo', { language: t(`names.${next}`) })}
+        aria-label={label}
         aria-busy={pending}
         disabled={pending}
         onClick={() => choose(next)}
@@ -39,6 +43,7 @@ export default function LanguageSwitcher({
         {current}
       </button>
     )
+    return tooltip ? <Tooltip label={label}>{button}</Tooltip> : button
   }
 
   return (

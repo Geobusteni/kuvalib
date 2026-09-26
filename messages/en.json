@@ -239,6 +239,67 @@
       "shareError": "Could not share the photos. Please try again.",
       "fetchOneError": "Could not fetch the photo. Please try again.",
       "fetchAllError": "Could not fetch all photos. Please try again."
+    },
+    "legend": {
+      "header": {
+        "heading": "Top buttons",
+        "viewShowcase": "Opens the page-by-page slideshow of this gallery.",
+        "select": "Lets you pick several photos to download together.",
+        "downloadZip": "Downloads every original photo in one ZIP file.",
+        "language": "Switches the page between English and Romanian."
+      },
+      "selecting": {
+        "heading": "While selecting",
+        "pick": "Pick photos",
+        "pickHint": "Tap or click a photo to select it, and again to deselect it.",
+        "cancel": "Leaves selection without downloading anything.",
+        "download": "Opens the options for downloading the selected photos."
+      },
+      "viewer": {
+        "heading": "Viewing a photo",
+        "open": "Open a photo",
+        "openHint": "Tap or click a photo to see it large.",
+        "previous": "Shows the photo before this one.",
+        "next": "Shows the photo after this one.",
+        "download": "Saves this photo under its original name.",
+        "fullscreen": "Fills the whole screen with the photo.",
+        "close": "Goes back to the gallery."
+      },
+      "gestures": {
+        "heading": "Touch gestures",
+        "swipeSideways": "Swipe left or right",
+        "swipeSidewaysHint": "Shows the next or the previous photo.",
+        "swipeUp": "Swipe up",
+        "swipeUpHint": "Shows the actions panel.",
+        "swipeDown": "Swipe down",
+        "swipeDownHint": "Closes the panel, or the viewer.",
+        "zoom": "Pinch or double-tap",
+        "zoomHint": "Zooms the photo in and out."
+      },
+      "feedback": {
+        "heading": "Reactions",
+        "like": "Tells the photographer you like it. One reaction per photo.",
+        "dislike": "Tells the photographer it is not for you. One reaction per photo.",
+        "comment": "Leaves a short note for the photographer.",
+        "undo": "Removes your reaction so you can react again."
+      },
+      "footer": {
+        "heading": "Below the photos",
+        "name": "Footer buttons",
+        "description": "The slideshow and ZIP archive buttons are repeated as text buttons under the photos."
+      },
+      "keyboard": {
+        "heading": "Keyboard",
+        "select": "Turn selection on or off",
+        "archive": "Download the ZIP archive",
+        "download": "Download the selected photos",
+        "open": "Open the photo in focus",
+        "space": "Select the photo in focus while selecting",
+        "arrows": "Previous or next photo in the viewer",
+        "homeEnd": "First or last photo in the viewer",
+        "fullscreen": "Toggle fullscreen in the viewer",
+        "escape": "Close the viewer or leave selection"
+      }
     }
   },
   "lightbox": {
@@ -564,6 +625,39 @@
       "confirm": "Download as ZIP (originals)",
       "cancel": "Cancel",
       "fallbackName": "album"
+    },
+    "legend": {
+      "controls": {
+        "heading": "Top bar",
+        "autoplay": "Turns the pages by itself. Press again to pause.",
+        "musicMute": "Silences the background music, or brings it back.",
+        "musicPlay": "Starts the background music (browsers only allow it after a tap). Press again to pause.",
+        "thumbnails": "Shows a strip of page previews; tap one to jump there.",
+        "fullscreen": "Fills the whole screen. The bar hides after a few seconds; move or tap to bring it back.",
+        "copyLink": "Copies this slideshow's link so you can share it.",
+        "download": "Downloads the album's photos as a ZIP file.",
+        "language": "Switches the page between English and Romanian."
+      },
+      "pages": {
+        "heading": "Moving between pages",
+        "previous": "Goes back one page.",
+        "next": "Goes forward one page.",
+        "dots": "Page dots",
+        "dotsHint": "Jump straight to any page. On narrow screens they become a page counter."
+      },
+      "narrow": {
+        "heading": "On narrow screens",
+        "more": "Thumbnails, fullscreen, copy link, download and language are inside this menu."
+      },
+      "keyboard": {
+        "heading": "Keyboard",
+        "arrows": "Previous or next page",
+        "homeEnd": "First or last page",
+        "space": "Play or pause the slideshow",
+        "fullscreen": "Toggle fullscreen",
+        "download": "Open the download dialog",
+        "escape": "Close this panel, or leave fullscreen"
+      }
     }
   },
   "errors": {
@@ -723,5 +817,10 @@
       "save": "Save changes",
       "cancel": "Cancel"
     }
+  },
+  "legend": {
+    "title": "Legend",
+    "open": "Help and legend",
+    "close": "Close legend"
   }
 }

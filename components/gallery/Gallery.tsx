@@ -179,6 +179,7 @@ export default function Gallery({
         selectedCount={selected?.size ?? 0}
         showcaseHref={showcaseHref ?? null}
         archiveHref={archiveUrl}
+        feedbackEnabled={feedbackEnabled}
         onEnterSelection={() => dispatch({ type: 'ENTER_SELECTION' })}
         onExitSelection={() => dispatch({ type: 'EXIT_SELECTION' })}
         onOpenDownloadOptions={openDownloadDialog}

@@ -4,6 +4,7 @@
 'use client'
 
 import { useTranslations } from 'next-intl'
+import { CommentIcon, DislikeIcon, LikeIcon, UndoIcon } from '@/components/ui/icons'
 
 import type { PhotoReaction } from './ImageTile'
 
@@ -74,7 +75,7 @@ export default function PhotoFeedbackRow({
       </TooltipButton>
       {locked && (
         <TooltipButton onClick={onReset} label={t('undo')} className={resetBtn}>
-          <ResetIcon />
+          <UndoIcon />
         </TooltipButton>
       )}
     </div>
@@ -131,37 +132,3 @@ function feedbackBtn(active: boolean, accent: 'green' | 'red' | 'yellow') {
 
 const resetBtn =
   'flex h-11 w-11 items-center justify-center rounded-full text-white/50 transition-colors hover:bg-white/10 hover:text-white focus:outline-none focus-visible:ring-2 focus-visible:ring-white/50'
-
-function LikeIcon() {
-  return (
-    <svg width="20" height="20" viewBox="0 0 20 20" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" aria-hidden>
-      <path d="M4 10.5l4 4 8-9" />
-    </svg>
-  )
-}
-
-function DislikeIcon() {
-  return (
-    <svg width="20" height="20" viewBox="0 0 20 20" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" aria-hidden>
-      <path d="M4 4l12 12M16 4L4 16" />
-    </svg>
-  )
-}
-
-function CommentIcon() {
-  return (
-    <svg width="20" height="20" viewBox="0 0 20 20" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" aria-hidden>
-      <rect x="4" y="2.5" width="12" height="15" rx="1.5" />
-      <path d="M7 7h6M7 10h6M7 13h3" />
-    </svg>
-  )
-}
-
-function ResetIcon() {
-  return (
-    <svg width="18" height="18" viewBox="0 0 20 20" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" aria-hidden>
-      <path d="M4 4v5h5" />
-      <path d="M4.6 13a6.5 6.5 0 1 0 1-8.4L4 9" />
-    </svg>
-  )
-}

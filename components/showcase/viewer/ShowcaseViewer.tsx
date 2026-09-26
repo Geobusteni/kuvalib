@@ -21,6 +21,7 @@ import type {
   ShowcaseEventType,
 } from '@/lib/generated/prisma/client'
 import type { ShowcasePhoto } from '../photos-context'
+import { ChevronLeftIcon, ChevronRightIcon } from '@/components/ui/icons'
 import { PageStage } from './PageStage'
 import { ViewerControls } from './ViewerControls'
 import { ThumbnailRail } from './ThumbnailRail'
@@ -105,6 +106,7 @@ export function ShowcaseViewer({
   const [downloadOpen, setDownloadOpen] = useState(false)
   const [isFs, setIsFs] = useState(false)
   const [controlsVisible, setControlsVisible] = useState(true)
+  const [legendOpen, setLegendOpen] = useState(false)
   const [toast, setToast] = useState<string | null>(null)
   const hideTimer = useRef<ReturnType<typeof setTimeout> | null>(null)
   const toastTimer = useRef<ReturnType<typeof setTimeout> | null>(null)
@@ -156,7 +158,7 @@ export function ShowcaseViewer({
   // Auto-hide controls after inactivity while in fullscreen. Activity handlers
   // (event-driven) reveal them again; leaving fullscreen restores them above.
   useEffect(() => {
-    if (!isFs) return
+    if (!isFs || legendOpen) return
     const bump = () => {
       setControlsVisible(true)
       if (hideTimer.current) clearTimeout(hideTimer.current)
@@ -172,7 +174,7 @@ export function ShowcaseViewer({
       window.removeEventListener('touchstart', bump)
       if (hideTimer.current) clearTimeout(hideTimer.current)
     }
-  }, [isFs])
+  }, [isFs, legendOpen])
 
   // Keyboard shortcuts.
   useEffect(() => {
@@ -253,6 +255,9 @@ export function ShowcaseViewer({
         }
         backHref={backHref}
         visible={controlsVisible}
+        onLegendOpenChange={setLegendOpen}
+        showPages={total > 1}
+        showDots={settings.dotsEnabled && total > 1}
       >
         {settings.dotsEnabled && total > 1 && (
           <DotIndicator
@@ -291,7 +296,7 @@ export function ShowcaseViewer({
               onClick={prev}
               className="absolute left-2 top-1/2 z-10 flex h-11 w-11 -translate-y-1/2 items-center justify-center rounded-full bg-black/40 text-white backdrop-blur-sm hover:bg-black/60 sm:left-3"
             >
-              <svg width="18" height="18" viewBox="0 0 20 20" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M13 4l-6 6 6 6" /></svg>
+              <ChevronLeftIcon size={18} />
             </button>
             <button
               type="button"
@@ -299,7 +304,7 @@ export function ShowcaseViewer({
               onClick={next}
               className="absolute right-2 top-1/2 z-10 flex h-11 w-11 -translate-y-1/2 items-center justify-center rounded-full bg-black/40 text-white backdrop-blur-sm hover:bg-black/60 sm:right-3"
             >
-              <svg width="18" height="18" viewBox="0 0 20 20" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M7 4l6 6-6 6" /></svg>
+              <ChevronRightIcon size={18} />
             </button>
           </>
         )}

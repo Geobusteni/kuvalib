@@ -239,6 +239,67 @@
       "shareError": "Fotografiile nu au putut fi partajate. Încearcă din nou.",
       "fetchOneError": "Fotografia nu a putut fi preluată. Încearcă din nou.",
       "fetchAllError": "Nu toate fotografiile au putut fi preluate. Încearcă din nou."
+    },
+    "legend": {
+      "header": {
+        "heading": "Butoanele de sus",
+        "viewShowcase": "Deschide prezentarea galeriei, pagină cu pagină.",
+        "select": "Îți permite să alegi mai multe fotografii pentru a le descărca împreună.",
+        "downloadZip": "Descarcă toate fotografiile originale într-un singur fișier ZIP.",
+        "language": "Schimbă limba paginii între engleză și română."
+      },
+      "selecting": {
+        "heading": "Când selectezi",
+        "pick": "Alege fotografii",
+        "pickHint": "Atinge sau dă clic pe o fotografie ca să o selectezi, și încă o dată ca să o deselectezi.",
+        "cancel": "Ieși din selecție fără să descarci nimic.",
+        "download": "Deschide opțiunile de descărcare pentru fotografiile selectate."
+      },
+      "viewer": {
+        "heading": "Când privești o fotografie",
+        "open": "Deschide o fotografie",
+        "openHint": "Atinge sau dă clic pe o fotografie ca s-o vezi mare.",
+        "previous": "Arată fotografia dinaintea celei curente.",
+        "next": "Arată fotografia de după cea curentă.",
+        "download": "Salvează fotografia sub numele ei original.",
+        "fullscreen": "Afișează fotografia pe tot ecranul.",
+        "close": "Te întoarce la galerie."
+      },
+      "gestures": {
+        "heading": "Gesturi pe ecranul tactil",
+        "swipeSideways": "Glisează la stânga sau la dreapta",
+        "swipeSidewaysHint": "Arată fotografia următoare sau cea anterioară.",
+        "swipeUp": "Glisează în sus",
+        "swipeUpHint": "Arată panoul de acțiuni.",
+        "swipeDown": "Glisează în jos",
+        "swipeDownHint": "Închide panoul sau vizualizatorul.",
+        "zoom": "Ciupește sau atinge de două ori",
+        "zoomHint": "Mărește și micșorează fotografia."
+      },
+      "feedback": {
+        "heading": "Reacții",
+        "like": "Îi spui fotografului că îți place. O singură reacție pentru fiecare fotografie.",
+        "dislike": "Îi spui fotografului că nu ți se potrivește. O singură reacție pentru fiecare fotografie.",
+        "comment": "Lasă fotografului o scurtă notă.",
+        "undo": "Îți șterge reacția, ca să poți reacționa din nou."
+      },
+      "footer": {
+        "heading": "Sub fotografii",
+        "name": "Butoanele din subsol",
+        "description": "Butoanele pentru prezentare și pentru arhiva ZIP se repetă ca butoane cu text sub fotografii."
+      },
+      "keyboard": {
+        "heading": "Tastatură",
+        "select": "Pornește sau oprește selecția",
+        "archive": "Descarcă arhiva ZIP",
+        "download": "Descarcă fotografiile selectate",
+        "open": "Deschide fotografia aflată în focus",
+        "space": "Selectează fotografia aflată în focus, când selectezi",
+        "arrows": "Fotografia anterioară sau următoare în vizualizator",
+        "homeEnd": "Prima sau ultima fotografie în vizualizator",
+        "fullscreen": "Ecran complet în vizualizator",
+        "escape": "Închide vizualizatorul sau iese din selecție"
+      }
     }
   },
   "lightbox": {
@@ -564,6 +625,39 @@
       "confirm": "Descarcă ZIP (originale)",
       "cancel": "Anulează",
       "fallbackName": "album"
+    },
+    "legend": {
+      "controls": {
+        "heading": "Bara de sus",
+        "autoplay": "Întoarce paginile singură. Apasă din nou ca s-o oprești.",
+        "musicMute": "Oprește sunetul muzicii de fundal sau îl pornește la loc.",
+        "musicPlay": "Pornește muzica de fundal (browserele o permit doar după o atingere). Apasă din nou ca s-o oprești.",
+        "thumbnails": "Arată o bandă cu miniaturile paginilor; atinge una ca să sari la ea.",
+        "fullscreen": "Umple tot ecranul. Bara dispare după câteva secunde; mișcă mouse-ul sau atinge ecranul ca s-o aduci înapoi.",
+        "copyLink": "Copiază linkul prezentării ca să o poți trimite mai departe.",
+        "download": "Descarcă fotografiile albumului într-un fișier ZIP.",
+        "language": "Schimbă limba paginii între engleză și română."
+      },
+      "pages": {
+        "heading": "Trecerea de la o pagină la alta",
+        "previous": "Te întoarce o pagină.",
+        "next": "Merge o pagină înainte.",
+        "dots": "Punctele paginilor",
+        "dotsHint": "Sari direct la orice pagină. Pe ecranele înguste devin un contor de pagini."
+      },
+      "narrow": {
+        "heading": "Pe ecrane înguste",
+        "more": "Miniaturile, ecranul complet, copierea linkului, descărcarea și limba sunt în acest meniu."
+      },
+      "keyboard": {
+        "heading": "Tastatură",
+        "arrows": "Pagina anterioară sau următoare",
+        "homeEnd": "Prima sau ultima pagină",
+        "space": "Pornește sau oprește prezentarea",
+        "fullscreen": "Ecran complet",
+        "download": "Deschide fereastra de descărcare",
+        "escape": "Închide acest panou sau iese din ecranul complet"
+      }
     }
   },
   "errors": {
@@ -723,5 +817,10 @@
       "save": "Salvează modificările",
       "cancel": "Anulează"
     }
+  },
+  "legend": {
+    "title": "Legendă",
+    "open": "Ajutor și legendă",
+    "close": "Închide legenda"
   }
 }

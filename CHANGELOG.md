@@ -10,6 +10,17 @@ adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html). While the
 
 ## [Unreleased]
 
+### Added
+
+- **Hover tips on the icon buttons.** On a computer, resting the pointer on (or tabbing to) an
+  icon-only button in the gallery header or the slideshow bar shows a small tip saying what it
+  does. Touch screens do not show them.
+- **A "?" help button with a Legend** in the gallery header (next to the language button) and in
+  the slideshow bar (on narrow screens it is a "Help and legend" row in the More menu). It opens
+  a small panel that shows each button's icon with its name and a one-line explanation, the
+  gestures on touch screens, and the keyboard shortcuts on computers. Escape, a tap outside, or
+  its Close button dismisses it. Available in English and Romanian.
+
 ## [1.14.1] - 2026-09-26
 
 ### Changed

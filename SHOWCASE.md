@@ -304,10 +304,16 @@ full-width bar. From 768px wide up it holds, in order:
   toast under the bar goes away by itself after about 3 seconds (5 for the longer
   "send the password too" reminder).
 - **Download** — the showcase's photos as a ZIP of originals (when downloads are enabled)
+- **Help** (?) — opens the **Legend**, a small panel listing every control with its icon, name and
+  a one-line explanation (plus, on computers, the keyboard shortcuts). Escape, a tap outside or
+  its Close button dismisses it; while it is open the bar stays visible in fullscreen
 - **Language** — a single button showing the current code (EN / RO); tap to switch
 
+On a computer, resting the pointer on (or tabbing to) any of these icon buttons shows a small
+tip with its name. Touch screens have no hover, which is what the Legend is for.
+
 Below 768px only Autoplay, Music and a **More** (⋯) button remain in the pill; Thumbnails,
-Fullscreen, Copy link, Download and Language move into the More menu. The menu is a plain
+Fullscreen, Copy link, Download, Help and Language move into the More menu. The menu is a plain
 disclosure (`aria-expanded`): it opens with focus on its first item, Escape or a tap outside
 closes it, and Escape puts focus back on the More button without also exiting fullscreen.
 Space and Enter on a control activate that control and never trigger the viewer's Space shortcut.

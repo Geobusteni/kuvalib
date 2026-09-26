@@ -10,6 +10,8 @@ adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html). While the
 
 ## [Unreleased]
 
+## [1.20.0] - 2026-09-26
+
 ### Added
 
 - **Font size and shadow for showcase Button blocks.** Set the label size (10–72 px at full width,

@@ -822,5 +822,10 @@
     "title": "Legendă",
     "open": "Ajutor și legendă",
     "close": "Închide legenda"
+  },
+  "expiry": {
+    "text": "Această galerie expiră pe {date}",
+    "expired": "Această galerie a expirat",
+    "daysLeft": "{days, plural, one {a rămas # zi} few {au rămas # zile} other {au rămas # de zile}}"
   }
 }

@@ -10,8 +10,15 @@ adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html). While the
 
 ## [Unreleased]
 
+## [1.15.0] - 2026-09-26
+
 ### Added
 
+- **An expiry warning strip.** When a gallery has an expiry date, a slim black translucent strip
+  stays at the bottom of the gallery and of the slideshow, on top of everything, saying when it
+  expires and how many days are left (amber in the last 3 days). Clicks pass through it, and the
+  footer buttons, the thumbnail rail, the lightbox controls and the dialogs all sit above it, so it
+  never covers a button. Galleries without an expiry date are unchanged.
 - **Hover tips on the icon buttons.** On a computer, resting the pointer on (or tabbing to) an
   icon-only button in the gallery header or the slideshow bar shows a small tip saying what it
   does. Touch screens do not show them.

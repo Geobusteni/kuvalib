@@ -66,6 +66,7 @@ export default async function ShowcasePage({ params }: Props) {
   return (
     <ShowcaseViewer
       projectId={project.id}
+      expiresAt={project.expiresAt ? new Date(project.expiresAt).toISOString() : null}
       pages={pages}
       photos={photoRecords
         .filter((photo) => usedPhotoIds.has(photo.id))

@@ -39,7 +39,7 @@ export function ThumbnailRail({
 
   return (
     <div
-      className="sc-thumbnails absolute inset-x-0 bottom-0 z-10 flex gap-2 overflow-x-auto overscroll-x-contain pb-[max(0.75rem,env(safe-area-inset-bottom))] pl-[max(1rem,env(safe-area-inset-left))] pr-[max(1rem,env(safe-area-inset-right))] pt-3"
+      className="sc-thumbnails absolute inset-x-0 bottom-[var(--expiry-bar-h,0px)] z-10 flex gap-2 overflow-x-auto overscroll-x-contain pb-[max(0.75rem,env(safe-area-inset-bottom))] pl-[max(1rem,env(safe-area-inset-left))] pr-[max(1rem,env(safe-area-inset-right))] pt-3"
       style={{ background: 'linear-gradient(to top, rgba(0,0,0,0.6), transparent)' }}
     >
       {pages.map((page, i) => (

@@ -3,6 +3,7 @@
 
 'use client'
 
+import ExpiryStrip from '@/components/ui/ExpiryStrip'
 import { useTranslations } from 'next-intl'
 import { useCallback, useEffect, useRef, useState, useSyncExternalStore } from 'react'
 import type { Block, HeadingLevel, PageSettings, TextSizePreset } from '@/lib/showcase-blocks'
@@ -64,6 +65,8 @@ export interface ShowcaseViewerProps {
   passwordProtected: boolean
   /** Shown only inside the builder preview. */
   backHref?: string
+  /** ISO timestamp when access expires, if it does — shown as a warning strip. */
+  expiresAt?: string | null
 }
 
 const CONTROLS_HIDE_MS = 3000
@@ -81,6 +84,7 @@ export function ShowcaseViewer({
   downloadEnabled,
   passwordProtected,
   backHref,
+  expiresAt,
 }: ShowcaseViewerProps) {
   const t = useTranslations('showcaseViewer')
   const reducedMotion = useReducedMotion()
@@ -270,7 +274,10 @@ export function ShowcaseViewer({
         )}
       </ViewerControls>
 
-      <div className="absolute inset-0" onClick={(e) => e.stopPropagation()}>
+      <div
+        className="absolute inset-x-0 top-0 bottom-[var(--expiry-bar-h,0px)]"
+        onClick={(e) => e.stopPropagation()}
+      >
         {page && (
           <PageStage
             pageId={page.id}
@@ -351,6 +358,8 @@ export function ShowcaseViewer({
           </p>
         )}
       </div>
+
+      {expiresAt && <ExpiryStrip expiresAt={expiresAt} />}
     </div>
   )
 }

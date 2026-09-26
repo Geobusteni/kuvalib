@@ -6,6 +6,7 @@
 import { useCallback, useEffect, useReducer, useRef, useState } from 'react'
 import { useTranslations } from 'next-intl'
 import Toolbar from './Toolbar'
+import ExpiryStrip from '@/components/ui/ExpiryStrip'
 import ImageTile, { type PhotoData } from './ImageTile'
 import PhotoFeedbackRow from './PhotoFeedbackRow'
 import FeedbackCommentDialog from './FeedbackCommentDialog'
@@ -72,6 +73,8 @@ interface GalleryProps {
   feedbackResetAt: string
   /** Set when this project has a showcase, so the gallery can link to it. */
   showcaseHref?: string | null
+  /** ISO timestamp when the gallery expires, if it does. */
+  expiresAt?: string | null
 }
 
 const footerButtonClass =
@@ -85,6 +88,7 @@ export default function Gallery({
   feedbackEnabled,
   feedbackResetAt,
   showcaseHref,
+  expiresAt,
 }: GalleryProps) {
   const t = useTranslations('gallery')
   const [state, dispatch] = useReducer(reducer, { mode: 'gallery' })
@@ -229,6 +233,13 @@ export default function Gallery({
             </a>
           )}
         </footer>
+      )}
+
+      {expiresAt && (
+        <>
+          <div aria-hidden="true" style={{ height: 'var(--expiry-bar-h, 0px)' }} />
+          <ExpiryStrip expiresAt={expiresAt} />
+        </>
       )}
 
       {state.mode === 'viewer' && (

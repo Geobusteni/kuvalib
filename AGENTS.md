@@ -248,6 +248,10 @@ Do not add anything outside this scope unless explicitly requested.
   **Select photos**, **Download ZIP archive** (only when an archive was uploaded), then the
   language button last. From `md` up the actions become a pill floating at the top right, like
   the slideshow's controls, and the title is a plain line at the top of the page
+- **Expiry strip:** when the project has an expiry date, a fixed, click-through strip (black,
+  translucent, topmost) sits at the bottom of the gallery and the slideshow with the date and days
+  left. It publishes its height as `--expiry-bar-h`; anything anchored to the bottom (footer,
+  thumbnail rail, lightbox bar, dialogs, pan hint) must offset by it
 - Footer, below the grid: two buttons, **Show slideshow** and **Download ZIP archive**, each shown
   only when it exists
 - Icon-only buttons show a **tooltip** on hover / keyboard focus (`components/ui/Tooltip.tsx`,

@@ -168,7 +168,7 @@ export function PageStage({
       {hintVisible && (
         <div
           role="status"
-          className="pointer-events-none fixed inset-x-0 bottom-4 z-10 flex justify-center"
+          className="pointer-events-none fixed inset-x-0 bottom-[calc(var(--expiry-bar-h,0px)+1rem)] z-10 flex justify-center"
         >
           <span className="rounded-full bg-black/60 px-3 py-1 text-xs font-medium text-white">
             {t('panHint')}

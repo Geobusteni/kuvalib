@@ -220,7 +220,7 @@ export default function DownloadOptionsDialog({
       aria-modal
       aria-labelledby="download-options-heading"
       tabIndex={-1}
-      className="fixed inset-0 z-50 flex items-center justify-center bg-black/70 p-4 focus:outline-none"
+      className="fixed inset-0 z-50 flex items-center justify-center bg-black/70 p-4 pb-[calc(var(--expiry-bar-h,0px)+1rem)] focus:outline-none"
       onKeyDown={trapFocus}
     >
       <div className="max-h-full w-full max-w-sm overflow-y-auto rounded-2xl bg-zinc-900 p-6 text-white">

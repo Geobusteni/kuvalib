@@ -822,5 +822,10 @@
     "title": "Legend",
     "open": "Help and legend",
     "close": "Close legend"
+  },
+  "expiry": {
+    "text": "This gallery expires on {date}",
+    "expired": "This gallery has expired",
+    "daysLeft": "{days, plural, one {# day left} other {# days left}}"
   }
 }

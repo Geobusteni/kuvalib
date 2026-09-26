@@ -64,6 +64,7 @@ export default async function GalleryPage({ params }: Props) {
         feedbackEnabled={feedbackEnabled}
         feedbackResetAt={project.feedbackResetAt.toISOString()}
         showcaseHref={showcase ? `/s/${showcase.id}` : null}
+        expiresAt={project.expiresAt ? new Date(project.expiresAt).toISOString() : null}
       />
     </div>
   )

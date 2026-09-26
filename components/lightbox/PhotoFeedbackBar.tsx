@@ -34,7 +34,7 @@ export default function PhotoFeedbackBar({
       role="group"
       aria-label={t('group')}
       aria-hidden={!visible}
-      className={`absolute inset-x-0 bottom-[max(1rem,env(safe-area-inset-bottom))] z-10 flex items-center justify-center gap-2 transition-opacity duration-200 ${
+      className={`absolute inset-x-0 bottom-[calc(var(--expiry-bar-h,0px)+max(1rem,env(safe-area-inset-bottom)))] z-10 flex items-center justify-center gap-2 transition-opacity duration-200 ${
         visible ? 'opacity-100' : 'pointer-events-none opacity-0'
       }`}
     >

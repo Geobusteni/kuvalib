@@ -76,7 +76,7 @@ export function ShowcaseDownloadDialog({
   }
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 p-4">
+    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 p-4 pb-[calc(var(--expiry-bar-h,0px)+1rem)]">
       <div
         ref={dialogRef}
         role="dialog"

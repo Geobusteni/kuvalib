@@ -10,6 +10,15 @@ adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html). While the
 
 ## [Unreleased]
 
+### Changed
+
+- **Resizing a block is now magnetic, like dragging.** While you drag a corner handle, the edge
+  you are moving sticks to a neighbouring block's edge (flush against it, or lined up with it)
+  when it comes within about 8 px, and lets go once you push more than 12 px past it. The
+  opposite edge stays where it is, and blocks still cannot shrink below their minimum size or
+  leave the page (a group's children stay inside the group). Letting go also nudges the moved
+  edge onto the page edges, centre, or another block's edges, as dragging already did.
+
 ## [1.18.0] - 2026-09-26
 
 ### Added

@@ -105,18 +105,22 @@ one, and a group's children are indented under it, in that same back-to-front or
 - **Click** a block to select it — the settings panel fills in.
 - **Drag** a block to move it; **drag a corner handle** (shown only on the selected block) to
   resize it.
-- **Snapping.** Two things happen while you drag:
-  - *Sibling adhesion (live).* A block's edge that comes within about 8 px of a neighbour's
-    opposite edge is held flush against it (touching, no gap). Keep pushing and, once you are
-    more than 12 px into the neighbour, it lets go and moves freely, so you can still overlap
-    blocks on purpose. It works from every side and on both axes, and a released block does not
-    grab again until it has left the pull zone. Only blocks at the same level attract each
-    other: top-level blocks with top-level blocks, and children of one group with the other
-    children of that group — never across a group boundary. Only neighbours that overlap the
-    dragged block along the other axis count, so a block far above or below does not pull.
-  - *Drop alignment.* On release, the block's edges and centre also nudge onto the page
-    edges/centre and other blocks' edges/centres within about 6 px.
-  Resizing does not snap.
+- **Snapping.** Dragging a block and resizing it by a corner handle behave the same way:
+  - *Sibling adhesion (live).* A block's edge that comes within about 8 px of a neighbour's edge
+    is held against it. Keep pushing and, once you are more than 12 px past it, it lets go and
+    moves freely, so you can still overlap blocks on purpose. A released edge does not grab
+    again until it has left the pull zone. Only blocks at the same level attract each other:
+    top-level blocks with top-level blocks, and children of one group with the other children
+    of that group — never across a group boundary. Only neighbours that overlap the block along
+    the other axis count, so a block far above or below does not pull.
+    - *Dragging:* an edge sticks flush (touching, no gap) to a neighbour's opposite edge, from
+      every side and on both axes.
+    - *Resizing:* only the edge(s) you are moving adhere, to either edge of a neighbour (flush
+      against it, or lined up with the same side). The opposite edge never moves, a corner
+      handle adheres on each axis independently, and the block cannot shrink below its minimum
+      size or leave the page (a group's child cannot leave its group).
+  - *Drop alignment.* On release, the block (or, when resizing, the edge you moved) also nudges
+    onto the page edges/centre and other blocks' edges/centres within about 6 px.
 - **Bring to front / Send to back** in the panel changes stacking order.
 - The trash icon in the panel deletes the selected block.
 

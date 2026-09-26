@@ -12,6 +12,8 @@ interface ToolbarProps {
   selectedCount: number
   /** Link to this project's showcase, when it has one. */
   showcaseHref: string | null
+  /** Download URL of the photographer's uploaded ZIP, when there is one. */
+  archiveHref: string | null
   onEnterSelection: () => void
   onExitSelection: () => void
   onOpenDownloadOptions: () => void
@@ -20,11 +22,32 @@ interface ToolbarProps {
 const buttonClass =
   'inline-flex min-h-11 items-center justify-center rounded-lg px-3 text-center text-sm font-medium leading-none text-zinc-300 transition-colors hover:bg-zinc-800 hover:text-white focus:outline-none focus-visible:ring-2 focus-visible:ring-white/50'
 
+const iconButtonClass = `${buttonClass} min-w-11 px-0`
+
+function Icon({ children }: { children: React.ReactNode }) {
+  return (
+    <svg
+      width="22"
+      height="22"
+      viewBox="0 0 24 24"
+      fill="none"
+      stroke="currentColor"
+      strokeWidth="1.75"
+      strokeLinecap="round"
+      strokeLinejoin="round"
+      aria-hidden="true"
+    >
+      {children}
+    </svg>
+  )
+}
+
 export default function Toolbar({
   title,
   mode,
   selectedCount,
   showcaseHref,
+  archiveHref,
   onEnterSelection,
   onExitSelection,
   onOpenDownloadOptions,
@@ -32,25 +55,40 @@ export default function Toolbar({
   const t = useTranslations('gallery.toolbar')
 
   return (
-    <div className="sticky top-0 z-30 flex flex-wrap items-center justify-between gap-x-3 bg-black/80 pb-1 pl-[max(1rem,env(safe-area-inset-left))] pr-[max(1rem,env(safe-area-inset-right))] pt-[max(0.25rem,env(safe-area-inset-top))] backdrop-blur-sm">
-      <span title={title} className="min-w-0 flex-1 basis-32 truncate text-sm font-medium text-zinc-100">
+    <div className="sticky top-0 z-30 bg-black/80 pb-1 pl-[max(1rem,env(safe-area-inset-left))] pr-[max(1rem,env(safe-area-inset-right))] pt-[max(0.5rem,env(safe-area-inset-top))] backdrop-blur-sm">
+      <p title={title} className="truncate text-base font-medium text-zinc-100">
         {title}
-      </span>
+      </p>
 
       {mode === 'gallery' ? (
-        <div className="ml-auto flex flex-wrap items-center justify-end gap-x-1">
+        <div className="-ml-2 flex items-center gap-1">
           {showcaseHref && (
-            <a href={showcaseHref} className={buttonClass}>
-              {t('viewShowcase')}
+            <a href={showcaseHref} aria-label={t('viewShowcase')} title={t('viewShowcase')} className={iconButtonClass}>
+              <Icon>
+                <rect x="3" y="4" width="18" height="13" rx="2" />
+                <path d="M10 8.5v4l3.5-2z" />
+                <path d="M8 21h8M12 17v4" />
+              </Icon>
             </a>
           )}
-          <LanguageSwitcher compact className={buttonClass} />
-          <button onClick={onEnterSelection} className={buttonClass}>
-            {t('select')}
+          <button onClick={onEnterSelection} aria-label={t('select')} title={t('select')} className={iconButtonClass}>
+            <Icon>
+              <rect x="4" y="4" width="16" height="16" rx="3" />
+              <path d="M8.5 12.5l2.5 2.5 4.5-5" />
+            </Icon>
           </button>
+          {archiveHref && (
+            <a href={archiveHref} download aria-label={t('downloadZip')} title={t('downloadZip')} className={iconButtonClass}>
+              <Icon>
+                <path d="M12 4v11M7.5 10.5L12 15l4.5-4.5" />
+                <path d="M4 19h16" />
+              </Icon>
+            </a>
+          )}
+          <LanguageSwitcher compact className={`${buttonClass} ml-auto`} />
         </div>
       ) : (
-        <div className="ml-auto flex flex-wrap items-center justify-end gap-x-1">
+        <div className="-ml-2 flex flex-wrap items-center gap-1">
           <button onClick={onExitSelection} className={buttonClass}>
             {t('cancel')}
           </button>

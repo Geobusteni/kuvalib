@@ -165,7 +165,10 @@
       "message": "Gallery not found."
     },
     "expired": "This gallery has expired.",
-    "downloadAll": "Download All (Original ZIP)",
+    "footer": {
+      "slideshow": "Show slideshow",
+      "downloadZip": "Download ZIP archive"
+    },
     "selectedCount": "{count, plural, one {# photo selected} other {# photos selected}}",
     "gate": {
       "title": "This gallery is private",
@@ -178,7 +181,8 @@
       "submit": "View gallery"
     },
     "toolbar": {
-      "viewShowcase": "View showcase",
+      "viewShowcase": "Show slideshow",
+      "downloadZip": "Download ZIP archive (originals)",
       "select": "Select",
       "cancel": "Cancel",
       "download": "Download",

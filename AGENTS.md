@@ -243,15 +243,18 @@ Do not add anything outside this scope unless explicitly requested.
   below. It is never flush to the edges.
 - Tap/click an image opens the lightbox
 - No checkboxes, no selection indicators
-- Top bar: **Select**
-- **Download All (Original ZIP)** sits below the grid, at the bottom of the page (the latter only
-  when an archive was uploaded) — kept off the top bar so title and Select have room
+- Header (sticky, two lines): line 1 is the title; line 2 is icon-only actions, each with an
+  accessible label and tooltip, in this order: **Show slideshow** (only when a showcase exists),
+  **Select photos**, **Download ZIP archive** (only when an archive was uploaded), then the
+  language button last
+- Footer, below the grid: two buttons, **Show slideshow** and **Download ZIP archive**, each shown
+  only when it exists
 
 ### Gallery — Selection Mode
 
 - Images become selectable; lightbox is disabled
-- Top bar: **Cancel** | **Download Selected**
-- The bottom "Download All (Original ZIP)" link disappears
+- Header line 2: **Cancel** | **Download Selected**
+- The footer buttons disappear
 - Cancel exits selection mode
 
 ### Mobile Lightbox Gestures

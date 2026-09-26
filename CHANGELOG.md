@@ -10,6 +10,17 @@ adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html). While the
 
 ## [Unreleased]
 
+## [1.14.0] - 2026-09-26
+
+### Changed
+
+- **The gallery header is now two lines.** The title is on the first line; the second has icon
+  buttons — Show slideshow, Select photos, Download ZIP archive (originals) — with the language
+  button last. Each icon has a label and a tooltip, and the header stays at the top as you scroll.
+  The slideshow and archive icons appear only when the photographer has made them available.
+- **The gallery footer has two buttons, Show slideshow and Download ZIP archive**, replacing the
+  single "Download All (Original ZIP)" link.
+
 ## [1.13.0] - 2026-09-26
 
 ### Changed

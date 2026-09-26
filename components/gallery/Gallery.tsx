@@ -74,6 +74,9 @@ interface GalleryProps {
   showcaseHref?: string | null
 }
 
+const footerButtonClass =
+  'inline-flex min-h-11 items-center justify-center rounded-lg border border-white/20 px-5 text-sm font-medium text-zinc-300 transition-colors hover:bg-zinc-800 hover:text-white focus:outline-none focus-visible:ring-2 focus-visible:ring-white/50'
+
 export default function Gallery({
   photos,
   title,
@@ -175,6 +178,7 @@ export default function Gallery({
         mode={state.mode === 'selection' ? 'selection' : 'gallery'}
         selectedCount={selected?.size ?? 0}
         showcaseHref={showcaseHref ?? null}
+        archiveHref={archiveUrl}
         onEnterSelection={() => dispatch({ type: 'ENTER_SELECTION' })}
         onExitSelection={() => dispatch({ type: 'EXIT_SELECTION' })}
         onOpenDownloadOptions={openDownloadDialog}
@@ -182,7 +186,7 @@ export default function Gallery({
 
       {/* The grid sits in an 80%-wide column, so photos are never flush to the
           viewport edges, with the breathing room above and below. */}
-      <main className="mx-auto w-[90%] max-w-[1600px] pb-16 pt-6 sm:w-[80%]">
+      <main className="mx-auto w-[90%] max-w-[1600px] pb-10 pt-6 sm:w-[80%]">
         <h1 className="sr-only">{title}</h1>
         <div className="columns-1 gap-2 min-[320px]:columns-2 sm:columns-3 lg:columns-4">
           {photos.map((photo, index) => (
@@ -209,19 +213,22 @@ export default function Gallery({
             </div>
           ))}
         </div>
-
-        {archiveUrl && state.mode === 'gallery' && (
-          <div className="mt-8 flex justify-center">
-            <a
-              href={archiveUrl}
-              download
-              className="inline-flex h-11 items-center justify-center rounded-lg border border-white/20 px-5 text-sm font-medium text-zinc-300 transition-colors hover:bg-zinc-800 hover:text-white focus:outline-none focus-visible:ring-2 focus-visible:ring-white/50"
-            >
-              {t('downloadAll')}
-            </a>
-          </div>
-        )}
       </main>
+
+      {state.mode === 'gallery' && (showcaseHref || archiveUrl) && (
+        <footer className="mx-auto flex w-[90%] max-w-[1600px] flex-wrap items-center justify-center gap-3 pb-[max(3rem,env(safe-area-inset-bottom))] sm:w-[80%]">
+          {showcaseHref && (
+            <a href={showcaseHref} className={footerButtonClass}>
+              {t('footer.slideshow')}
+            </a>
+          )}
+          {archiveUrl && (
+            <a href={archiveUrl} download className={footerButtonClass}>
+              {t('footer.downloadZip')}
+            </a>
+          )}
+        </footer>
+      )}
 
       {state.mode === 'viewer' && (
         <PhotoViewer

@@ -165,7 +165,10 @@
       "message": "Galeria nu a fost găsită."
     },
     "expired": "Această galerie a expirat.",
-    "downloadAll": "Descarcă tot (ZIP original)",
+    "footer": {
+      "slideshow": "Arată prezentarea",
+      "downloadZip": "Descarcă arhiva ZIP"
+    },
     "selectedCount": "{count, plural, one {# fotografie selectată} few {# fotografii selectate} other {# de fotografii selectate}}",
     "gate": {
       "title": "Această galerie este privată",
@@ -178,7 +181,8 @@
       "submit": "Vezi galeria"
     },
     "toolbar": {
-      "viewShowcase": "Vezi prezentarea",
+      "viewShowcase": "Arată prezentarea",
+      "downloadZip": "Descarcă arhiva ZIP (originale)",
       "select": "Selectează",
       "cancel": "Anulează",
       "download": "Descarcă",

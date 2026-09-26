@@ -10,6 +10,23 @@ adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html). While the
 
 ## [Unreleased]
 
+### Added
+
+- **Resize a showcase block from any edge.** The selected block now has grips on its top, right,
+  bottom and left edges as well as its corners. An edge grip moves only that edge; magnetic
+  adhesion, the minimum size, the page bounds and a group child's limit to its group all apply as
+  for the corners, and resizing a Group scales its children along that axis only. The grabbable area
+  is 24 px thick, and 44 px on touch screens.
+
+### Fixed
+
+- **Undo takes one step for a Group.** Moving or resizing a Group, dragging a block into or out of a
+  group, and the Arrange children buttons each used to record several undo steps (one per child);
+  each is now a single step that restores the group and all its children together. Adding a Cover is
+  also one step.
+- **Clicking a Group no longer nudges it.** A click that moved nothing used to snap the group onto
+  the edge of one of its own children and record an undo step.
+
 ## [1.19.0] - 2026-09-26
 
 ### Changed

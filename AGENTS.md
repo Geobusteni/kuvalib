@@ -323,7 +323,7 @@ hidden entirely rather than offered with nothing behind it.
 - Three columns: page rail, canvas, per-block settings panel. The canvas is a 16:10 frame; a
   block's position and size are stored as **percentages** of it, canvas-absolute even for a
   block inside a group.
-- Selecting a block fills the settings panel; dragging moves it; the corner handles resize it
+- Selecting a block fills the settings panel; dragging moves it; the corner and edge handles resize it
   (only on the selected block).
 - A **Group** is a positioning container. Dragging a block so its centre falls inside a group's
   box makes it that group's child; dragging a child's centre out makes it top-level again —

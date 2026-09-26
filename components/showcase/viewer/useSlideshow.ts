@@ -8,7 +8,7 @@ import { useCallback, useEffect, useRef, useState } from 'react'
 /**
  * The page-turn state machine, ported from the design prototype:
  *
- *   idle ──next/prev──▶ out ──(220ms)──▶ pre (unanimated swap) ──raf──▶ in ──(280ms)──▶ idle
+ *   idle ──next/prev──▶ out ──(220ms)──▶ pre (unanimated swap) ──(~2 frames)──▶ in ──(280ms)──▶ idle
  *
  * `pre` positions the incoming page off-screen with transitions disabled so the
  * swap is invisible; `in` animates it home. With reduced motion the whole dance
@@ -20,6 +20,7 @@ export type AnimDir = 'next' | 'prev'
 
 const OUT_MS = 220
 const IN_MS = 280
+const PRE_MS = 34
 
 interface Options {
   total: number
@@ -33,6 +34,7 @@ export function useSlideshow({ total, autoplay, autoplaySeconds, reducedMotion }
   const [phase, setPhase] = useState<AnimPhase>('idle')
   const [dir, setDir] = useState<AnimDir>('next')
   const [playing, setPlaying] = useState(autoplay)
+  const [navTick, setNavTick] = useState(0)
   const timers = useRef<ReturnType<typeof setTimeout>[]>([])
 
   const clearTimers = useCallback(() => {
@@ -42,59 +44,81 @@ export function useSlideshow({ total, autoplay, autoplaySeconds, reducedMotion }
 
   useEffect(() => () => clearTimers(), [clearTimers])
 
+  // The ref is the gate `step` reads, so a step never depends on (or runs side
+  // effects inside) a state updater — those run twice under React Strict Mode.
+  const phaseRef = useRef<AnimPhase>('idle')
+  const updatePhase = useCallback((p: AnimPhase) => {
+    phaseRef.current = p
+    setPhase(p)
+  }, [])
+
   const goTo = useCallback(
     (index: number) => {
       clearTimers()
-      setPhase('idle')
+      updatePhase('idle')
       setCurrent(((index % total) + total) % total)
     },
-    [clearTimers, total],
+    [clearTimers, updatePhase, total],
   )
 
   const step = useCallback(
     (nextDir: AnimDir) => {
-      setPhase((activePhase) => {
-        if (activePhase !== 'idle') return activePhase
+      if (phaseRef.current !== 'idle' || total <= 1) return
 
-        const advance = () =>
-          setCurrent((c) => {
-            const next = nextDir === 'next' ? c + 1 : c - 1
-            return ((next % total) + total) % total
-          })
+      const advance = () =>
+        setCurrent((c) => {
+          const next = nextDir === 'next' ? c + 1 : c - 1
+          return ((next % total) + total) % total
+        })
 
-        if (total <= 1) return activePhase
+      if (reducedMotion) {
+        advance()
+        return
+      }
 
-        if (reducedMotion) {
+      setDir(nextDir)
+      updatePhase('out')
+      timers.current.push(
+        setTimeout(() => {
           advance()
-          return 'idle'
-        }
-
-        setDir(nextDir)
-        timers.current.push(
-          setTimeout(() => {
-            advance()
-            setPhase('pre')
-            requestAnimationFrame(() =>
-              requestAnimationFrame(() => setPhase('in')),
-            )
-            timers.current.push(setTimeout(() => setPhase('idle'), IN_MS))
-          }, OUT_MS),
-        )
-        return 'out'
-      })
+          updatePhase('pre')
+          timers.current.push(
+            setTimeout(() => {
+              updatePhase('in')
+              timers.current.push(setTimeout(() => updatePhase('idle'), IN_MS))
+            }, PRE_MS),
+          )
+        }, OUT_MS),
+      )
     },
-    [reducedMotion, total],
+    [reducedMotion, total, updatePhase],
   )
 
-  const next = useCallback(() => step('next'), [step])
-  const prev = useCallback(() => step('prev'), [step])
+  const next = useCallback(() => {
+    setNavTick((n) => n + 1)
+    step('next')
+  }, [step])
+  const prev = useCallback(() => {
+    setNavTick((n) => n + 1)
+    step('prev')
+  }, [step])
+  const goToManual = useCallback(
+    (index: number) => {
+      setNavTick((n) => n + 1)
+      goTo(index)
+    },
+    [goTo],
+  )
 
-  // Autoplay loop.
+  // Autoplay: one timeout per page, counted from the moment the page is settled.
+  // Any manual navigation (navTick), page change or transition phase change
+  // re-runs the effect, so the countdown always restarts from full and never
+  // fires while a transition is in flight.
   useEffect(() => {
-    if (!playing || total <= 1) return
-    const id = setInterval(() => step('next'), Math.max(2, autoplaySeconds) * 1000)
-    return () => clearInterval(id)
-  }, [playing, autoplaySeconds, step, total])
+    if (!playing || total <= 1 || phase !== 'idle') return
+    const id = setTimeout(() => step('next'), Math.max(2, autoplaySeconds) * 1000)
+    return () => clearTimeout(id)
+  }, [playing, autoplaySeconds, step, total, current, phase, navTick])
 
   return {
     current,
@@ -104,6 +128,6 @@ export function useSlideshow({ total, autoplay, autoplaySeconds, reducedMotion }
     setPlaying,
     next,
     prev,
-    goTo,
+    goTo: goToManual,
   }
 }

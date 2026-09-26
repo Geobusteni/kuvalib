@@ -8,8 +8,12 @@ import { useEffect, useRef } from 'react'
 export interface GestureHandlers {
   onSwipeLeft?: () => void
   onSwipeRight?: () => void
-  onSwipeUp?: () => void
-  onSwipeDown?: () => void
+  /** Vertical drag, reported live as the finger moves; dy is relative to where the axis locked. */
+  onVerticalDrag?: (dy: number) => void
+  /** Finger lifted after a vertical drag; vy is px/ms, negative when moving up. */
+  onVerticalRelease?: (info: { dy: number; vy: number }) => void
+  /** The vertical drag was interrupted (second finger, pointercancel). */
+  onVerticalCancel?: () => void
   onTap?: () => void
   onDoubleTap?: (point: { x: number; y: number }) => void
   onPinchStart?: () => void
@@ -26,13 +30,14 @@ export interface GestureOptions {
 }
 
 const SWIPE_HORIZONTAL_THRESHOLD = 50
-const SWIPE_VERTICAL_THRESHOLD = 80
 const TAP_THRESHOLD = 10
+const VELOCITY_WINDOW_MS = 100
 const DOUBLE_TAP_WINDOW_MS = 300
 const DOUBLE_TAP_DISTANCE = 30
 
 type Point = { x: number; y: number }
 type Phase = 'idle' | 'tracking' | 'panning' | 'pinching'
+type Axis = 'h' | 'v'
 
 function dist(a: Point, b: Point) {
   return Math.hypot(a.x - b.x, a.y - b.y)
@@ -60,6 +65,10 @@ export function useGestures(
   const phase = useRef<Phase>('idle')
   const trackId = useRef<number | null>(null)
   const trackStart = useRef<Point | null>(null)
+  // Decided once, a few px into a 1x drag, so a vertical drag never also navigates and vice versa.
+  const axis = useRef<Axis | null>(null)
+  const verticalAnchor = useRef(0)
+  const samples = useRef<{ t: number; y: number }[]>([])
   const panLast = useRef<Point | null>(null)
   const pinchIds = useRef<[number, number] | null>(null)
   const pinchStartDistance = useRef(1)
@@ -94,6 +103,8 @@ export function useGestures(
       const pa = pointers.current.get(a)
       const pb = pointers.current.get(b)
       if (!pa || !pb) return
+      if (axis.current === 'v') latest.current.onVerticalCancel?.()
+      axis.current = null
       phase.current = 'pinching'
       pinchIds.current = [a, b]
       pinchStartDistance.current = dist(pa, pb) || 1
@@ -112,6 +123,8 @@ export function useGestures(
         phase.current = 'tracking'
         trackId.current = e.pointerId
         trackStart.current = { x: e.clientX, y: e.clientY }
+        axis.current = null
+        samples.current = [{ t: e.timeStamp, y: e.clientY }]
         return
       }
 
@@ -150,8 +163,17 @@ export function useGestures(
           phase.current = 'panning'
           panLast.current = { x: e.clientX, y: e.clientY }
           latest.current.onPanMove?.({ dx, dy })
+          return
         }
-        // Otherwise stays a swipe candidate; classified on pointerup below.
+        if (!axis.current) {
+          axis.current = Math.abs(dy) > Math.abs(dx) ? 'v' : 'h'
+          verticalAnchor.current = e.clientY
+        }
+        if (axis.current === 'v') {
+          samples.current.push({ t: e.timeStamp, y: e.clientY })
+          latest.current.onVerticalDrag?.(e.clientY - verticalAnchor.current)
+        }
+        // A horizontal drag stays a swipe candidate; classified on pointerup below.
         return
       }
 
@@ -163,7 +185,16 @@ export function useGestures(
       }
     }
 
+    function releaseVelocity(endT: number, endY: number) {
+      const recent = samples.current.filter((s) => endT - s.t <= VELOCITY_WINDOW_MS)
+      const first = recent[0]
+      if (!first || endT === first.t) return 0
+      return (endY - first.y) / (endT - first.t)
+    }
+
     function endToIdle() {
+      axis.current = null
+      samples.current = []
       phase.current = 'idle'
       trackId.current = null
       trackStart.current = null
@@ -204,14 +235,15 @@ export function useGestures(
       if (phase.current === 'tracking' && trackId.current === e.pointerId && trackStart.current) {
         const dx = e.clientX - trackStart.current.x
         const dy = e.clientY - trackStart.current.y
-        const absDx = Math.abs(dx)
-        const absDy = Math.abs(dy)
+        const axisLocked = axis.current
+        const vy = releaseVelocity(e.timeStamp, e.clientY)
+        const dragDy = e.clientY - verticalAnchor.current
         const h = latest.current
 
         pointers.current.delete(e.pointerId)
         endToIdle()
 
-        if (absDx < TAP_THRESHOLD && absDy < TAP_THRESHOLD) {
+        if (Math.abs(dx) < TAP_THRESHOLD && Math.abs(dy) < TAP_THRESHOLD) {
           classifyTap(e.clientX, e.clientY)
           return
         }
@@ -221,16 +253,13 @@ export function useGestures(
         // threshold right at release) is simply dropped, not misread as nav.
         if (zoomedRef.current) return
 
-        if (absDx > absDy) {
-          if (absDx < SWIPE_HORIZONTAL_THRESHOLD) return
-          if (dx < 0) h.onSwipeLeft?.()
-          else h.onSwipeRight?.()
+        if (axisLocked === 'v') {
+          h.onVerticalRelease?.({ dy: dragDy, vy })
           return
         }
-
-        if (absDy < SWIPE_VERTICAL_THRESHOLD) return
-        if (dy < 0) h.onSwipeUp?.()
-        else h.onSwipeDown?.()
+        if (Math.abs(dx) < SWIPE_HORIZONTAL_THRESHOLD) return
+        if (dx < 0) h.onSwipeLeft?.()
+        else h.onSwipeRight?.()
         return
       }
 
@@ -243,6 +272,8 @@ export function useGestures(
         latest.current.onPinchEnd?.()
       } else if (phase.current === 'panning' && trackId.current === e.pointerId) {
         latest.current.onPanEnd?.()
+      } else if (phase.current === 'tracking' && axis.current === 'v') {
+        latest.current.onVerticalCancel?.()
       }
       try {
         el!.releasePointerCapture(e.pointerId)

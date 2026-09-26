@@ -279,23 +279,27 @@ Do not add anything outside this scope unless explicitly requested.
 |------------|---------------------|
 | Swipe left | Next image          |
 | Swipe right| Previous image      |
-| Swipe down | Close the action panel if it's open; otherwise close viewer |
-| Swipe up   | Reveal action panel (hides the feedback buttons while open) |
+| Swipe down | The whole lightbox follows the finger and fades; past ~25% of the screen height (or a fast flick) it slides away and closes, otherwise it springs back. With the action panel open, it closes the panel instead |
+| Swipe up   | The action panel (phones only, holds Cancel) rises with the finger and settles open past a threshold, else slides back (hides the feedback buttons while open) |
 | Tap        | Toggle controls     |
 | Pinch      | Zoom in / out (1x–4x) |
 | Double-tap | Toggle 2x zoom at the tapped point |
 
-Swipe-to-navigate and swipe up/down only fire at 1x zoom. Once zoomed in, a single finger pans
+Swipe-to-navigate and swipe up/down only fire at 1x zoom. The axis (horizontal vs vertical) locks a few px into the drag, so a vertical drag never navigates and vice versa. Drag tracking uses inline transforms; with `prefers-reduced-motion` the drag still follows the finger but settling and closing are instant. Once zoomed in, a single finger pans
 the image instead, and a second finger continues pinching. Tap-to-toggle-controls still works at
 any zoom level.
 
 ### Desktop Lightbox Controls
 
-Always visible: Previous, Next, Download, Fullscreen, Close.
+Always visible: Previous, Next, Fullscreen, Close. There is deliberately **no per-photo download button** (clients read it as "download everything"); downloading lives in the gallery header/footer and Selection Mode.
 
 Fullscreen mode: controls auto-hide after ~3 s of inactivity; mouse movement reveals them.
 
-Two rules the lightbox must keep:
+Two rules the lightbox must keep, plus one layout rule:
+
+- It is `fixed inset-0` with no `h-dvh`/`vh` height and its black backdrop overdraws 100vh below the
+  viewport, so mobile toolbar collapse never exposes the gallery; background scroll is locked
+  while it is open. Bottom UI (feedback bar, action panel) offsets by `--expiry-bar-h`.
 
 - Opening it focuses the dialog element itself, never a control styled to appear on focus.
 - Closing it leaves browser fullscreen. Escape exits fullscreen first and closes on a second
@@ -378,7 +382,6 @@ hidden entirely rather than offered with nothing behind it.
 | Escape     | Close            |
 | F          | Toggle Fullscreen|
 | Space      | Play/Pause slideshow|
-| D          | Open download options |
 | Home       | First image      |
 | End        | Last image       |
 

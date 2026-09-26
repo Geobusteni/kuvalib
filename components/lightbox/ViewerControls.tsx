@@ -8,7 +8,6 @@ import {
   ChevronLeftIcon,
   ChevronRightIcon,
   CloseIcon,
-  DownloadIcon,
   ExitFullscreenIcon,
   FullscreenIcon,
 } from '@/components/ui/icons'
@@ -16,7 +15,6 @@ import {
 interface ViewerControlsProps {
   currentIndex: number
   total: number
-  canDownload: boolean
   fullscreenCapable: boolean
   isFullscreen: boolean
   controlsVisible: boolean
@@ -24,13 +22,11 @@ interface ViewerControlsProps {
   onNext: () => void
   onClose: () => void
   onToggleFullscreen: () => void
-  onOpenDownload: () => void
 }
 
 export default function ViewerControls({
   currentIndex,
   total,
-  canDownload,
   fullscreenCapable,
   isFullscreen,
   controlsVisible,
@@ -38,7 +34,6 @@ export default function ViewerControls({
   onNext,
   onClose,
   onToggleFullscreen,
-  onOpenDownload,
 }: ViewerControlsProps) {
   const t = useTranslations('lightbox')
   const visible = controlsVisible
@@ -56,16 +51,6 @@ export default function ViewerControls({
           {t('counter', { index: currentIndex + 1, total })}
         </span>
         <div className="flex items-center gap-1">
-          {canDownload && (
-            <button
-              onClick={onOpenDownload}
-              aria-label={t('download')}
-              className={iconBtn}
-              tabIndex={visible ? 0 : -1}
-            >
-              <DownloadIcon />
-            </button>
-          )}
           {fullscreenCapable && (
             <button
               onClick={onToggleFullscreen}

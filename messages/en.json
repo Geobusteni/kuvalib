@@ -261,7 +261,6 @@
         "openHint": "Tap or click a photo to see it large.",
         "previous": "Shows the photo before this one.",
         "next": "Shows the photo after this one.",
-        "download": "Saves this photo under its original name.",
         "fullscreen": "Fills the whole screen with the photo.",
         "close": "Goes back to the gallery."
       },
@@ -306,7 +305,6 @@
     "counter": "{index} / {total}",
     "dialogLabel": "Photo viewer: image {index} of {total}",
     "photoAlt": "Photo {index} of {total}",
-    "download": "Download image",
     "enterFullscreen": "Enter fullscreen",
     "exitFullscreen": "Exit fullscreen",
     "close": "Close viewer",

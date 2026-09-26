@@ -87,7 +87,6 @@ export default function GalleryLegend({
         { icon: <PhotoIcon />, name: t('viewer.open'), description: t('viewer.openHint') },
         { icon: <ChevronLeftIcon />, name: tl('previous'), description: t('viewer.previous') },
         { icon: <ChevronRightIcon />, name: tl('next'), description: t('viewer.next') },
-        { icon: <DownloadIcon />, name: tl('download'), description: t('viewer.download') },
         ...(fullscreenSupported
           ? [{ icon: <FullscreenIcon />, name: tl('enterFullscreen'), description: t('viewer.fullscreen') }]
           : []),

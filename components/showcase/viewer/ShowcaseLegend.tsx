@@ -10,6 +10,7 @@ import {
   ChevronLeftIcon,
   ChevronRightIcon,
   CopyLinkIcon,
+  GalleryIcon,
   DownloadIcon,
   FullscreenIcon,
   MoreIcon,
@@ -55,6 +56,7 @@ export default function ShowcaseLegend({
     {
       heading: t('controls.heading'),
       items: [
+        { icon: <GalleryIcon />, name: tc('gallery'), description: t('controls.gallery') },
         { icon: <PlayPauseIcon playing={false} />, name: tc('playSlideshow'), description: t('controls.autoplay') },
         ...(music === 'autostarted'
           ? [{ icon: <SpeakerIcon waves />, name: tm('mute'), description: t('controls.musicMute') }]

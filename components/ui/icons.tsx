@@ -176,6 +176,17 @@ export function ThumbnailsIcon({ size = 18, strokeWidth = 1.6, className }: Icon
   )
 }
 
+export function GalleryIcon({ size = 18, strokeWidth = 1.6, className }: IconProps) {
+  return (
+    <Svg box={20} size={size} strokeWidth={strokeWidth} className={className}>
+      <rect x="3" y="3" width="6" height="6" rx="1" />
+      <rect x="11" y="3" width="6" height="6" rx="1" />
+      <rect x="3" y="11" width="6" height="6" rx="1" />
+      <rect x="11" y="11" width="6" height="6" rx="1" />
+    </Svg>
+  )
+}
+
 export function CopyLinkIcon({ size = 18, strokeWidth = 1.6, className }: IconProps) {
   return (
     <Svg box={20} size={size} strokeWidth={strokeWidth} className={className}>

@@ -258,6 +258,7 @@ export function ShowcaseViewer({
             : undefined
         }
         backHref={backHref}
+        galleryHref={galleryHref}
         visible={controlsVisible}
         onLegendOpenChange={setLegendOpen}
         showPages={total > 1}

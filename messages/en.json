@@ -605,7 +605,8 @@
       "toggleFullscreen": "Toggle fullscreen",
       "more": "More actions",
       "copyLink": "Copy showcase link",
-      "downloadAlbum": "Download album"
+      "downloadAlbum": "Download album",
+      "gallery": "Open gallery"
     },
     "music": {
       "mute": "Mute music",
@@ -636,7 +637,9 @@
         "fullscreen": "Fills the whole screen. The bar hides after a few seconds; move or tap to bring it back.",
         "copyLink": "Copies this slideshow's link so you can share it.",
         "download": "Downloads the album's photos as a ZIP file.",
-        "language": "Switches the page between English and Romanian."
+        "language": "Switches the page between English and Romanian.",
+        "gallery": "Goes to this album's photo gallery, where you can view and download every photo.",
+        "more": "Gallery, thumbnails, fullscreen, copy link, download and language are inside this menu."
       },
       "pages": {
         "heading": "Moving between pages",

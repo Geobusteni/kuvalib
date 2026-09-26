@@ -295,6 +295,7 @@ rail change pages as usual. Phones in landscape (about 640 px and wider) show th
 **Controls** float as one compact pill in the top-right corner, over the photo, instead of a
 full-width bar. From 768px wide up it holds, in order:
 
+- **Gallery** — a link to the project's photo gallery (same password, no second sign-in)
 - **Autoplay** toggle
 - **Music** (only when there are tracks) — see Music, above, for when it's mute/unmute vs.
   play/pause
@@ -312,7 +313,7 @@ full-width bar. From 768px wide up it holds, in order:
 On a computer, resting the pointer on (or tabbing to) any of these icon buttons shows a small
 tip with its name. Touch screens have no hover, which is what the Legend is for.
 
-Below 768px only Autoplay, Music and a **More** (⋯) button remain in the pill; Thumbnails,
+Below 768px only Autoplay, Music and a **More** (⋯) button remain in the pill; Gallery, Thumbnails,
 Fullscreen, Copy link, Download, Help and Language move into the More menu. The menu is a plain
 disclosure (`aria-expanded`): it opens with focus on its first item, Escape or a tap outside
 closes it, and Escape puts focus back on the More button without also exiting fullscreen.

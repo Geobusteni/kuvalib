@@ -605,7 +605,8 @@
       "toggleFullscreen": "Activează sau dezactivează ecranul complet",
       "more": "Mai multe acțiuni",
       "copyLink": "Copiază linkul prezentării",
-      "downloadAlbum": "Descarcă albumul"
+      "downloadAlbum": "Descarcă albumul",
+      "gallery": "Deschide galeria"
     },
     "music": {
       "mute": "Oprește sunetul muzicii",
@@ -636,7 +637,9 @@
         "fullscreen": "Umple tot ecranul. Bara dispare după câteva secunde; mișcă mouse-ul sau atinge ecranul ca s-o aduci înapoi.",
         "copyLink": "Copiază linkul prezentării ca să o poți trimite mai departe.",
         "download": "Descarcă fotografiile albumului într-un fișier ZIP.",
-        "language": "Schimbă limba paginii între engleză și română."
+        "language": "Schimbă limba paginii între engleză și română.",
+        "gallery": "Te duce la galeria foto a acestui album, unde poți vedea și descărca toate fotografiile.",
+        "more": "Galeria, miniaturile, ecranul complet, copierea linkului, descărcarea și limba sunt în acest meniu."
       },
       "pages": {
         "heading": "Trecerea de la o pagină la alta",

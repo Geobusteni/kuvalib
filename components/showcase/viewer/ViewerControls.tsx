@@ -9,6 +9,7 @@ import { LegendButton } from '@/components/ui/Legend'
 import Tooltip from '@/components/ui/Tooltip'
 import {
   CopyLinkIcon,
+  GalleryIcon,
   DownloadIcon,
   FullscreenIcon,
   HelpIcon,
@@ -54,6 +55,7 @@ export function ViewerControls({
   showDownload,
   music,
   backHref,
+  galleryHref,
   visible,
   onLegendOpenChange,
   showPages,
@@ -71,6 +73,7 @@ export function ViewerControls({
   showDownload: boolean
   music?: MusicControlsProps
   backHref?: string
+  galleryHref: string
   visible: boolean
   onLegendOpenChange: (open: boolean) => void
   showPages: boolean
@@ -186,6 +189,11 @@ export function ViewerControls({
           {music && <MusicControls {...music} className={inlineBtn} />}
 
           <div className="hidden items-center gap-0.5 md:flex">
+            <Tooltip label={t('gallery')}>
+              <a href={galleryHref} aria-label={t('gallery')} className={inlineBtn}>
+                <GalleryIcon className="shrink-0" />
+              </a>
+            </Tooltip>
             {actions.map((a) => (
               <Tooltip key={a.key} label={a.label}>
                 <button
@@ -256,6 +264,10 @@ export function ViewerControls({
                 {t('backToEditor')}
               </a>
             )}
+            <a href={galleryHref} className={menuBtn}>
+              <GalleryIcon className="shrink-0" />
+              {t('gallery')}
+            </a>
             {actions.map((a) => (
               <button
                 key={a.key}

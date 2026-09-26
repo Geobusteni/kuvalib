@@ -10,6 +10,15 @@ adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html). While the
 
 ## [Unreleased]
 
+## [1.16.0] - 2026-09-26
+
+### Added
+
+- **A Gallery button in the slideshow's controls.** It opens the project's photo gallery, just as
+  the gallery has a link to the slideshow. On wide screens it is an icon in the top bar; on narrow
+  screens it is the first row of the More menu. It is also explained in the Legend, and no
+  password is asked again.
+
 ## [1.15.0] - 2026-09-26
 
 ### Added

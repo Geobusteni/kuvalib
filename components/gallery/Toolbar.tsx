@@ -24,6 +24,11 @@ const buttonClass =
 
 const iconButtonClass = `${buttonClass} min-w-11 px-0`
 
+// Phones: the second line of the sticky header. From md up: a pill that floats over the page,
+// like the slideshow's controls, so the photos get the whole width.
+const actionsClass =
+  '-ml-2 flex items-center gap-1 md:fixed md:right-[max(1rem,env(safe-area-inset-right))] md:top-[max(0.75rem,env(safe-area-inset-top))] md:z-30 md:ml-0 md:rounded-full md:bg-black/60 md:px-2 md:ring-1 md:ring-white/15 md:backdrop-blur-sm'
+
 function Icon({ children }: { children: React.ReactNode }) {
   return (
     <svg
@@ -55,13 +60,13 @@ export default function Toolbar({
   const t = useTranslations('gallery.toolbar')
 
   return (
-    <div className="sticky top-0 z-30 bg-black/80 pb-1 pl-[max(1rem,env(safe-area-inset-left))] pr-[max(1rem,env(safe-area-inset-right))] pt-[max(0.5rem,env(safe-area-inset-top))] backdrop-blur-sm">
-      <p title={title} className="truncate text-base font-medium text-zinc-100">
+    <div className="sticky top-0 z-30 bg-black/80 pb-1 pl-[max(1rem,env(safe-area-inset-left))] pr-[max(1rem,env(safe-area-inset-right))] pt-[max(0.5rem,env(safe-area-inset-top))] backdrop-blur-sm md:static md:bg-transparent md:pb-0 md:pr-56 md:pt-5 md:backdrop-blur-none">
+      <p title={title} className="truncate text-base font-medium text-zinc-100 md:text-lg">
         {title}
       </p>
 
       {mode === 'gallery' ? (
-        <div className="-ml-2 flex items-center gap-1">
+        <div className={actionsClass}>
           {showcaseHref && (
             <a href={showcaseHref} aria-label={t('viewShowcase')} title={t('viewShowcase')} className={iconButtonClass}>
               <Icon>
@@ -85,10 +90,10 @@ export default function Toolbar({
               </Icon>
             </a>
           )}
-          <LanguageSwitcher compact className={`${buttonClass} ml-auto`} />
+          <LanguageSwitcher compact className={`${buttonClass} ml-auto md:ml-0`} />
         </div>
       ) : (
-        <div className="-ml-2 flex flex-wrap items-center gap-1">
+        <div className={`${actionsClass} flex-wrap`}>
           <button onClick={onExitSelection} className={buttonClass}>
             {t('cancel')}
           </button>

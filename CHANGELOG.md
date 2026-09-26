@@ -10,6 +10,14 @@ adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html). While the
 
 ## [Unreleased]
 
+## [1.14.1] - 2026-09-26
+
+### Changed
+
+- **On desktop the gallery's actions float at the top right** in a small pill, like the
+  slideshow's controls, so the photos get the full width and the title reads as a plain heading.
+  Phones keep the two-line sticky header. The footer buttons are unchanged.
+
 ## [1.14.0] - 2026-09-26
 
 ### Changed

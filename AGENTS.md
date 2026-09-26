@@ -243,10 +243,11 @@ Do not add anything outside this scope unless explicitly requested.
   below. It is never flush to the edges.
 - Tap/click an image opens the lightbox
 - No checkboxes, no selection indicators
-- Header (sticky, two lines): line 1 is the title; line 2 is icon-only actions, each with an
+- Header on phones (below `md`, sticky, two lines): line 1 is the title; line 2 is icon-only actions, each with an
   accessible label and tooltip, in this order: **Show slideshow** (only when a showcase exists),
   **Select photos**, **Download ZIP archive** (only when an archive was uploaded), then the
-  language button last
+  language button last. From `md` up the actions become a pill floating at the top right, like
+  the slideshow's controls, and the title is a plain line at the top of the page
 - Footer, below the grid: two buttons, **Show slideshow** and **Download ZIP archive**, each shown
   only when it exists
 

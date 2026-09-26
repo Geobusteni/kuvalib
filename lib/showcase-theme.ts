@@ -80,8 +80,6 @@ export function withAlpha(hex: string, alpha: number | undefined): string {
  * inline-size` box, so `cqw` is a percent of its width — no JS measurement.
  */
 export const REF_FRAME_WIDTH = 1280
-/** The viewer never lays a page out narrower than this; a narrower screen pans. */
-export const MIN_FRAME_WIDTH = 640
 const CQW_PER_PX = 100 / REF_FRAME_WIDTH
 
 /** A length of `px` authored pixels that shrinks with the frame; never larger than `px`. */
@@ -89,9 +87,14 @@ export function fluidPx(px: number): string {
   return `calc(${px} * min(1px, ${CQW_PER_PX}cqw))`
 }
 
-/** Fluid font size: scales like `fluidPx` but holds at `floor` (or at `px` itself when that is smaller). */
+/**
+ * Fluid font size: scales like `fluidPx` but holds at `floor` (or at `px` itself when that is
+ * smaller). The floor is multiplied by `--sc-floor`, which is 1 unless a frame sets it to 0 —
+ * the viewer does that when it shows the page as a scaled-down letterboxed frame, where text
+ * must shrink exactly with the page (like video) rather than hold a readable size.
+ */
 export function fluidFontPx(px: number, floor: number): string {
-  return `max(${Math.min(px, floor)}px, ${fluidPx(px)})`
+  return `max(calc(${Math.min(px, floor)}px * var(--sc-floor, 1)), ${fluidPx(px)})`
 }
 
 /** Smallest rendered size per role, in px. */

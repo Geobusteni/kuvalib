@@ -54,6 +54,35 @@ html {
   }
 }
 
+/* Showcase viewer page frame (components/showcase/viewer/PageStage.tsx). By default the
+   frame fills the stage. On a narrow, tall stage (portrait phones) it is instead a 16:10 box
+   contained in the stage and centred, like a letterboxed film: the whole page shrinks in
+   proportion, nothing scrolls or is cut, and text drops its readable-minimum floors so it
+   scales with the frame. Landscape phones (aspect >= 16:10) and wide windows fill. */
+.sc-stagebox {
+  container: sc-stagebox / size;
+}
+.sc-stage-bands {
+  display: none;
+  position: absolute;
+  inset: 0;
+  background: var(--sc-album-bg);
+}
+@container sc-stagebox (width < 1024px) and (aspect-ratio < 16 / 10) {
+  .sc-stage-bands { display: block; }
+  .sc-stage-frame {
+    inset: 0;
+    margin: auto;
+    width: min(100cqw, 160cqh);
+    height: min(100cqh, 62.5cqw);
+    --sc-floor: 0;
+  }
+  .sc-nav-arrow {
+    top: min(calc(50cqh + min(50cqh, 31.25cqw) + 0.5rem), calc(100cqh - 3.25rem));
+    translate: none;
+  }
+}
+
 /* Showcase: Ken Burns effects on Image blocks (components/showcase/BlockContent.tsx).
    All scaled to 112% so panning never reveals an edge. Reduced-motion strips
    these to a single near-instant frame via the global rule above — the app

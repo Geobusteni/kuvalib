@@ -10,17 +10,30 @@ adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html). While the
 
 ## [Unreleased]
 
+## [1.18.0] - 2026-09-26
+
 ### Added
 
 - **Default language per project.** In Edit project you can now force English or Romanian for that
   project's gallery and showcase (Automatic, the default, keeps using the visitor's browser
   language). A language a visitor picks with the language button always wins, and is now also
   remembered in the browser's local storage, so it comes back even if the browser drops the cookie.
-  Admin and sign-in pages are unaffected.
+  Admin and sign-in pages are unaffected. **Action required:** the database gains a
+  `defaultLocale` column on `Project`. The normal update scripts apply it (`prisma migrate deploy`
+  / `db push`); if you update by hand, run `npx prisma migrate deploy`. Existing projects stay on
+  Automatic.
+- **The help button now introduces itself to new visitors.** The first time someone opens a gallery
+  or a slideshow, the **?** button beats slowly (about 15 gentle beats, then it stops) so they
+  find the Legend before exploring; it stops for good once they open it. People who prefer reduced
+  motion see a still dot on the button instead. The gallery and the slideshow remember this
+  separately. On phones the slideshow's top bar now has the **?** next to the ⋯ menu (the Help row
+  stays in the menu too). Browsers that forget the setting (private mode, iOS Safari after about a
+  week) simply show the hint again.
 
-**Action required:** the database gains a `defaultLocale` column on `Project`. The normal update
-scripts apply it (`prisma migrate deploy` / `db push`); if you update by hand, run
-`npx prisma migrate deploy`. Existing projects stay on Automatic.
+### Fixed
+
+- **The gallery no longer crashes in browsers that block local storage** (some private modes and
+  in-app browsers): likes and comments keep working for that visit.
 
 ## [1.17.3] - 2026-09-26
 

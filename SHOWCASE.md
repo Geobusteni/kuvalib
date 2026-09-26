@@ -313,15 +313,17 @@ full-width bar. From 768px wide up it holds, in order:
 - **Download** — the showcase's photos as a ZIP of originals (when downloads are enabled)
 - **Help** (?) — opens the **Legend**, a small panel listing every control with its icon, name and
   a one-line explanation (plus, on computers, the keyboard shortcuts). Escape, a tap outside or
-  its Close button dismisses it; while it is open the bar stays visible in fullscreen
+  its Close button dismisses it; while it is open the bar stays visible in fullscreen. A first-time
+  visitor sees the **?** button beat slowly (a soft scale and ring, 2.4 s a beat, at most 15 beats
+  per page load) until they open the Legend once; with reduced motion it shows a still dot instead
 - **Language** — a single button showing the current code (EN / RO); tap to switch
 
 On a computer, resting the pointer on (or tabbing to) any of these icon buttons shows a small
 tip with its name. Touch screens have no hover, which is what the Legend is for.
 
-Below 768px the pill holds only a **More** (⋯) button (the page counter stays on the left);
+Below 768px the pill holds only a **?** (Help) button and a **More** (⋯) button (the page counter stays on the left);
 Play / Pause slideshow, Music (play / pause, or mute / unmute when it autostarts), Gallery,
-Thumbnails, Fullscreen, Copy link, Download, Help and Language are all rows in the More menu, each
+Thumbnails, Fullscreen, Copy link, Download, Help (a duplicate of the pill's ?, so it is easy to reach and to notice) and Language are all rows in the More menu, each
 at least 44px tall. Play / Pause and Music toggle in place and keep the menu open so the new state
 (the row's label and `aria-pressed`) is visible; every other row closes it. The menu is a plain
 disclosure (`aria-expanded`): it opens with focus on its first item, Escape or a tap outside

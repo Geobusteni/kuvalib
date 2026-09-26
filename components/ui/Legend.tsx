@@ -30,6 +30,7 @@ export function LegendButton({
   onClick,
   buttonRef,
   className,
+  attention,
   iconSize,
   iconStrokeWidth,
 }: {
@@ -38,6 +39,8 @@ export function LegendButton({
   onClick: () => void
   buttonRef: RefObject<HTMLButtonElement | null>
   className: string
+  /** Draws a new visitor's eye: a slow, capped beat (a static marker under reduced motion). */
+  attention?: boolean
   iconSize?: number
   iconStrokeWidth?: number
 }) {
@@ -51,7 +54,8 @@ export function LegendButton({
       aria-controls={controls}
       aria-haspopup="dialog"
       onClick={onClick}
-      className={className}
+      data-attention={attention && !open ? '' : undefined}
+      className={`${className} help-hint`}
     >
       <HelpIcon size={iconSize} strokeWidth={iconStrokeWidth} />
     </button>

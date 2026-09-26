@@ -8,13 +8,36 @@ export type FeedbackType = 'LIKE' | 'DISLIKE' | 'COMMENT'
 const VISITOR_ID_KEY = 'kuvalib:visitorId'
 const FEEDBACK_KEY_PREFIX = 'kuvalib:feedback:'
 
+// localStorage can throw (Safari private mode, storage disabled, in-app webviews) or be full.
+// Values are also kept in memory so the gallery keeps working for the rest of the page load.
+const memory = new Map<string, string>()
+
+function readStored(key: string): string | null {
+  try {
+    const value = localStorage.getItem(key)
+    if (value !== null) return value
+  } catch {
+    // fall through to memory
+  }
+  return memory.get(key) ?? null
+}
+
+function writeStored(key: string, value: string) {
+  memory.set(key, value)
+  try {
+    localStorage.setItem(key, value)
+  } catch {
+    // kept in memory only
+  }
+}
+
 // One id per browser, reused across every project it visits — not per-project.
 export function getVisitorId(): string {
   if (typeof window === 'undefined') return ''
-  let id = localStorage.getItem(VISITOR_ID_KEY)
+  let id = readStored(VISITOR_ID_KEY)
   if (!id) {
     id = crypto.randomUUID()
-    localStorage.setItem(VISITOR_ID_KEY, id)
+    writeStored(VISITOR_ID_KEY, id)
   }
   return id
 }
@@ -34,7 +57,7 @@ function storageKey(projectId: string) {
 // what lets a visitor who already reacted before the reset react again after.
 export function loadFeedbackState(projectId: string, serverResetAt: string): LocalFeedbackState {
   if (typeof window === 'undefined') return { resetAt: serverResetAt, photos: {} }
-  const raw = localStorage.getItem(storageKey(projectId))
+  const raw = readStored(storageKey(projectId))
   if (!raw) return { resetAt: serverResetAt, photos: {} }
   try {
     const parsed = JSON.parse(raw) as LocalFeedbackState
@@ -55,7 +78,7 @@ export function recordFeedback(
     resetAt: serverResetAt,
     photos: { ...state.photos, [photoId]: { type } },
   }
-  localStorage.setItem(storageKey(projectId), JSON.stringify(next))
+  writeStored(storageKey(projectId), JSON.stringify(next))
   return next
 }
 
@@ -72,6 +95,6 @@ export function clearFeedback(
   const photos = { ...state.photos }
   delete photos[photoId]
   const next: LocalFeedbackState = { resetAt: serverResetAt, photos }
-  localStorage.setItem(storageKey(projectId), JSON.stringify(next))
+  writeStored(storageKey(projectId), JSON.stringify(next))
   return next
 }

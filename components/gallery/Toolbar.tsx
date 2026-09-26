@@ -9,6 +9,7 @@ import LanguageSwitcher from '@/components/ui/LanguageSwitcher'
 import { LegendButton } from '@/components/ui/Legend'
 import Tooltip from '@/components/ui/Tooltip'
 import { ArchiveIcon, SelectIcon, SlideshowIcon } from '@/components/ui/icons'
+import { useHelpHint } from '@/hooks/useHelpHint'
 import { useLegend } from '@/hooks/useLegend'
 import GalleryLegend from './GalleryLegend'
 
@@ -55,6 +56,7 @@ export default function Toolbar({
   const tt = useTranslations('legend')
   const legendId = useId()
   const legend = useLegend()
+  const help = useHelpHint('gallery')
 
   return (
     <div className="sticky top-0 z-30 bg-black/80 pb-1 pl-[max(1rem,env(safe-area-inset-left))] pr-[max(1rem,env(safe-area-inset-right))] pt-[max(0.5rem,env(safe-area-inset-top))] backdrop-blur-sm md:static md:bg-transparent md:pb-0 md:pr-56 md:pt-5 md:backdrop-blur-none">
@@ -87,8 +89,12 @@ export default function Toolbar({
             <LegendButton
               open={legend.open}
               controls={legendId}
-              onClick={legend.toggle}
+              onClick={() => {
+                help.markSeen()
+                legend.toggle()
+              }}
               buttonRef={legend.triggerRef}
+              attention={help.hint}
               className={iconButtonClass}
             />
           </Tooltip>

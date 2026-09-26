@@ -161,6 +161,13 @@ title-and-button pair.
   block's base weight.
 - **Border** (Image and Button blocks) — style (solid / dashed / dotted), a width slider (0–10px,
   starting at 0) with a number field next to it for typing a wider value directly, and colour.
+- **Framing** (Image blocks) — a **focus point** and a **zoom**. Click or drag on the photo preview
+  (or use the Horizontal / Vertical sliders, which work with the keyboard) to choose the part of the
+  photo that stays in view when the block crops it; the bright rectangle in the preview is what the
+  block shows. **Zoom** runs from 100% to 300% in steps of 5 and never goes below 100%, because
+  100% is the fit that already fills the block: the photo can be zoomed in, never out, so no gap
+  can appear at any block size. Zooming keeps the focus point where it is. Both have a Reset.
+  Older albums (no focus or zoom saved) look exactly as before.
 - **Ken Burns** (Image blocks) — a slow pan/zoom while the image is on screen: none, zoom in, or
   slide left/right/up/down. **Speed** is a range in seconds, capped to the page's autoplay
   interval when autoplay is on (so the effect never gets cut off mid-motion). The border and

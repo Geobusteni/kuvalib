@@ -10,6 +10,14 @@ adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html). While the
 
 ## [Unreleased]
 
+### Added
+
+- **Focus point and zoom for showcase Image blocks.** In the block's settings, click or drag on the
+  photo preview (or use the Horizontal and Vertical sliders) to choose which part of the photo stays
+  in view when the block crops it, and zoom in from 100% to 300%. The photo always fills the block,
+  so the zoom never goes below 100%. It works together with Ken Burns. Existing albums look the same
+  until you use it.
+
 ## [1.18.0] - 2026-09-26
 
 ### Added

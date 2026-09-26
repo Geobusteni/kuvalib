@@ -6,6 +6,9 @@
 import { useEditor } from '@craftjs/core'
 import { useTranslations } from 'next-intl'
 import {
+  BUTTON_FONT_DEFAULT,
+  BUTTON_FONT_MAX,
+  BUTTON_FONT_MIN,
   clamp,
   type Block,
   type BlockAlign,
@@ -29,6 +32,7 @@ import { usePhotos } from '../photos-context'
 import { useBuilder } from './useBuilder'
 import { ImageFramingField } from './ImageFramingField'
 import { PresetSwatchRow } from './PresetSwatchRow'
+import { ShadowFields } from './ShadowFields'
 import { useBlockTypeLabel } from './useBlockTypeLabel'
 
 const RADII: BlockRadius[] = ['none', 'md', 'pill']
@@ -661,6 +665,26 @@ export function SettingsPanel() {
               onChange={(v) => update({ style: v })}
             />
           </Field>
+          <Field label={t('buttonFontSize')}>
+            <div className="flex items-center gap-2">
+              <NumberField
+                value={block.fontSize}
+                onChange={(v) => update({ fontSize: v })}
+                min={BUTTON_FONT_MIN}
+                max={BUTTON_FONT_MAX}
+                placeholder={String(BUTTON_FONT_DEFAULT)}
+              />
+              {block.fontSize !== undefined && (
+                <button
+                  type="button"
+                  onClick={() => update({ fontSize: undefined })}
+                  className="flex min-h-11 shrink-0 items-center px-2 text-[11px] text-zinc-400 underline"
+                >
+                  {t('reset')}
+                </button>
+              )}
+            </div>
+          </Field>
           <BorderField value={block} onChange={update} />
         </>
       )}
@@ -726,78 +750,11 @@ export function SettingsPanel() {
                   className="w-full"
                 />
               </label>
-              <label className="text-[11px] text-zinc-400">
-                {t('shadowBlur', { value: block.shadow ?? 0 })}
-                <input
-                  type="range"
-                  min={0}
-                  max={40}
-                  value={block.shadow ?? 0}
-                  onChange={(e) => update({ shadow: parseInt(e.target.value, 10) })}
-                  className="w-full"
-                />
-              </label>
-              {(block.shadow ?? 0) > 0 && (
-                <>
-                  <div className="grid grid-cols-2 gap-2">
-                    <label className="text-[11px] text-zinc-400">
-                      {t('offsetX', { value: block.shadowOffsetX ?? 0 })}
-                      <input
-                        type="range"
-                        min={-40}
-                        max={40}
-                        value={block.shadowOffsetX ?? 0}
-                        onChange={(e) => update({ shadowOffsetX: parseInt(e.target.value, 10) })}
-                        className="w-full"
-                      />
-                    </label>
-                    <label className="text-[11px] text-zinc-400">
-                      {t('offsetY', { value: block.shadowOffsetY ?? Math.round((block.shadow ?? 0) / 2) })}
-                      <input
-                        type="range"
-                        min={-40}
-                        max={40}
-                        value={block.shadowOffsetY ?? Math.round((block.shadow ?? 0) / 2)}
-                        onChange={(e) => update({ shadowOffsetY: parseInt(e.target.value, 10) })}
-                        className="w-full"
-                      />
-                    </label>
-                  </div>
-                  <label className="text-[11px] text-zinc-400">
-                    {t('spread', { value: block.shadowSpread ?? 0 })}
-                    <input
-                      type="range"
-                      min={-20}
-                      max={20}
-                      value={block.shadowSpread ?? 0}
-                      onChange={(e) => update({ shadowSpread: parseInt(e.target.value, 10) })}
-                      className="w-full"
-                    />
-                  </label>
-                  <div className="flex flex-col gap-1">
-                    <input
-                      type="color"
-                      value={block.shadowColor ?? '#000000'}
-                      onChange={(e) => update({ shadowColor: e.target.value })}
-                      className="h-8 w-full cursor-pointer rounded"
-                    />
-                    <PresetSwatchRow presets={colorPresets} onPick={(hex) => update({ shadowColor: hex })} />
-                    <label className="text-[11px] text-zinc-400">
-                      {t('opacity', { value: block.shadowAlpha ?? 100 })}
-                      <input
-                        type="range"
-                        min={0}
-                        max={100}
-                        value={block.shadowAlpha ?? 100}
-                        onChange={(e) => update({ shadowAlpha: parseInt(e.target.value, 10) })}
-                        className="w-full"
-                      />
-                    </label>
-                  </div>
-                </>
-              )}
+              <ShadowFields value={block} onChange={update} />
             </>
           )}
+
+          {isButton && <ShadowFields value={block} onChange={update} />}
 
           {showTextColor && (
             <Field label={t('textColour')}>

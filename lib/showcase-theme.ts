@@ -11,6 +11,7 @@
 import type { CSSProperties } from 'react'
 import type { ShowcaseEventType, ShowcaseBg } from './generated/prisma/client'
 import {
+  BUTTON_FONT_DEFAULT,
   GOOGLE_FONTS,
   HEADING_SIZE_DEFAULTS,
   TEXT_SIZE_DEFAULTS,
@@ -100,7 +101,6 @@ export function fluidFontPx(px: number, floor: number): string {
 /** Smallest rendered size per role, in px. */
 const HEADING_FLOOR: Record<HeadingLevel, number> = { 1: 22, 2: 20, 3: 18, 4: 16, 5: 15, 6: 14 }
 export const TEXT_FLOOR = 14
-export const BUTTON_FONT_PX = 15
 
 export function blockRadiusCss(radius: BlockRadius | undefined): string {
   return radius === 'md' ? fluidPx(8) : radius === 'pill' ? '999px' : '0px'
@@ -154,7 +154,7 @@ export function blockFontSizeCss(
   return fluidFontPx(textSizes?.[preset] ?? TEXT_SIZE_DEFAULTS[preset], floor)
 }
 
-/** `box-shadow`, or 'none' when there's nothing to draw (group blocks only).
+/** `box-shadow`, or 'none' when there's nothing to draw (group and button blocks).
  *  `shadow` (blur radius) is the on/off switch — 0 means no shadow at all,
  *  matching the panel's "Shadow — 0px" slider. Offset/spread default to the
  *  values this function always used before they were separately editable
@@ -170,6 +170,11 @@ export function blockShadowCss(
   const spread = block.shadowSpread ?? 0
   const color = withAlpha(block.shadowColor || '#000000', block.shadowAlpha)
   return `${fluidPx(offsetX)} ${fluidPx(offsetY)} ${fluidPx(blur)} ${fluidPx(spread)} ${color}`
+}
+
+/** Button label size: the block's own `fontSize`, else the historical 15px. */
+export function blockButtonFontSizeCss(block: Pick<Block, 'fontSize'>): string {
+  return fluidFontPx(block.fontSize ?? BUTTON_FONT_DEFAULT, TEXT_FLOOR)
 }
 
 /** Bold/italic/underline toggles on a Headline/Text block, independent of

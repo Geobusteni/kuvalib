@@ -374,10 +374,9 @@ export function BlockShell({
           outlineOffset: '-1px',
           borderRadius: blockRadiusCss(block.radius),
           // A shadow renders outside the box, so it lives here, on the
-          // unclipped outer content div — the group's own background/blur
-          // clip on the inner div below instead, or the shadow would be cut
-          // off with them.
-          boxShadow: isGroup ? blockShadowCss(block) : undefined,
+          // unclipped outer content div — a group's own background/blur and a
+          // button's own overflow clip inside it, or the shadow would be cut.
+          boxShadow: isGroup || block.type === 'button' ? blockShadowCss(block) : undefined,
           ...contentStyle,
         }}
       >

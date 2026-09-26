@@ -14,11 +14,9 @@ import {
   blockFontStyleCss,
   blockRadiusCss,
   blockTextColorCss,
-  BUTTON_FONT_PX,
-  fluidFontPx,
+  blockButtonFontSizeCss,
   fluidPx,
   googleFontFamilyCss,
-  TEXT_FLOOR,
 } from '@/lib/showcase-theme'
 import { useKenBurnsMin, type ShowcasePhoto } from './photos-context'
 
@@ -196,7 +194,7 @@ export function BlockContent({
       alignItems: 'center',
       justifyContent: 'center',
       textAlign: 'center',
-      fontSize: fluidFontPx(BUTTON_FONT_PX, TEXT_FLOOR),
+      fontSize: blockButtonFontSizeCss(block),
       fontWeight: 600,
       textDecoration: 'none',
       boxSizing: 'border-box',

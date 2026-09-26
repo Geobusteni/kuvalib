@@ -52,7 +52,7 @@ export function BlockRenderer({
           borderRadius: blockRadiusCss(block.radius),
           // A shadow renders outside the box, so it lives on this outer,
           // unclipped wrapper — the inner one below clips the blur/background.
-          boxShadow: isGroup ? blockShadowCss(block) : undefined,
+          boxShadow: isGroup || block.type === 'button' ? blockShadowCss(block) : undefined,
         }
         return (
           <div key={block.id} className={`sc-block sc-block-${block.type}`} style={outerStyle}>

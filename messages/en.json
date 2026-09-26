@@ -501,6 +501,7 @@
       "effect": "Effect",
       "speed": "Speed — {value}s",
       "blur": "Blur (glass effect) — {value}px",
+      "buttonFontSize": "Font size (px at full width, 10–72)",
       "shadowBlur": "Shadow blur — {value}px (0 = off)",
       "offsetX": "Offset X — {value}px",
       "offsetY": "Offset Y — {value}px",

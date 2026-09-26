@@ -24,6 +24,10 @@ export type TextSizePreset = 'small' | 'normal' | 'medium' | 'large' | 'huge'
 /** Image blocks only — a slow pan/zoom while the image is on screen. */
 export type KenBurns = 'none' | 'zoom-in' | 'slide-left' | 'slide-up' | 'slide-down' | 'slide-right'
 
+/** Button label size, px at a full-width frame. */
+export const BUTTON_FONT_DEFAULT = 15
+export const BUTTON_FONT_MIN = 10
+export const BUTTON_FONT_MAX = 72
 export const IMAGE_SCALE_MIN = 100
 export const IMAGE_SCALE_MAX = 300
 
@@ -45,7 +49,7 @@ export interface Block {
   bgGradientAngle?: number
   /** group only — backdrop-filter blur in px, for a glass effect over a photo. */
   blur?: number
-  /** group only — CSS box-shadow, split into its parts. `shadow` is the blur
+  /** group and button — CSS box-shadow, split into its parts. `shadow` is the blur
    *  radius and doubles as the on/off switch (0 = none, matching the panel's
    *  "Shadow — 0px" slider); the rest default sensibly when unset so older
    *  data (saved before these existed) still renders the same soft shadow it
@@ -88,7 +92,8 @@ export interface Block {
   level?: HeadingLevel
   /** text only — a preset keyed into the album's Text sizes setting. */
   textSize?: TextSizePreset
-  /** title / text — px override; wins over the level/preset default. */
+  /** title / text — px override; wins over the level/preset default. Button —
+   *  label size in px at a full-width frame (unset = BUTTON_FONT_DEFAULT). */
   fontSize?: number
   /** title / text — style toggles, independent of each other. */
   bold?: boolean
@@ -486,6 +491,15 @@ export function hexColor(value: unknown): string | undefined {
  * and unknown keys are dropped. Group children recurse one level (a group never
  * contains a group).
  */
+function sanitizeShadow(r: Record<string, unknown>, block: Block): void {
+  if (Number.isFinite(r.shadow)) block.shadow = num(r.shadow, 0, 0, 60)
+  block.shadowColor = hexColor(r.shadowColor) ?? '#000000'
+  if (Number.isFinite(r.shadowAlpha)) block.shadowAlpha = num(r.shadowAlpha, 100, 0, 100)
+  if (Number.isFinite(r.shadowOffsetX)) block.shadowOffsetX = num(r.shadowOffsetX, 0, -60, 60)
+  if (Number.isFinite(r.shadowOffsetY)) block.shadowOffsetY = num(r.shadowOffsetY, 0, -60, 60)
+  if (Number.isFinite(r.shadowSpread)) block.shadowSpread = num(r.shadowSpread, 0, -20, 40)
+}
+
 export function sanitizeBlock(raw: unknown, depth = 0): Block | null {
   if (!raw || typeof raw !== 'object') return null
   const r = raw as Record<string, unknown>
@@ -523,12 +537,7 @@ export function sanitizeBlock(raw: unknown, depth = 0): Block | null {
 
   if (type === 'group') {
     if (Number.isFinite(r.blur)) block.blur = num(r.blur, 0, 0, 40)
-    if (Number.isFinite(r.shadow)) block.shadow = num(r.shadow, 0, 0, 60)
-    block.shadowColor = hexColor(r.shadowColor) ?? '#000000'
-    if (Number.isFinite(r.shadowAlpha)) block.shadowAlpha = num(r.shadowAlpha, 100, 0, 100)
-    if (Number.isFinite(r.shadowOffsetX)) block.shadowOffsetX = num(r.shadowOffsetX, 0, -60, 60)
-    if (Number.isFinite(r.shadowOffsetY)) block.shadowOffsetY = num(r.shadowOffsetY, 0, -60, 60)
-    if (Number.isFinite(r.shadowSpread)) block.shadowSpread = num(r.shadowSpread, 0, -20, 40)
+    sanitizeShadow(r, block)
   }
 
   if (type === 'image') {
@@ -564,6 +573,8 @@ export function sanitizeBlock(raw: unknown, depth = 0): Block | null {
     block.borderStyle = pick(r.borderStyle, BORDER_STYLES, 'none')
     block.borderWidth = num(r.borderWidth, 0, 0, 20)
     block.borderColor = hexColor(r.borderColor) ?? '#ffffff'
+    if (Number.isFinite(r.fontSize)) block.fontSize = num(r.fontSize, BUTTON_FONT_DEFAULT, BUTTON_FONT_MIN, BUTTON_FONT_MAX)
+    sanitizeShadow(r, block)
   }
   if (type === 'group') {
     const kids = Array.isArray(r.children) ? r.children : []

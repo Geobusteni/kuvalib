@@ -501,6 +501,7 @@
       "effect": "Efect",
       "speed": "Viteză — {value} s",
       "blur": "Estompare (efect de sticlă) — {value}px",
+      "buttonFontSize": "Dimensiunea fontului (px la lățime completă, 10–72)",
       "shadowBlur": "Estompare umbră — {value}px (0 = oprită)",
       "offsetX": "Decalaj X — {value}px",
       "offsetY": "Decalaj Y — {value}px",

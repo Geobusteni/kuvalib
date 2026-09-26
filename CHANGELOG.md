@@ -10,6 +10,12 @@ adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html). While the
 
 ## [Unreleased]
 
+### Added
+
+- **Font size and shadow for showcase Button blocks.** Set the label size (10–72 px at full width,
+  scaling with the page like other text) and a drop shadow (blur, offset, spread, colour, opacity)
+  in the button's settings. Existing buttons look exactly as before.
+
 ## [1.19.0] - 2026-09-26
 
 ### Changed

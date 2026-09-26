@@ -154,7 +154,7 @@ title-and-button pair.
   an adjustable angle.
 - **Blur** (Group only) — a backdrop blur behind the group, for a glass-panel effect over a
   photo.
-- **Shadow** (Group only) — a drop shadow behind the group's box: blur, offset X, offset Y,
+- **Shadow** (Group and Button) — a drop shadow behind the block's box: blur, offset X, offset Y,
   spread, colour and an opacity slider (0–100 %, so the shadow can be as faint as you like) — the same controls as CSS `box-shadow`. Blur is the on/off switch (0 turns
   it off); the offset/spread fields only appear once it's on. The border/corners stay crisp; only
   the shadow is soft.
@@ -163,6 +163,10 @@ title-and-button pair.
   a photo.
 - **Style** (Headline and Text) — bold, italic, underline, any combination, independent of the
   block's base weight.
+- **Font size** (Button only) — the label size in px at full width (10–72, blank = 15, the
+  original size), with a **Reset** link. It scales with the page and has the same 14 px floor as
+  Text, exactly like Headline/Text sizes above. A label too long for the block wraps and is clipped
+  by the block's box, as before, so enlarge the block or shorten the label.
 - **Border** (Image and Button blocks) — style (solid / dashed / dotted), a width slider (0–10px,
   starting at 0) with a number field next to it for typing a wider value directly, and colour.
 - **Framing** (Image blocks) — a **focus point** and a **zoom**. Click or drag on the photo preview

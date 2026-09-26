@@ -265,6 +265,15 @@ Do not add anything outside this scope unless explicitly requested.
   and returns focus to "?"; a tap outside, focus leaving it, or Close also closes it; keys
   pressed inside never reach the page's shortcuts. A card under the header on phones, anchored
   under the pill from `md`. Add a Legend row whenever you add or change an icon-only action
+- **New-visitor hint:** until a visitor has opened a surface's Legend, its "?" beats slowly
+  (`.help-hint[data-attention]` in `app/globals.css`: 2.4 s, scale 1 to 1.12 plus an expanding ring,
+  capped at 15 iterations, CSS only, `prefers-reduced-motion: no-preference` only; under reduced
+  motion a static dot replaces it). `hooks/useHelpHint.ts` owns the flag per surface (`gallery` /
+  `slideshow`): localStorage `kuvalib:helpSeen:<surface>`, cookie `kuvalib_help_seen_<surface>`
+  fallback (script-set, 1 year, iOS ITP caps it at 7 days), in-memory last resort; all storage
+  access is try/catch and read after mount via `useSyncExternalStore` (no hydration mismatch).
+  Any activation of a "?" (or the More menu's Help row) calls `markSeen()`. No live regions; the
+  accessible name never changes
 
 ### Gallery — Selection Mode
 
@@ -344,13 +353,14 @@ hidden entirely rather than offered with nothing behind it.
   advances.
 - Top bar: page counter, **Gallery link** (back to `/g/<id>`), music toggle (only with tracks), autoplay toggle, thumbnail-rail
   toggle, fullscreen (hidden where unsupported), copy-link, download, compact language button.
-  Below `md` the pill holds only a "More" disclosure containing every control (autoplay and
+  Below `md` the pill holds a "?" and a "More" disclosure containing every control (autoplay and
   music toggles keep it open, the rest close it), and the dots become a "3 / 10" counter, so nothing overlaps at any width. In fullscreen the
   bar auto-hides after ~3 s and returns on activity (an open Legend keeps it visible).
   Toasts clear themselves after ~3 s.
 - Every icon-only bar button has the shared hover/focus **Tooltip**. A **"?"** button opens the
   same **Legend** as the gallery's: inline in the pill from `md`; below `md` it is a "Help and
-  legend" row in the More menu (the pill stays at More only). The panel is a card
+  legend" row in the More menu *and* a second "?" sits in the pill beside More (44x44, gets the
+  new-visitor hint); both open the same panel. The panel is a card
   under the pill; Escape closes it and returns focus to whichever of "?" / More is on screen,
   without exiting fullscreen or firing the viewer's shortcuts.
 - Background music starts only from the music toggle (browsers block autoplay audio); the

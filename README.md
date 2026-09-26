@@ -276,7 +276,10 @@ same keys.
 - **Lightbox on desktop** — arrow keys move, `F` toggles fullscreen, `D` opens the download options for the photo you are viewing, `Escape` closes
 - **Not sure what a button does?** On a computer, hover over it for a tip. On any device, tap
   the **?** button (gallery header, and the slideshow's top bar or its More menu) for a Legend
-  that explains every button, gesture and shortcut
+  that explains every button, gesture and shortcut. The first time you visit a gallery or a
+  slideshow the **?** button beats slowly to catch your eye (still dot with reduced motion) until you
+  open it once; on phones the slideshow also has the **?** right beside the ⋯ menu. The "seen" flag
+  is kept in the browser (local storage, with a cookie fallback; iOS Safari may forget it after 7 days)
 
 ### Keyboard shortcuts
 

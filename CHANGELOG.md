@@ -10,6 +10,16 @@ adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html). While the
 
 ## [Unreleased]
 
+### Added
+
+- **The help button now introduces itself to new visitors.** The first time someone opens a gallery
+  or a slideshow, the **?** button beats slowly (about 15 gentle beats, then it stops) so they
+  find the Legend before exploring; it stops for good once they open it. People who prefer reduced
+  motion see a still dot on the button instead. The gallery and the slideshow remember this
+  separately. On phones the slideshow's top bar now has the **?** next to the ⋯ menu (the Help row
+  stays in the menu too). Browsers that forget the setting (private mode, iOS Safari after about a
+  week) simply show the hint again.
+
 ## [1.17.3] - 2026-09-26
 
 ### Fixed

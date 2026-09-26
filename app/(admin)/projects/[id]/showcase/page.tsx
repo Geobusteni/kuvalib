@@ -16,6 +16,7 @@ import {
   type HeadingLevel,
   type TextSizePreset,
 } from '@/lib/showcase-blocks'
+import { listCustomIcons } from '@/lib/custom-icons'
 import { ShowcaseBuilder } from '@/components/showcase/builder/ShowcaseBuilder'
 
 type Props = { params: Promise<{ id: string }> }
@@ -47,6 +48,7 @@ export default async function ShowcaseBuilderPage({ params }: Props) {
   if (!showcase) redirect(`/projects/${id}`)
 
   const photos = await listPhotos(id)
+  const customIcons = await listCustomIcons()
 
   return (
     <ShowcaseBuilder
@@ -89,6 +91,8 @@ export default async function ShowcaseBuilderPage({ params }: Props) {
       shareUrl={`/s/${showcase.id}`}
       downloadEnabled={project.dlEnabled}
       passwordProtected={project.accessType === 'PASSWORD'}
+      customIcons={customIcons}
+      canManageIcons={session.role === 'ADMIN'}
     />
   )
 }

@@ -3,7 +3,8 @@
 
 import type { RefObject } from 'react'
 
-const FOCUSABLE = 'a[href], button:not([disabled]), [tabindex]:not([tabindex="-1"])'
+const FOCUSABLE =
+  'a[href], button:not([disabled]), input:not([disabled]), textarea:not([disabled]), select:not([disabled]), [tabindex]:not([tabindex="-1"])'
 
 // Keeps Tab/Shift+Tab cycling within a dialog's focusable elements without
 // ever losing keyboard position or trapping focus outside of the dialog.

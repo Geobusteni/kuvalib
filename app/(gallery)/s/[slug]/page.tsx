@@ -10,6 +10,7 @@ import { getShowcaseById, pageSettingsFromRow } from '@/lib/showcase'
 import { verifyGalleryAccess } from '@/lib/gallery-auth'
 import { toShowcasePhoto } from '@/lib/photo-data'
 import {
+  collectIconIds,
   collectPhotoIds,
   HEADING_SIZE_DEFAULTS,
   TEXT_SIZE_DEFAULTS,
@@ -17,8 +18,10 @@ import {
   type HeadingLevel,
   type TextSizePreset,
 } from '@/lib/showcase-blocks'
+import { loadIconLibrary } from '@/lib/custom-icons'
 import AccessGate from '@/components/gallery/AccessGate'
 import { ShowcaseViewer } from '@/components/showcase/viewer/ShowcaseViewer'
+import { IconsProvider } from '@/components/showcase/icons-context'
 
 type Props = { params: Promise<{ slug: string }> }
 
@@ -62,8 +65,10 @@ export default async function ShowcasePage({ params }: Props) {
     settings: pageSettingsFromRow(p),
   }))
   const usedPhotoIds = new Set(collectPhotoIds(pages))
+  const icons = await loadIconLibrary(collectIconIds(pages))
 
   return (
+    <IconsProvider library={icons}>
     <ShowcaseViewer
       projectId={project.id}
       expiresAt={project.expiresAt ? new Date(project.expiresAt).toISOString() : null}
@@ -101,5 +106,6 @@ export default async function ShowcasePage({ params }: Props) {
       downloadEnabled={project.dlEnabled}
       passwordProtected={project.accessType === 'PASSWORD'}
     />
+    </IconsProvider>
   )
 }

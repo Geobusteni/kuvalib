@@ -589,8 +589,7 @@
       "defaultButtonLabel": "Button"
     },
     "stage": {
-      "pageStatus": "Page {current} of {total}",
-      "panHint": "Swipe sideways to see the whole page"
+      "pageStatus": "Page {current} of {total}"
     },
     "nav": {
       "previousPage": "Previous page",
@@ -639,7 +638,7 @@
         "download": "Downloads the album's photos as a ZIP file.",
         "language": "Switches the page between English and Romanian.",
         "gallery": "Goes to this album's photo gallery, where you can view and download every photo.",
-        "more": "Gallery, thumbnails, fullscreen, copy link, download and language are inside this menu."
+        "more": "Play or pause the slideshow, music, gallery, thumbnails, fullscreen, copy link, download and language are all inside this menu."
       },
       "pages": {
         "heading": "Moving between pages",
@@ -650,7 +649,7 @@
       },
       "narrow": {
         "heading": "On narrow screens",
-        "more": "Thumbnails, fullscreen, copy link, download and language are inside this menu."
+        "more": "Play or pause the slideshow, music, gallery, thumbnails, fullscreen, copy link, download and language are all inside this menu."
       },
       "keyboard": {
         "heading": "Keyboard",

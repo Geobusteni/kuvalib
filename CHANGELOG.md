@@ -10,6 +10,24 @@ adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html). While the
 
 ## [Unreleased]
 
+### Changed
+
+- **Slideshow pages shrink on phones instead of panning.** On a narrow, tall screen (under 1024 px
+  wide and taller than 16:10) the page is shown as a whole 16:10 frame, centred with the album
+  background above and below, like a letterboxed film: the layout, photos and text are a
+  miniature of the desktop page, nothing is cut and nothing scrolls sideways. The sideways-swipe
+  hint is gone. On phones the previous / next arrows sit below the page.
+- **The whole top bar is inside the More menu on phones.** Play / Pause slideshow and Music moved
+  into it (they stay open after toggling so you see the new state); the bar shows only the page
+  counter and the More button.
+- The thumbnail strip is always drawn above the slideshow's arrows and page, and below the expiry
+  strip.
+
+### Fixed
+
+- Turning to another page yourself (arrows, keys, dots, thumbnails) now restarts the slideshow's
+  countdown, so it no longer moves on again a moment later.
+
 ## [1.16.0] - 2026-09-26
 
 ### Added

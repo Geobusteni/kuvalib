@@ -15,10 +15,11 @@ import {
   HelpIcon,
   MoreIcon,
   PlayPauseIcon,
+  SpeakerIcon,
   ThumbnailsIcon,
 } from '@/components/ui/icons'
 import { useLegend } from '@/hooks/useLegend'
-import { MusicControls, type MusicControlsProps } from './MusicControls'
+import { MusicControls, useMusicToggle, type MusicControlsProps } from './MusicControls'
 import ShowcaseLegend from './ShowcaseLegend'
 import { ViewerLanguage } from './ViewerLanguage'
 
@@ -39,8 +40,8 @@ const menuBtn =
  * The top bar. The left slot (`children`, the page indicator) takes whatever
  * room the right group leaves, so the two can never overlap. From `md` up the
  * secondary actions sit inline; below it they fold into a "More" disclosure so
- * the row never outgrows a 240px phone. Autoplay and music stay in reach at
- * every width. Space/Enter on any control belong to that control, so they are
+ * the row never outgrows a 240px phone. Every control, autoplay and music included, sits
+ * in that menu below `md`, so the pill holds only the More button. Space/Enter on any control belong to that control, so they are
  * kept from the viewer's window-level shortcuts (Space = play/pause).
  */
 export function ViewerControls({
@@ -94,6 +95,15 @@ export function ViewerControls({
     onLegendOpenChange(legendOpen)
   }, [legendOpen, onLegendOpenChange])
   const panelRef = useRef<HTMLDivElement>(null)
+  const musicToggle = useMusicToggle(
+    music ?? {
+      autoStarted: false,
+      playing: false,
+      onTogglePlaying: () => {},
+      muted: false,
+      onToggleMuted: () => {},
+    },
+  )
 
   const closeMenu = (restoreFocus: boolean) => {
     setOpen(false)
@@ -175,7 +185,7 @@ export function ViewerControls({
               {t('backToEditor')}
             </a>
           )}
-          <Tooltip label={autoplay ? t('pauseSlideshow') : t('playSlideshow')}>
+          <Tooltip label={autoplay ? t('pauseSlideshow') : t('playSlideshow')} className="max-md:hidden">
             <button
               type="button"
               aria-label={autoplay ? t('pauseSlideshow') : t('playSlideshow')}
@@ -186,7 +196,11 @@ export function ViewerControls({
               <PlayPauseIcon playing={autoplay} />
             </button>
           </Tooltip>
-          {music && <MusicControls {...music} className={inlineBtn} />}
+          {music && (
+            <div className="hidden md:block">
+              <MusicControls {...music} className={inlineBtn} />
+            </div>
+          )}
 
           <div className="hidden items-center gap-0.5 md:flex">
             <Tooltip label={t('gallery')}>
@@ -263,6 +277,26 @@ export function ViewerControls({
               <a href={backHref} className={menuBtn}>
                 {t('backToEditor')}
               </a>
+            )}
+            <button
+              type="button"
+              aria-pressed={autoplay}
+              onClick={onToggleAutoplay}
+              className={menuBtn}
+            >
+              <PlayPauseIcon playing={autoplay} className="shrink-0" />
+              {autoplay ? t('pauseSlideshow') : t('playSlideshow')}
+            </button>
+            {music && (
+              <button
+                type="button"
+                aria-pressed={musicToggle.pressed}
+                onClick={musicToggle.onClick}
+                className={menuBtn}
+              >
+                <SpeakerIcon waves={musicToggle.waves} className="shrink-0" />
+                {musicToggle.label}
+              </button>
             )}
             <a href={galleryHref} className={menuBtn}>
               <GalleryIcon className="shrink-0" />

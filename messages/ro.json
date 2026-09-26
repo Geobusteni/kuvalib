@@ -589,8 +589,7 @@
       "defaultButtonLabel": "Buton"
     },
     "stage": {
-      "pageStatus": "Pagina {current} din {total}",
-      "panHint": "Trage lateral pentru a vedea toată pagina"
+      "pageStatus": "Pagina {current} din {total}"
     },
     "nav": {
       "previousPage": "Pagina anterioară",
@@ -639,7 +638,7 @@
         "download": "Descarcă fotografiile albumului într-un fișier ZIP.",
         "language": "Schimbă limba paginii între engleză și română.",
         "gallery": "Te duce la galeria foto a acestui album, unde poți vedea și descărca toate fotografiile.",
-        "more": "Galeria, miniaturile, ecranul complet, copierea linkului, descărcarea și limba sunt în acest meniu."
+        "more": "Pornirea sau oprirea prezentării, muzica, galeria, miniaturile, ecranul complet, copierea linkului, descărcarea și limba sunt toate în acest meniu."
       },
       "pages": {
         "heading": "Trecerea de la o pagină la alta",
@@ -650,7 +649,7 @@
       },
       "narrow": {
         "heading": "Pe ecrane înguste",
-        "more": "Miniaturile, ecranul complet, copierea linkului, descărcarea și limba sunt în acest meniu."
+        "more": "Pornirea sau oprirea prezentării, muzica, galeria, miniaturile, ecranul complet, copierea linkului, descărcarea și limba sunt toate în acest meniu."
       },
       "keyboard": {
         "heading": "Tastatură",

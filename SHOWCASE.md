@@ -40,7 +40,8 @@ levels, Text presets, a custom size, and the padding, corner radius, shadow and 
 them) is the size **at full width**: a page 1280 px wide or wider shows exactly that. A narrower
 page scales it down in proportion, so a 68 px headline is 34 px on a 640 px page. Text never
 drops below a readable floor (Headlines 22 px for H1 down to 14 px for H6; Text and Button labels
-14 px) and never grows past the size you set; a size you set below its floor stays as set. The
+14 px) and never grows past the size you set; a size you set below its floor stays as set. (The
+letterboxed phone layout below drops the floors so text shrinks exactly with the page.) The
 builder canvas is narrower than a real screen, so text looks proportionally smaller there than
 in the viewer; that is expected, and Preview shows the real result.
 
@@ -286,11 +287,16 @@ A page is exactly its blocks, shown as you laid them out. The viewer is full-wid
 the whole browser window rather than sitting in a centred content column, so the photography
 gets all the available space.
 
-**On a narrow screen the page pans instead of squeezing.** The page is never laid out narrower
-than 640 px. On a phone in portrait (or any window under 640 px wide) the page keeps that width,
-starts at its left edge (where text begins), and can be dragged sideways with a finger; a short hint says so and fades after a
-few seconds. The page still fills the screen's height, and arrows, keys, dots and the thumbnail
-rail change pages as usual. Phones in landscape (about 640 px and wider) show the whole page.
+**On a narrow, tall screen the page shrinks like a film.** When the viewer area is under
+1024 px wide and taller than 16:10 (a phone in portrait, a tablet held upright, a narrow
+window) the page is shown as a fixed 16:10 frame, as wide as the screen and centred vertically,
+with the album's background above and below - exactly the layout of the builder canvas, just
+smaller. Every block keeps its position and proportions, nothing is cut, and nothing scrolls
+sideways. Text scales with the frame with no readable minimum in this mode (it shrinks exactly
+like the picture, so it can never overflow its block). Phones held sideways and wide windows
+(16:10 or wider, or 1024 px and up) keep the page filling the whole viewer area, with the
+readable text minimums. In the letterboxed layout the previous / next arrows sit in the empty
+band below the page rather than over it.
 
 **Controls** float as one compact pill in the top-right corner, over the photo, instead of a
 full-width bar. From 768px wide up it holds, in order:
@@ -313,8 +319,11 @@ full-width bar. From 768px wide up it holds, in order:
 On a computer, resting the pointer on (or tabbing to) any of these icon buttons shows a small
 tip with its name. Touch screens have no hover, which is what the Legend is for.
 
-Below 768px only Autoplay, Music and a **More** (⋯) button remain in the pill; Gallery, Thumbnails,
-Fullscreen, Copy link, Download, Help and Language move into the More menu. The menu is a plain
+Below 768px the pill holds only a **More** (⋯) button (the page counter stays on the left);
+Play / Pause slideshow, Music (play / pause, or mute / unmute when it autostarts), Gallery,
+Thumbnails, Fullscreen, Copy link, Download, Help and Language are all rows in the More menu, each
+at least 44px tall. Play / Pause and Music toggle in place and keep the menu open so the new state
+(the row's label and `aria-pressed`) is visible; every other row closes it. The menu is a plain
 disclosure (`aria-expanded`): it opens with focus on its first item, Escape or a tap outside
 closes it, and Escape puts focus back on the More button without also exiting fullscreen.
 Space and Enter on a control activate that control and never trigger the viewer's Space shortcut.

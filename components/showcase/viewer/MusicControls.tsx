@@ -24,24 +24,34 @@ export interface MusicControlsProps {
  *  - Music isn't autoplaying: a play/pause toggle only — nothing to mute
  *    until it's actually making sound.
  */
-export function MusicControls({
+export function useMusicToggle({
   autoStarted,
   playing,
   onTogglePlaying,
   muted,
   onToggleMuted,
-  className,
-}: MusicControlsProps & { className: string }) {
+}: MusicControlsProps) {
   const t = useTranslations('showcaseViewer.music')
-  const label = autoStarted ? (muted ? t('unmute') : t('mute')) : playing ? t('pause') : t('play')
-  const waves = autoStarted ? !muted : playing
+  return {
+    label: autoStarted ? (muted ? t('unmute') : t('mute')) : playing ? t('pause') : t('play'),
+    waves: autoStarted ? !muted : playing,
+    pressed: autoStarted ? muted : playing,
+    onClick: autoStarted ? onToggleMuted : onTogglePlaying,
+  }
+}
+
+export function MusicControls({
+  className,
+  ...music
+}: MusicControlsProps & { className: string }) {
+  const { label, waves, pressed, onClick } = useMusicToggle(music)
   return (
     <Tooltip label={label}>
       <button
         type="button"
         aria-label={label}
-        aria-pressed={autoStarted ? muted : playing}
-        onClick={autoStarted ? onToggleMuted : onTogglePlaying}
+        aria-pressed={pressed}
+        onClick={onClick}
         className={className}
       >
         <SpeakerIcon waves={waves} />

@@ -251,7 +251,7 @@ Do not add anything outside this scope unless explicitly requested.
 - **Expiry strip:** when the project has an expiry date, a fixed, click-through strip (black,
   translucent, topmost) sits at the bottom of the gallery and the slideshow with the date and days
   left. It publishes its height as `--expiry-bar-h`; anything anchored to the bottom (footer,
-  thumbnail rail, lightbox bar, dialogs, pan hint) must offset by it
+  thumbnail rail, lightbox bar, dialogs) must offset by it
 - Footer, below the grid: two buttons, **Show slideshow** and **Download ZIP archive**, each shown
   only when it exists
 - Icon-only buttons show a **tooltip** on hover / keyboard focus (`components/ui/Tooltip.tsx`,
@@ -327,20 +327,26 @@ hidden entirely rather than offered with nothing behind it.
 - A page is exactly its blocks, rendered as laid out (WYSIWYG) — no separate chapter/photo
   abstraction.
 - Pixel sizes (text, padding, radius, shadow, blur) are the size at a 1280 px wide frame and scale
-  down with the frame via container query units, with per-role minimums; the frame is never
-  narrower than 640 px, and a narrower screen pans it sideways natively.
+  down with the frame via container query units, with per-role minimums. Below 1024 px wide on a
+  stage taller than 16:10 the frame is a contained, centred 16:10 box (letterboxed like a film,
+  never panned or cut) and the minimums are dropped so text scales purely with the frame.
+- Stacking, back to front: slideshow elements (blocks, arrows) < thumbnail rail < top bar and
+  toasts < expiry strip. The stage is its own stacking context, so nothing in it can paint over
+  the rail.
+- Any manual page change (arrows, keys, dots, thumbnails) restarts the autoplay countdown from
+  full; the timer only runs while no transition is in flight.
 - Page transition is one of turn / fade / zoom (Album settings). All of it is gated by
   `prefers-reduced-motion`; with motion reduced the page swaps instantly and autoplay still
   advances.
 - Top bar: page counter, **Gallery link** (back to `/g/<id>`), music toggle (only with tracks), autoplay toggle, thumbnail-rail
   toggle, fullscreen (hidden where unsupported), copy-link, download, compact language button.
-  Below `md` only autoplay and music stay in the bar; the rest fold into a "More" disclosure
-  and the dots become a "3 / 10" counter, so nothing overlaps at any width. In fullscreen the
+  Below `md` the pill holds only a "More" disclosure containing every control (autoplay and
+  music toggles keep it open, the rest close it), and the dots become a "3 / 10" counter, so nothing overlaps at any width. In fullscreen the
   bar auto-hides after ~3 s and returns on activity (an open Legend keeps it visible).
   Toasts clear themselves after ~3 s.
 - Every icon-only bar button has the shared hover/focus **Tooltip**. A **"?"** button opens the
   same **Legend** as the gallery's: inline in the pill from `md`; below `md` it is a "Help and
-  legend" row in the More menu (the pill stays at autoplay / music / More). The panel is a card
+  legend" row in the More menu (the pill stays at More only). The panel is a card
   under the pill; Escape closes it and returns focus to whichever of "?" / More is on screen,
   without exiting fullscreen or firing the viewer's shortcuts.
 - Background music starts only from the music toggle (browsers block autoplay audio); the

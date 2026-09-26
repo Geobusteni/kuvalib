@@ -206,9 +206,12 @@ Do not add anything outside this scope unless explicitly requested.
 
 - Create one showcase per project (a designed, page-by-page slideshow built from that project's
   photos), from a button on the project page
-- Build it on a canvas: add pages; add Cover / Image / Title / Text / Button / Group blocks;
+- Build it on a canvas: add pages; add Cover / Image / Title / Text / Button / Icon / Group blocks;
   drag and resize them; group blocks and arrange a group's children; pick a photo, edit text,
   wire a button to a URL / the ZIP download / the gallery; set per-block colour and corners
+- Icons: a built-in library (vendored Lucide subset) plus admin-uploaded custom SVGs, used by a
+  standalone **Icon** block (optionally linked like a Button) and an **Icon option on the Button**
+  block (left/right of the label, or icon-only). Never inside Title or Text blocks
 - Album settings: title, date, event type (accent hue), background, page-transition style,
   autoplay + seconds per page
 - Upload a background-music playlist (MP3/M4A/OGG/WAV), toggle looping
@@ -331,6 +334,8 @@ hidden entirely rather than offered with nothing behind it.
 - A group's "Arrange children" actions (stack, align) **never overlap or clip** the children:
   they re-sequence along one axis with a fixed gap, then shrink every child together if the run
   does not fit, down to a per-type minimum.
+- An **Icon** block (top level or a group child) draws one icon scaled to fit its box; it is
+  decorative unless it links or carries a label. Icons are never added to Title/Text blocks.
 - A **Cover** is not a block type — it inserts a full-bleed Image plus a Group of Title / Text /
   Button(`gallery`). Every piece is then an ordinary, individually editable block.
 - The deck autosaves; there is also an explicit Save.

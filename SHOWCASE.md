@@ -99,7 +99,8 @@ one, and a group's children are indented under it, in that same back-to-front or
 | **Image** | One photo. Pick it from the project's photos in the settings panel. |
 | **Headline** | A heading — H1 through H6, editable text, alignment. |
 | **Text** | A paragraph. Editable text, alignment. |
-| **Button** | A labelled button. Links to a custom URL, to the ZIP download, or back to the gallery. |
+| **Button** | A labelled button. Links to a custom URL, to the ZIP download, or back to the gallery. Can carry an icon (see below). |
+| **Icon** | One icon from the icon library, on its own (see below). |
 | **Group** | A positioning container for other blocks (see below). |
 
 - **Click** a block to select it — the settings panel fills in.
@@ -143,7 +144,7 @@ title-and-button pair.
   together if the group is too small, down to a minimum size.
 - **Align in group** (in the panel, when a block *inside* a group is selected): snaps that one
   block to the group's left, centre, or right.
-- **Add inside this group** adds a Headline / Text / Button straight into the selected group.
+- **Add inside this group** adds a Headline / Text / Button / Icon straight into the selected group.
 - Dragging a block over a group only re-parents it if the group is at least half that block's
   own area — a small caption group sitting in front of a full-bleed cover image can't
   accidentally swallow the image behind it.
@@ -152,17 +153,17 @@ title-and-button pair.
 
 ### Appearance
 
-- **Corners** — Text, Button and Group blocks: square, rounded, or pill.
-- **Background** — Text, Button and Group blocks: none, a surface tone, a deep tone, an accent
+- **Corners** — Text, Button, Icon and Group blocks: square, rounded, or pill.
+- **Background** — Text, Button, Icon and Group blocks: none, a surface tone, a deep tone, an accent
   tint, solid accent, a custom colour with an opacity slider, or a two-colour **gradient** with
   an adjustable angle.
 - **Blur** (Group only) — a backdrop blur behind the group, for a glass-panel effect over a
   photo.
-- **Shadow** (Group and Button) — a drop shadow behind the block's box: blur, offset X, offset Y,
+- **Shadow** (Group, Button and Icon) — a drop shadow behind the block's box: blur, offset X, offset Y,
   spread, colour and an opacity slider (0–100 %, so the shadow can be as faint as you like) — the same controls as CSS `box-shadow`. Blur is the on/off switch (0 turns
   it off); the offset/spread fields only appear once it's on. The border/corners stay crisp; only
   the shadow is soft.
-- **Text colour** — Text and Button: default, accent, muted, or a custom colour with an opacity
+- **Text colour** — Text and Button (called **Icon colour** on an Icon block): default, accent, muted, or a custom colour with an opacity
   slider. **Headline text is always solid** — same swatches, no opacity, so it stays legible over
   a photo.
 - **Style** (Headline and Text) — bold, italic, underline, any combination, independent of the
@@ -171,7 +172,7 @@ title-and-button pair.
   original size), with a **Reset** link. It scales with the page and has the same 14 px floor as
   Text, exactly like Headline/Text sizes above. A label too long for the block wraps and is clipped
   by the block's box, as before, so enlarge the block or shorten the label.
-- **Border** (Image and Button blocks) — style (solid / dashed / dotted), a width slider (0–10px,
+- **Border** (Image, Button and Icon blocks) — style (solid / dashed / dotted), a width slider (0–10px,
   starting at 0) with a number field next to it for typing a wider value directly, and colour.
 - **Framing** (Image blocks) — a **focus point** and a **zoom**. Click or drag on the photo preview
   (or use the Horizontal / Vertical sliders, which work with the keyboard) to choose the part of the
@@ -216,9 +217,38 @@ page's** own appearance instead of a block's:
   behind its blocks.
 - A page's content always clips at its own edges — nothing bleeds past the page frame.
 
+### Button icon
+
+A Button has an optional **Icon**, chosen with the icon picker (**No icon** removes it). Once one is
+chosen, **Icon position** puts it to the left or right of the label. The icon is 1.15 times the
+label's size, so it grows and shrinks with the **Font size**, takes the label's colour, and sits
+0.5 em from the text, the pair centred in the button. A long label wraps and clips exactly as
+before. Empty the **Label** for an **icon-only** button: screen readers then announce the
+**Accessible name** you type, or the icon's own name (a custom icon without a typed name is
+announced as "Button"). With a label the icon is decorative. Headline and Text blocks have no icon
+option; use an Icon block next to them.
+
+### Icon block
+
+**+ Add block, Icon** places a square icon (default: a heart) that can sit on the canvas or inside
+a Group. Settings:
+
+- **Icon** — the picker; built-in or your own.
+- **Stroke width** — 1 to 4 in halves (default 2). Built-in icons only; a custom icon keeps the
+  stroke it was drawn with.
+- **Link** — *No link* (default), *Custom URL*, *ZIP archive* or *Back to gallery*, working like a
+  Button's (see below). A linked icon is a real link or button with a visible focus ring.
+- **Accessible name** — what screen readers announce. A linked icon with no name is announced by the
+  icon's own name. An unlinked icon with no name is decorative and hidden from screen readers.
+- **Icon colour** (with opacity for a custom colour), **Corners**, **Background**, **Border** and
+  **Shadow**, the same controls as the Button.
+
+The glyph is drawn at 84 % of the block's smaller side, centred, so the block can be resized to any
+shape and the icon stays square. It can be made as small as 4 % of the page.
+
 ### Button links
 
-A Button's **Link** setting decides what it does in the viewer:
+A Button's (or a linked Icon's) **Link** setting decides what it does in the viewer:
 
 - **Custom URL** — opens the address you enter (http/https only) in a new tab.
 - **ZIP archive** — opens the download dialog (the showcase's photos, as originals). Only works
@@ -382,8 +412,8 @@ pan/zoom are dropped — pages change instantly and autoplay still advances. Not
 
 ## Icons
 
-The showcase has an icon library, chosen with the **icon picker** (used by the blocks that get an
-icon option). It offers about 230 built-in icons (a curated subset of Lucide) grouped in
+The showcase has an icon library, chosen with the **icon picker** (used by the Icon block and the
+Button's icon option). It offers about 230 built-in icons (a curated subset of Lucide) grouped in
 categories, searchable by name and keyword (English, and Romanian for common ones), and a **My
 icons** tab for your own.
 
@@ -398,7 +428,8 @@ icons** tab for your own.
   Only administrators can add or delete; anyone building can pick.
 
 Icons are stored as `lucide:<name>` or `custom:<id>` on a block (`icon` field), rendered by
-`ShowcaseIcon` in the block's text colour.
+`ShowcaseIcon` in the block's text colour. The public page loads only the icons a showcase's
+blocks (and buttons) reference; an icon that no longer exists simply draws nothing.
 
 ## For developers
 

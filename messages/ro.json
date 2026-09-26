@@ -329,7 +329,8 @@
       "title": "Titlu",
       "text": "Text",
       "button": "Buton",
-      "group": "Grup"
+      "group": "Grup",
+      "icon": "Pictogramă"
     },
     "options": {
       "radius": {
@@ -338,6 +339,7 @@
         "pill": "Capsulă"
       },
       "linkType": {
+        "none": "Fără legătură",
         "custom": "URL propriu",
         "zip": "Arhivă ZIP",
         "gallery": "Înapoi la galerie"
@@ -405,7 +407,11 @@
         "DEEP": "Închis",
         "ACCENT": "Nuanță de accent"
       },
-      "headingLevel": "H{level}"
+      "headingLevel": "H{level}",
+      "iconPosition": {
+        "left": "Stânga",
+        "right": "Dreapta"
+      }
     },
     "canvas": {},
     "addBlockMenu": {
@@ -530,7 +536,16 @@
       "imageScale": "Mărire — {value}%",
       "imageScaleHint": "100% este minimul: fotografia umple mereu blocul, deci poți doar să o mărești.",
       "resetScale": "Resetează mărirea",
-      "minSlideTimer": "Cel puțin {seconds} s: temporizatorul diapozitivului ({timer} s) plus 1 s, ca efectul să dureze mai mult decât diapozitivul."
+      "minSlideTimer": "Cel puțin {seconds} s: temporizatorul diapozitivului ({timer} s) plus 1 s, ca efectul să dureze mai mult decât diapozitivul.",
+      "icon": "Pictogramă",
+      "iconPosition": "Poziția pictogramei",
+      "iconLabel": "Nume accesibil",
+      "iconOnlyHint": "Butonul nu are text, deci cititoarele de ecran anunță acest nume. Lasă gol pentru a folosi numele pictogramei.",
+      "iconStroke": "Grosimea liniei — {value}",
+      "iconStrokeHint": "Se aplică doar pictogramelor încorporate; o pictogramă proprie păstrează grosimea cu care a fost desenată.",
+      "iconLabelHintDecorative": "Descrie pictograma pentru cititoarele de ecran. Dacă rămâne gol, pictograma este tratată ca decor.",
+      "iconLabelHintLinked": "Numește legătura pentru cititoarele de ecran. Dacă rămâne gol, se folosește numele pictogramei.",
+      "iconColour": "Culoarea pictogramei"
     },
     "albumSettings": {
       "title": "Setări album",
@@ -647,7 +662,8 @@
     },
     "block": {
       "pickPhoto": "Alege o fotografie",
-      "defaultButtonLabel": "Buton"
+      "defaultButtonLabel": "Buton",
+      "defaultIconLabel": "Pictogramă"
     },
     "stage": {
       "pageStatus": "Pagina {current} din {total}"

@@ -254,7 +254,7 @@ move to the other without signing in again.
 
 **Create showcase** in the project's **Showcase** section opens the builder. Full guide:
 **[SHOWCASE.md](./SHOWCASE.md)**. It includes an icon library (built-in icons plus your own
-uploaded SVGs, admin only); after upgrading, apply the new `CustomIcon` table with the update
+uploaded SVGs, admin only) used by the **Icon** block and the Button's icon option; after upgrading, apply the new `CustomIcon` table with the update
 script or `npx prisma migrate deploy`.
 
 ### Language

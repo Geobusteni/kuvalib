@@ -14,8 +14,14 @@ adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html). While the
 
 - **Icon library for showcases.** About 230 built-in icons (a curated subset of Lucide: hearts,
   cameras, gifts, contact, arrows, and more) plus your own SVG icons, chosen with a new icon picker
-  (search, categories, keyboard and touch friendly). Nothing in the builder uses icons yet; the
-  Icon block and the button icon option build on this.
+  (search, categories, keyboard and touch friendly).
+- **Icon block.** A new block in the Add menu (and inside groups) that draws one icon, scaled to fit
+  its box. Choose the icon, its stroke width, colour and opacity, background, corners, border and
+  shadow. It can link like a Button (custom URL, ZIP download, back to the gallery); a linked icon is
+  a real link with an accessible name, and an unlinked one is hidden from screen readers.
+- **Icon on buttons.** A Button can show an icon to the left or right of its label, sized with the
+  font size. Empty the label for an icon-only button, named for screen readers by the name you type
+  (or the icon's own name). Headlines and Text blocks do not take icons; use an Icon block.
 - **Your own SVG icons.** Paste SVG code or choose an `.svg` file in the picker's "My icons" tab, give
   it a name and save. Only simple shapes are accepted (path, circle, rect, line, polyline, polygon,
   ellipse, group) at up to 20 KB and 200 icons; anything else (scripts, images, gradients, comments,

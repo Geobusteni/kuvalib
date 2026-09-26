@@ -329,7 +329,8 @@
       "title": "Headline",
       "text": "Text",
       "button": "Button",
-      "group": "Group"
+      "group": "Group",
+      "icon": "Icon"
     },
     "options": {
       "radius": {
@@ -338,6 +339,7 @@
         "pill": "Pill"
       },
       "linkType": {
+        "none": "No link",
         "custom": "Custom URL",
         "zip": "ZIP archive",
         "gallery": "Back to gallery"
@@ -405,7 +407,11 @@
         "DEEP": "Deep",
         "ACCENT": "Accent tint"
       },
-      "headingLevel": "H{level}"
+      "headingLevel": "H{level}",
+      "iconPosition": {
+        "left": "Left",
+        "right": "Right"
+      }
     },
     "canvas": {},
     "addBlockMenu": {
@@ -530,7 +536,16 @@
       "imageScale": "Zoom — {value}%",
       "imageScaleHint": "100% is the minimum: the photo always fills the block, so you can only zoom in.",
       "resetScale": "Reset zoom",
-      "minSlideTimer": "At least {seconds}s: the slide timer ({timer}s) plus 1s, so the effect outlasts each slide."
+      "minSlideTimer": "At least {seconds}s: the slide timer ({timer}s) plus 1s, so the effect outlasts each slide.",
+      "icon": "Icon",
+      "iconPosition": "Icon position",
+      "iconLabel": "Accessible name",
+      "iconOnlyHint": "The button has no text, so screen readers announce this name. Leave empty to use the icon’s own name.",
+      "iconStroke": "Stroke width — {value}",
+      "iconStrokeHint": "Applies to built-in icons only; a custom icon keeps the stroke it was drawn with.",
+      "iconLabelHintDecorative": "Describes the icon for screen readers. Left empty, the icon is treated as decoration.",
+      "iconLabelHintLinked": "Names the link for screen readers. Left empty, the icon’s own name is used.",
+      "iconColour": "Icon colour"
     },
     "albumSettings": {
       "title": "Album settings",
@@ -647,7 +662,8 @@
     },
     "block": {
       "pickPhoto": "Pick a photo",
-      "defaultButtonLabel": "Button"
+      "defaultButtonLabel": "Button",
+      "defaultIconLabel": "Icon"
     },
     "stage": {
       "pageStatus": "Page {current} of {total}"
